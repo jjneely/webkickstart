@@ -312,12 +312,58 @@ part /var/cache --size 1024
 
     def xconfig(self):
         # Define the xconf line
-        xtable = self.getKeys('enable', 'nox')
+        noXTable = self.getKeys('enable', 'nox')
 
-        if len(xtable) > 0:
+        if len(noXTable) > 0:
             retval = "skipx\n"
         else:
-            retval = 'xconfig --hsync 31.5-80.0 --vsync 50-90 --startxonboot --resolution "1280x1024" --depth 24\n'
+            xTable = self.getKeys('xconfig')
+
+            # The default settings
+            xDefaults = {'--hsync':      '31.5-80.0',
+                         '--vsync':      '50-90',
+                         '--resolution': '"1280x1024"',
+                         '--depth':      '24'}
+
+            # Keys that don't have values
+            other = ['--startxonboot']
+
+            if len(xTable) > 1:
+                raise errors.ParseError("xconfig key found multiple times")
+            elif len(xTable) == 1:
+                # Keys that are valid for xconfig
+                validXKeys = ['--noprobe',
+                              '--card',
+                              '--videoram',
+                              '--monitor',
+                              '--hsync',
+                              '--vsync',
+                              '--defaultdesktop',
+                              '--startxonboot',
+                              '--resolution',
+                              '--depth']
+
+                # Parse out the options
+                if len(xTable[0]['options']) >= 2:
+                    key = None
+                    for item in xTable[0]['options']:
+                        if item[0:2] == '--':
+                            if key != None:
+                                other.append(key)
+                                key = None
+                            else:
+                                key = item
+                        elif key in validXKeys:
+                            xDefaults[key] = item
+                            key = None
+                        else:
+                            raise errors.ParseError('invalid key in xconfig: %s' % (key))
+
+            # Make a string from the dictionary and list
+            retval = 'xconfig'
+            for key in xDefaults.keys():
+                retval += ' %s %s' % (key, xDefaults[key])
+            retval += ' ' + ' '.join(other) + '\n'
 
         return retval
 
