@@ -154,16 +154,16 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
 
 
     def firewall(self):
-        firewalltable = self.getKeys('firewall')
-        firewallstatus = self.getKeys('enable', 'nofirewall')
-                                                                                
+        firewalltable = self.checkKey(0, 1000, 'firewall')
+        firewallstatus = self.checkKey(0, 0, 'enable', 'nofirewall')
+
         ret = "firewall --medium --ssh --dhcp --port=afs3-callback:tcp, afs3-callback:udp, afs3-errors:tcp, afs3-errors:udp\n"
-                                                                                
-        if len(firewallstatus) > 0:
+
+        if firewallstatus != None:
             ret = "firewall --diabled\n"
-        elif len(firewalltable) > 0:
-            ret = "firewall %s\n" % (ret, string.join(row['options']))
-                                                                                
+        elif firewalltable != None:
+            ret = "firewall %s\n" % string.join(firewalltable)
+
         return ret
 
 
