@@ -29,7 +29,7 @@ MD% Crypt.
         
     users <user list>
 
-Optional.  This is a list of admin users for the Linux Relam Kit box.
+Optional.  This is a list of admin users for the Linux Realm Kit box.
 These user names are added to /etc/users.local, /root/.klogin, and
 /etc/sudoers.  Only put people here if you want them to have root
 access.  The default list is taken out of AFS based on the machine's
@@ -110,7 +110,7 @@ Enable Style Services
 
 Optional.  Configure the domain from which email sent from this
 machine should look like it is coming from.  The default is
-unity.ncsu.edu.  Leave the option out to disable mail masqurading.
+unity.ncsu.edu.  Leave the option out to disable mail masquerading.
 
     enable receivemail
 
@@ -150,7 +150,7 @@ separated via whitespace.
  
     enable notmpclean
 
-Optional.  Disables tmpwatch.  Not recommened.
+Optional.  Disables tmpwatch.  Not recommend.
 
     enable nox
 
@@ -159,7 +159,7 @@ installer and must be configure manually after installation.
 
     enable 3bmouse
 
-Optional.  Confugre mouse for 3 buttons.  The default os a generic 2
+Optional.  Configure mouse for 3 buttons.  The default is a generic 2
 button ps/2.
 
     enable noreinstall 
