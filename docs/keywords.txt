@@ -27,15 +27,6 @@ Optional.  Sets the department for the machine.  Default is PAMS.
 Optional.  Sets the root password to the password represented by the
 MD5 Crypt.
         
-    adminusers <user list>
-
-Optional.  This is a list of admin users for the Linux Realm Kit box.
-These user names are added to /etc/users.local, /root/.klogin, and
-/etc/sudoers.  Only put people here if you want them to have root
-access.  This keyword is to add extra admins to the machine.  The
-lists from AFS (based on the 'users' key) will be added as well.  
-User IDs are delimited with whitespace.
-
     owner <owner>
 
 Optional.  Take one option which should be a valid email address.  All 
@@ -104,11 +95,10 @@ REQUIRED.  This key specifies what version of the Linux Realm Kit to
 install.  Currently, the options are: 
 
     7.3
-    8.0
     9
     default  
     
-The "default" option should install the latest stable version (7.3)
+The "default" option should install the latest stable version (9)
 where the numeric option will install the Linux Realm Kit based off 
 of that version of Red Hat Linux.
 
@@ -208,4 +198,10 @@ received.  There's a -u option to check.py to work with this as well.
 Optional.  Does not replaced the MBR with the bootloader.  Instead the
 bootloader is placed in the boot partition which is normally /boot.
 
+    enable adminusers <user list>
+
+Optional.  Replaces the functionality of the original 'users' key in this
+web-kickstart system.  This key takes a space delimited list of NCSU
+user IDs and adds them to the user lists pulled from AFS that are placed
+in /etc/users.local, /etc/sudoers, and /root/.klogin.
 

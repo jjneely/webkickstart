@@ -448,7 +448,7 @@ rm -f cdboot.img
 
     def admins(self):
         # admin users
-        userstable = self.getKeys('adminusers')
+        userstable = self.getKeys('enable', 'adminusers')
         lusertable = self.getKeys('enable', 'normalusers')
         dept = self.getDept()
         users = []
@@ -458,13 +458,12 @@ rm -f cdboot.img
             raise errors.ParseError("Multiple users keys found")
         if len(lusertable) > 1:
             raise errors.ParseError("Multiple localuser keys found")
-        if len(userstable) == 0:
-            tmp = self.pullUsers(dept)
-            admin = string.split(tmp)
-        else:
+        tmp = self.pullUsers(dept)
+        admin = string.split(tmp)
+        if len(userstable) != 0:
             if len(userstable[0]['options']) == 0:
                 raise errors.ParseError("users key requires arguments")
-            admin = userstable[0]['options']
+            admin.extend(userstable[0]['options'])
 
         if len(lusertable) == 1:
             if len(lusertable[0]['options']) == 0:

@@ -85,49 +85,10 @@ Systems with Multiple Ethernet Cards this Image Uses eth0</li>
 after I released it to public testing.  These changes are also
 documented in the <a href="docs/keywords.txt">keywords.txt</a> file or
 their relivant place.</p>
-<ul>
-<li>Glaring bugs in the check.py script are fixed.</li>
-<li>The docs for the 'use' keyword have been cleared up a bit.  Need
-to be carefull about current directories and paths.</li>
-<li>Implemented including scripts in the config files after a '%post'
-key.  See the examples above.</li>
-<li>Completely changed how mouse configuration is done.  This now
-works with all types of mice that the Red Hat Kickstart stuff knows
-of.  See the docs.</li>
-<li>Added support for the 8.0 RK.  The version string is "8.0".</li>
-<li>02/14/03 - 
-Moved the Debug Tool to a WRAP'd directory that's served from 
-secure.linux.ncsu.edu to protect the information while you are debuging.</li>
-<li>02/14/03 - 
-We do not send a default kickstart anymore if there is no config
-file.  You must have a config file.</li>
-<li>02/14/03 - 
-Moved to permanent location in AFS.</li>
-<li>04/14/03 - 
-Added support for the NCSU Realm Kit for Red Hat Linux 9 AKA Shreak.  The
-version string is "9".</li>
-<li>04/24/03 -
-Added RK 9 boot CD.</li>
-<li>05/08/03 -
-Added "enable safepartition" key and changed the default size of /var/cache
-to 512MB, /var to 390 and /boot to 75.  I've also added a new option to the src key and changed the
-default to that option of "http" which installs from install.linux.ncsu.edu.</li>
-<li>06/05/03 -
-Added "enable keepmbr" which doesn't overwrite the MBR with the bootloader.
-The bootloader is placed in the boot partition (/boot).</li>
-<li>06/20/03 -
-Implemented "owner" key.  Fixed % handling so that anything after a line
-beginning with "%" is included, including that % line.  This makes adding
-%post, %pre, etc a bit more useful as you can pass options to them.  Fixed 
-case where the use keyword is used more than once.  Fixed the growing URL problem when the Reinstall Workstation boot option is used.</li>
-<li>08/26/03 -
-RAID and LVM support for versions 9 and higher.  The part, raid, volgroup,
-and logvol keys are all used just as you would use them in a Red Hat
-Kickstart.  An example provided.</li>
-<li>09/02/03 -
-Check for and only serve a kickstart to Anaconda not just any HTTP client.
-Web-kickstart installs are now logged into a MySQL database.</li>
-</ul>
+
+<p>The <a href="changelog.phtml">Change Log</a> has grown quite a bit so 
+I've moved it to its own page.
+Please keep up with the systems as it grows and changes.</p>
 
 <h2>Debuging Tool</h2>
 <p>
