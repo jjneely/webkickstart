@@ -367,6 +367,7 @@ part /var/cache --size 1024
         firewalltable = self.getKeys('firewall')
         firewallstatus = self.getKeys('enable', 'nofirewall')
 
+        ret = ""
 
         if len(firewallstatus) > 0:
             ret = "firewall --diabled\n"
