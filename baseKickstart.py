@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# exceptions.py -- handles some custom exceptions
+# baseKickstart.py -- class to generate a kickstart from a solarisConfig
 #
 # Copyright, 2002 Jack Neely <slack@quackmaster.net>
 #
@@ -18,12 +18,4 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-class ParseError(StandardError):
-	
-	def __init__(self, value="A parse error has occured."):
-		self.value = value
-		
-	def __str__(self):
-		return self.value
-		
-
+from solarisConfig import solarisConfig
