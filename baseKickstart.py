@@ -521,7 +521,10 @@ rm /etc/pam.d/login~\n
         # Make sure %post from the top level config is last
         if len(scriptlist) > 1:
             post = post + string.join(scriptlist[1:], "\n")
-        post = post + "\n" + scriptlist[0]
+
+        # Check if we have any posys at all
+        if len(scriptlist) == 0:
+            post = post + "\n" + scriptlist[0]
 
         return post
 
