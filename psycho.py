@@ -26,3 +26,18 @@ class psycho(baseKickstart.baseKickstart):
 
     version = "8.0"
         
+    def packages(self):
+        # Do the packages section of the KS.
+        # The default package groups changed in RK8.0 so we overload this
+        # function.
+        packagetable = self.getKeys('package')
+
+        if len(packagetable) == 0:
+            return "%packages\n@ NCSU Realm Kit Workstation\n"
+        else:
+            retval = "%packages\n"
+            for package in packagetable:
+                tmp = string.join(package['options'])
+                retval = "%s%s\n" % (retval, tmp)
+
+            return retval
