@@ -63,6 +63,7 @@ href="examples/rk-test3.pams.ncsu.edu">rk-test3.pams.ncsu.edu</a> - An
 example.</li>
 <li><a href="examples/script1">script1</a> - config file included by
 the above config file.</li>
+<li><a href="examples/lvm">LVM</a> - A short example on using LVM.</li>
 </ul>
 
 <h3>Disk Image</h3>
@@ -119,6 +120,10 @@ Implemented "owner" key.  Fixed % handling so that anything after a line
 beginning with "%" is included, including that % line.  This makes adding
 %post, %pre, etc a bit more useful as you can pass options to them.  Fixed 
 case where the use keyword is used more than once.  Fixed the growing URL problem when the Reinstall Workstation boot option is used.</li>
+<li>08/26/03 -
+RAID and LVM support for versions 9 and higher.  The part, raid, volgroup,
+and logvol keys are all used just as you would use them in a Red Hat
+Kickstart.  An example provided.</li>
 </ul>
 
 <h2>Debuging Tool</h2>
