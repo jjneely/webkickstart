@@ -367,14 +367,12 @@ part /var/cache --size 1024
         firewalltable = self.getKeys('firewall')
         firewallstatus = self.getKeys('enable', 'nofirewall')
 
-        ret = ""
+        ret = "firewall --medium --ssh --dhcp\n"
 
         if len(firewallstatus) > 0:
             ret = "firewall --diabled\n"
         elif len(firewalltable) > 0:
-            ret = ""
-            for row in firewalltable:
-                ret = "%sfirewall %s\n" % (ret, string.join(row['options']))
+            ret = "firewall %s\n" % (ret, string.join(row['options']))
 
         return ret
 
