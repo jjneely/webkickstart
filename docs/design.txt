@@ -1,0 +1,49 @@
+How did they teach us to make a design back in Software Engineering?  I
+forget.  So lets talk about the functionality and various classes that
+play into this idea.
+
+Goals:  Make an automated install system for the NCSU Realm Kit for Red
+        Hat Linux that is similar to the solaris kit installs.
+
+* A system that will fit into the DRP
+* A system that takes a minimal learning curve to install boxes
+* A system that can utilize kickstarts
+   - Hopefully this will give people the chance to start learning ks
+* All local data must be reproducible from data stored in AFS
+* Handle multiple versions of the RK
+* Serve out http based kickstarts
+
+Functionality modules:
+
+* config file parser == solarisConfig
+* kickstart generator == baseKickstart
+* mod_python web code
+* Server/DB back end
+* cli utility to generate kickstart and check config files
+
+solarisConfig:
+* responcible for parsing into tokens a solaris-ish config file
+* can tell version of RK to install
+* can make keys and options avalible in a sane manner to be used by the
+  generator
+* can tell if config file is actually a kickstart
+
+baseKickstart:
+* capable of generating kickstarts using a solarisConfig
+* is to be subclassed to handle slight differences in kickstarts
+  in different versions of RHL
+
+mod_python web code:
+* is capable of determining IP of incoming request.  
+* If a known host generate its ks and return it
+* If unknown host generate a default ks and return it
+
+Server/DB back end:
+* reads all configs and can determine IP/hostname
+* stores IP/hostname and filename of config in DB for web code
+
+cli tool:
+* can check config file for validity
+* can generate kickstart for user to verify
+
+
