@@ -57,7 +57,9 @@ class webKickstart:
                 version = sc.getVersion()
                 generator = versionMap[version](self.url, sc)
             else:
-                generator = versionMap['default'](self.url)
+                # disable the default, no-config file, generic kickstart
+                # generator = versionMap['default'](self.url)
+                return (1, "# No config file for host " + host)
                 
             retval = generator.makeKS()
             return (0, retval)
