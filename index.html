@@ -27,12 +27,28 @@ instalation.</p>
 
 <h2>Documentation</h2>
 
-<p>Its documentation.  Of course its in progress.  More information to
-come as things get written.</p>
+<p>This system is desinged to generate a <a
+href="http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/ch-kickstart2.html">Red
+Hat Linux Kickstart</a> to install the <a
+href="http://www.linux.ncsu.edu/realmkit">NCSU Realm Kit for Red Hat
+Linux</a>.  A config file can be used to customize the kickstart that
+is delivered.  There are two ways to produce a config file.  A normal
+kickstart file can be used or a Jump Start style config file can also
+be used.  The files must be named the same as the target computers
+hostname.  Files must be placed under the following directory:</p>
+ 
+<tt>/ncsu/jjneely/web-kickstart/configs</tt>.
 
-<p>This system will send out a very generic kickstart to clients that
-have not been otherwise configured.  The default is very functional
-but there are a few things you will want to customize.</p>
+<p>The following links are to documentation of a bit more detail.</p>
+<ul>
+<li><a href="docs/keywords.txt">keywords.txt</a> - List of all
+keywords, their syntax, and what they will do.</li>
+<li><a href="docs/design.txt">design.txt</a> - A rough design
+document.</li>
+<li><a
+href="examples/rk-test3.pams.ncsu.edu">rk-test3.pams.ncsu.edu</a> - An
+example.</li>
+</ul>
 
 <h2>Debuging Tool</h2>
 <form action="ks.py" method="post">

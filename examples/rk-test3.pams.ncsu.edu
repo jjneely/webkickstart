@@ -1,0 +1,12 @@
+version 7.3
+src ftp
+lang en_US
+langs en_US fr_FR
+#enable 3bmouse
+package logwatch
+package @Realm Kit Workstation
+enable normalusers jjneely
+#enable receivemail
+enable mailmasq pams.ncsu.edu
+dept pams
+printer dab120
