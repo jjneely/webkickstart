@@ -22,13 +22,29 @@ Keys
 
 Optional.  Sets the department for the machine.  Default is PAMS.
 
+    root <id> <key>
+
+Optional.  This determines which group or id to look in for an 
+encrypted root MD5.  The key is the blowfish key needed to decrypt
+the root file.  This key is overrided by rootpw.  If not supplied
+in the config the 'default' group ID will be used.  Look in
+/afs/bp/system/common/update/root/ for details.
+
     rootpw  <MD5 Crypt>
 
 Optional.  Sets the root password to the password represented by the
 MD5 Crypt.  The default root password is pulled from AFS use this to
 override.  Note that this does not stop the realm-cron from updating
 the password to the system default after the machine is installed.
-        
+
+    users <id> <key>
+
+Optional.  This determines the gourp or id of the list of admin users
+for the machine.  (Those than can sudo, ssh in, and ksu.)  The key
+is the blowfish key needed to decrypt the file.  If not supplied in
+the config file the 'default' group will be used.  Look in
+/afs/bp/system/common/update/users/ for details.
+       
     owner <owner>
 
 Optional.  Take one option which should be a valid email address.  All 
@@ -96,7 +112,6 @@ support other install methods from other mirrors.
 REQUIRED.  This key specifies what version of the Linux Realm Kit to
 install.  Currently, the options are: 
 
-    7.3
     9
     default  
     
@@ -107,7 +122,8 @@ of that version of Red Hat Linux.
     grub  <MD5 Crypt>
 
 Optional.  Use this key to specify a password from grub, the
-bootloader.  You must use an MD5 Crypt here.
+bootloader.  You must use an MD5 Crypt here.  If left blank the root
+MD5 from AFS will be used.  See the root key.
 
     mouse [options] <mouse type>
 

@@ -25,15 +25,15 @@ import os
 import string
 import errors
 
-class webksconf:
+class webksconf(ConfigParser.ConfigParser):
     def __init__(self, configfile=['/etc/solaris2ks.conf',
                                    './solaris2ks.conf']):
-        self.cfg = ConfigParser.ConfigParser()
-
+        ConfigParser.ConfigParser.__init__(self)
+        
         self.cfg_file = configfile
 
-        self.cfg.read(self.cfg_file)
-        if self.cfg.sections() == 0:
+        self.read(self.cfg_file)
+        if self.sections() == 0:
             raise errors.AccessError("Can't access %s" % (self.cfg_file))
 
         #setup defualts
@@ -68,20 +68,20 @@ class webksconf:
             self.enable_generic_ks = int(self._getoption('main','enable_generic_ks'))
 
         self.db = {}
-        if self.cfg.has_section('db'):
-            for option in self.cfg.options('db'):
+        if self.has_section('db'):
+            for option in self.options('db'):
                 self.db[option] = self._getoption('db',option)
         else:
             self.enable_security = 0
         
         # Require "default" section
-        if not self.cfg.has_section("default"):
+        if not self.has_section("default"):
             raise errors.ConfigError('A "default" section is required.')
         
         # make sure default is first in the list
         # this enables the default to be parsed first so we can
         # refer to the default in other sections
-        sections = self.cfg.sections()
+        sections = self.sections()
         sections.remove("default")
         sections.insert(0, "default")
 
@@ -162,7 +162,7 @@ class webksconf:
 
     def _getoption(self, section, option):
         try:
-            return self.cfg.get(section, option)
+            return self.get(section, option)
         except ConfigParser.NoSectionError, e:
             raise errors.ConfigError('Failed to find section: %s' % (section))
         except ConfigParser.NoOptionError, e:

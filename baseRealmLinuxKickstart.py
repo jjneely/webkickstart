@@ -26,6 +26,7 @@ from baseKickstart import baseKickstart
 import errors
 import string
 import os
+import security
 
 class baseRealmLinuxKickstart(baseKickstart):
     """Based off of baseKickstart, implements kickstart features needed by 
@@ -117,10 +118,10 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
         dept = self.getDept()
 
         if rootmd5 == None:
-            rootmd5 = self.pullRoot(dept)
+            rootmd5 = self.pullRoot()
 
         if grubmd5 == None:
-            grubmd5 = self.pullGrub(dept)
+            grubmd5 = self.pullGrub()
 
         if grubmd5 == None:
             retval = "bootloader --location %s\n" % loc
@@ -133,74 +134,22 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
         return retval
         
 
-    def pullRoot(self, dptname=None):
+    def pullRoot(self):
         # Get root MD5 crypt out of AFS
-        # Quite heavily based off code by John Berninger
         
-        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
-        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
-        openssl = '/usr/bin/openssl'
-
-        key = ""
-
-        getDefault = 0
-        if dptname == None:
-            getDefault = 1
+        roottable = self.checkKey(2, 2, 'root')
+        if roottable == None:
+            group = 'default'
+            key = None
         else:
-            if not os.access(conftree+dptname+'/root', os.R_OK):
-                getDefault = 1
-            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
-                keyline = os.popen('/bin/grep "^root\>" '+conftree+dptname+'/update.conf').read()[:-1]
-                (name, key) = string.split(keyline)
-            else:
-                key = defaultkey
+            group, key = roottable
 
-            if getDefault == 0:
-                cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/root -k '+key).read()[:-1]
-                
-                return cryptroot
-
-        if getDefault == 1:
-            #Update the default root word
-            cryptroot = os.popen(openssl+' bf -d -in '+conftree+'/root -k '+defaultkey).read()[:-1]
-            
-            return cryptroot
-        
-        raise StandardError("I shouldn't have gotten here in pullRoot()")
+        return security.rootMD5(group, key)
 
 
-    def pullGrub(self, dptname=None):
-        # Get root MD5 crypt out of AFS
-        # Quite heavily based off code by John Berninger
-                                                                                
-        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
-        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
-        openssl = '/usr/bin/openssl'
-                                                                                
-        key = ""
-                                                                                
-        getDefault = 0
-        if dptname == None:
-            getDefault = 1
-        else:
-            if not os.access(conftree+dptname+'/grub', os.R_OK):
-                getDefault = 1
-            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
-                keyline = os.popen('/bin/grep "^grub\>" '+conftree+dptname+'/update.conf').read()[:-1]
-                (name, key) = string.split(keyline)
-            else:
-                key = defaultkey
-                                                                                
-        if getDefault == 0:
-            cryptgrub = os.popen(openssl+' bf -d -in '+conftree+dptname+'/grub -k '+key).read()[:-1]
-            return cryptgrub
-                                                                                
-        if getDefault == 1 and os.access(conftree+'/grub', os.R_OK):
-            #Update the default grub word
-            cryptgrub = os.popen(openssl+' bf -d -in '+conftree+'/grub -k '+defaultkey).read()[:-1]
-            return cryptgrub
-
-        return None
+    def pullGrub(self):
+        # Make group password same as root
+        return self.pullRoot()
 
 
     def packages(self):
@@ -229,10 +178,7 @@ realmconfig --kickstart updates --enable-updates
 
     def admins(self):
         # admin users
-        if self.getKeys('users') == []:
-            userstable = self.getKeys('enable', 'adminusers')
-        else:
-            userstable = self.getKeys('users')
+        userstable = self.getKeys('enable', 'adminusers')
         lusertable = self.getKeys('enable', 'normalusers')
         dept = self.getDept()
         users = []
@@ -242,8 +188,7 @@ realmconfig --kickstart updates --enable-updates
             raise errors.ParseError("Multiple users keys found")
         if len(lusertable) > 1:
             raise errors.ParseError("Multiple localuser keys found")
-        tmp = self.pullUsers(dept)
-        admin = string.split(tmp)
+        admin = self.pullUsers()
         if len(userstable) != 0:
             if len(userstable[0]['options']) == 0:
                 raise errors.ParseError("users key requires arguments")
@@ -271,42 +216,18 @@ realmconfig --kickstart updates --enable-updates
         return retval
     
 
-    def pullUsers(self, dptname=None):
+    def pullUsers(self):
         # Get users out of AFS
-        # Quite heavily based off code by John Berninger
         
-        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
-        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
-        openssl = '/usr/bin/openssl'
-
-        key = ""
-
-        getDefault = 0
-        if dptname == None:
-            getDefault = 1
+        usertable = self.checkKey(2, 2, 'users')
+        if usertable == None:
+            group = 'default'
+            key = None
         else:
-            if not os.access(conftree+dptname+'/users', os.R_OK):
-                getDefault = 1
-            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
-                keyline = os.popen('/bin/grep "^users\>" '+conftree+dptname+'/update.conf').read()[:-1]
-                (name, key) = string.split(keyline)
-            else:
-                key = defaultkey
+            group, key = usertable
 
-        if getDefault == 0:
-            cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/users -k '+key).read()[:-1]
-                
-            return cryptroot
-
-        if getDefault == 1:
-            #Update the default root word
-            cryptroot = os.popen(openssl+' bf -d -in '+conftree+'/users -k '+defaultkey).read()[:-1]
-            
-            return cryptroot
+        return security.adminUsers(group, key)
         
-        raise StandardError("I shouldn't have gotten here in pullUsers()")
-
-
      
     def sendmail(self):
         # Check for sendmail masq
