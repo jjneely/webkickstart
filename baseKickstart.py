@@ -394,22 +394,24 @@ rm /etc/sysconfig/init~
         table = self.getKeys('enable', 'noreinstall')
 
         opts = self.checkKey(0, 0, 'enable', 'noreinstall')
-        if opts == []:
+        if opts == [] or self.cfg['isntall_method'] == 'nfs':
             # Key was not found
             return ""
-        else:
+        else
             return """
 #set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
-wget http://%s/%s/isolinux/vmlinuz
-wget http://%s/%s/isolinux/initrd.img
+wget %s://%s/%s/isolinux/vmlinuz
+wget %s://%s/%s/isolinux/initrd.img
 mv /boot/install/vmlinuz /boot/install/vmlinuz-reinstall-%s
 mv /boot/install/initrd.img /boot/install/initrd-reinstall-%s.img
 /sbin/grubby --add-kernel=/boot/install/vmlinuz-reinstall-%s --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0" --initrd=/boot/install/initrd-reinstall-%s.img
-""" % (self.cfg['http_server'], self.cfg['http_path'], self.cfg['http_server'], 
-       self.cfg['http_path'], self.cfg['version'], self.cfg['version'], 
-       self.cfg['version'], self.url, self.cfg['version'])
+""" % (self.cfg['install_method'], self.cfg['%s_server' % self.cfg['install_method']], 
+       self.cfg['%s_path' % self.cfg['install_method']], self.cfg['install_method'],
+       self.cfg['%s_server' % self.cfg['install_method']], 
+       self.cfg['%s_path' %s self.cfg['install_method']], self.cfg['version'], 
+       self.cfg['version'], self.cfg['version'], self.url, self.cfg['version'])
 
 
     def admins(self):
@@ -509,10 +511,9 @@ rm /etc/pam.d/login~\n
         for sc in self.configs:
             scriptlist.append(sc.getPost())
 
-        # Reverse the order so that scripts from higher level config files
-        # come after scripts included via the 'use' keyword
-        scriptlist.reverse()
-        post = post + string.join(scriptlist, "\n")
+        # Make sure %post from the top level config is last
+        post = post + string.join(scriptlist[0:], "\n")
+        post = post + "\n" + scriptlist[0]
 
         return post
 

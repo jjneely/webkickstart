@@ -104,7 +104,7 @@ def _decryptData(what, group, key=None):
     """Returns a stripped string of data.  what can be 'root.md5' or 'users'.
        Pulls information out of the conftree."""
 
-    defaultkey = cfg.get('main', 'defaultkey')
+    defaultkey = cfg.defaultkey
     conftree = '/afs/bp.ncsu.edu/system/common/update'
     openssl = '/usr/bin/openssl'
     

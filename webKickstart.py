@@ -44,8 +44,7 @@ class webKickstart:
         self.cfg = config.webksconf()
         config.cfg = self.cfg
 
-        if self.cfg.enable_security:
-            security.cfg = self.cfg
+        security.cfg = self.cfg
 
 
     def getKS(self, host, debug=0):

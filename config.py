@@ -45,6 +45,8 @@ class webksconf(ConfigParser.ConfigParser):
         self.enable_security = 0
         self.enable_generic_ks = 0
 
+        self.defaultkey = None
+
         self.db = {}
         self.db['host'] = 'localhost.localdomain'
         self.db['user'] = 'solaris2ks'
@@ -66,6 +68,9 @@ class webksconf(ConfigParser.ConfigParser):
             self.enable_security = int(self._getoption('main','enable_security'))
         if self._getoption('main','enable_generic_ks') != None:
             self.enable_generic_ks = int(self._getoption('main','enable_generic_ks'))
+
+        if self._getoption('main','defaultkey') != None:
+            self.defaultkey = self._getoption('main','defaultkey')
 
         self.db = {}
         if self.has_section('db'):
