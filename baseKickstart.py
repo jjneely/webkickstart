@@ -402,17 +402,13 @@ rm /etc/sysconfig/init~
 #set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
-lftpget ftp://%s/%s/isolinux/vmlinuz
-lftpget ftp://%s/%s/isolinux/initrd.img
+wget http://%s/%s/isolinux/vmlinuz
+wget http://%s/%s/isolinux/initrd.img
 mv /boot/install/vmlinuz /boot/install/vmlinuz-reinstall-%s
 mv /boot/install/initrd.img /boot/install/initrd-reinstall-%s.img
-cat << EOF >> /boot/grub/grub.conf
-title Reinstall Workstation
-        kernel /install/vmlinuz-reinstall-%s ks=%s ramdisk_size=8192 noshell ksdevice=eth0
-        initrd /install/initrd-reinstall-%s.img
-EOF
-""" % (self.cfg['ftp_server'], self.cfg['ftp_path'], self.cfg['ftp_server'], 
-       self.cfg['ftp_path'], self.cfg['version'], self.cfg['version'], 
+/sbin/grubby --add-kernel=/boot/install/vmlinuz-reinstall-%s --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0" --initrd=/boot/install/initrd-reinstall-%s.img
+""" % (self.cfg['http_server'], self.cfg['http_path'], self.cfg['http_server'], 
+       self.cfg['http_path'], self.cfg['version'], self.cfg['version'], 
        self.cfg['version'], self.url, self.cfg['version'])
 
 
