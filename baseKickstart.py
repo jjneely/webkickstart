@@ -230,9 +230,9 @@ class baseKickstart:
             parts = """
 part / --size 4072
 part swap --recommended
-part /boot --size 50
+part /boot --size 75
 part /tmp --size 256 --grow 
-part /var --size 256
+part /var --size 390
 part /var/cache --size 512
 """
         else:
