@@ -123,6 +123,14 @@ below.
 Enable Style Services
 =====================
 
+    enable safepartition
+
+Optional.  Without this option the installer will remove all existing
+partitions on the system before creating new ones.  With this option
+the installer will only remove Linux partitions before adding new.  
+This requires pre-existing Linux partitions or unpartitioned space
+on the drive.
+
     enable mailmasq [domain]
 
 Optional.  Configure the domain from which email sent from this
@@ -173,7 +181,7 @@ Optional.  Disables tmpwatch.  Not recommend.
 
 Optional.  Does not configure the X server.  It will be skipped by the
 installer and must be configure manually after installation.
-.
+
     enable noreinstall 
 
 Optional.  Disables the magic that lets you select Reinstall from Grub

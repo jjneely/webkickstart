@@ -214,7 +214,12 @@ class baseKickstart:
 
     def partition(self):
         # Return partition information
-        retval = "zerombr yes\nclearpart --all\n"
+        safepart = self.getKeys('enable', 'safepartition')
+
+        if len(safepart) > 0:
+            retval = "zerombr yes\nclearpart --linux\n"
+        else:
+            retval = "zerombr yes\nclearpart --all\n"
 
         parttable = self.getKeys('part')
         # We are just going to take what's in the cfg file and go with it
@@ -225,7 +230,7 @@ part swap --recommended
 part /boot --size 50
 part /tmp --size 256 --grow 
 part /var --size 256
-part /var/cache --size 256
+part /var/cache --size 512
 """
         else:
             parts = ""
