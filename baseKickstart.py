@@ -199,11 +199,14 @@ class baseKickstart:
         if len(installtable) > 0:
             src = installtable[0]['options'][0]
         else:
-            src = "ftp"
+            src = "http"
         if src == "ftp":
             url = "url --url ftp://kickstart.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
         elif src == "nfs":
             url = "nfs --server kickstart.linux.ncsu.edu --dir /export/realmkit-%s" % self.version
+        elif src == "http":
+            # this is default
+            url = "url --url http://install.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
         else:
             raise errors.ParseError("Invalid option to src key")
 
