@@ -288,8 +288,160 @@ firewall --medium --ssh --dhcp
             
             return cryptroot
         
-        raise StandardError
+        raise StandardError("I shouldn't have gotten here in pullRoot()")
 
      
+    def packages(self):
+        # Do the packages section of the KS
+        packagetable = self.getKeys('package')
+
+        if len(packagetable) == 0:
+            return "%packages\n@ Realm Kit Workstation\n"
+        else:
+            retval = "%packages\n"
+            for package in packagetable:
+                tmp = string.join(package['options'])
+                retval = "%s%s\n" % (retval, tmp)
+
+            return retval
 
 
+    def startPost(self):
+        # Start the %post section and fill in some stuff we rarely change
+        return """
+%post
+# Let's make DNS work
+cat << EOF > /etc/resolv.conf
+nameserver 152.1.1.206
+nameserver 152.1.1.161
+EOF
+
+# Want a /.version file.
+echo "Kickstarted `/bin/date +%D`" > /.version
+rpm -qa | sort >> /.version
+
+# make startup non-interactive
+mv /etc/sysconfig/init /etc/sysconfig/init~
+sed 's/^PROMPT=yes$/PROMPT=no/' < /etc/sysconfig/init~ > /etc/sysconfig/init
+rm /etc/sysconfig/init~
+
+# fix /etc/hosts still
+(grep -v localhost /etc/hosts ; echo "127.0.0.1 localhost.localdomain   localhost") > /etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+# updates
+realmconfig --kickstart updates --enable-updates
+
+#so apropos works
+/usr/sbin/makewhatis >/dev/null 2>&1 || :
+
+"""
+
+
+    def reinstall(self):
+        # Part of %post.  Configure reinstall options
+        table = self.getKeys('enable', 'reinstall')
+
+        if len(table) > 1:
+            raise exceptions.ParseError("Multiple reinstall keys found")
+        if len(table) == 0:
+            # no enable reinstall
+            # I'd do this by default but I'm not sure how to
+            # "know" the ks URL to give the kernel.  Future issue.
+            # XXX
+            return ""
+
+        if len(table[0]['options']) > 1:
+            raise exceptions.ParseError("reinstall key only takes 1 option")
+
+        ksline = table[0]['options'][0]
+        return """
+#set up a reinstall image
+cd /root
+ncftpget ftp://kickstart.linux.ncsu.edu/pub/realmkit/realmkit-7.3/i386/dosutils/autoboot/*
+mv /root/initrd.img /boot/initrd-reinstall.img
+mv /root/vmlinuz /boot/vmlinuz-reinstall.img
+rm -f cdboot.img
+/sbin/grubby --add-kernel=/boot/vmlinuz-reinstall.img --initrd=/boot/initrd-reinstall.img --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell"
+""" % ksline
+
+
+    def admins(self):
+        # admin users
+        userstable = self.getKeys('users')
+        lusertable = self.getKeys('enable', 'normalusers')
+        dept = self.getDept()
+        users = []
+        admin = []
+
+        if len(userstable) > 1:
+            raise exceptions.ParseError("Multiple users keys found")
+        if len(lusertable) > 1:
+            raise exceptions.ParseError("Multiple localuser keys found")
+        if len(userstable) == 0:
+            tmp = self.pullUsers(dept)
+            admin = string.split(tmp)
+        else:
+            if len(userstable[0]['options']) == 0:
+                raise exceptions.ParseError("users key requires arguments")
+            admin = userstable[0]['options']
+
+        if len(lusertable) == 1:
+            if len(lusertable[0]['options']) == 0:
+                raise exceptions.ParseError("localuser key requires arguments")
+            for id in lusertable[0]['options']:
+                users.append(id)
+
+        retval = "cat << EOF > /root/.klogin\n"
+        for id in admin:
+            retval = "%s%s.root@EOS.NCSU.EDU\n" % (retval, id)
+        retval = "%sEOF\nchmod 400 /root/.klogin\n" % retval
+        retval = "%s\ncat << EOF >> /etc/sudoers\n" % retval
+        for id in admin:
+            retval = "%s%s  ALL=(ALL) ALL\n" % (retval, id)
+        retval = "%sEOF\nchmod 440 /etc/sudoers\n" % retval
+
+        retval = "%srealmconfig --kickstart auth --users " % retval
+        users.extend(admin)
+        retval = retval + string.join(users, ',') + "\n"
+
+        return retval
+    
+
+    def pullUsers(self, dptname=None):
+        # Get users out of AFS
+        # Quite heavily based off code by John Berninger
+        
+        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
+        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
+        openssl = '/usr/bin/openssl'
+
+        key = ""
+
+        getDefault = 0
+        if dptname == None:
+            getDefault = 1
+        else:
+            if not os.access(conftree+dptname+'/users', os.R_OK):
+                getDefault = 1
+            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
+                keyline = os.popen('/bin/grep "^users\>" '+conftree+dptname+'/update.conf').read()[:-1]
+                (name, key) = string.split(keyline)
+            else:
+                key = defaultkey
+
+            if getDefault == 0:
+                cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/users -k '+key).read()[:-1]
+                
+                return cryptroot
+
+        if getDefault == 1:
+            #Update the default root word
+            cryptroot = os.popen(openssl+' bf -d -in '+conftree+'/users -k '+defaultkey).read()[:-1]
+            
+            return cryptroot
+        
+        raise StandardError("I shouldn't have gotten here in pullUsers()")
+
+
+     
+ 
