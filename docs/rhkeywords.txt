@@ -109,6 +109,16 @@ button emulation.  This key behaves exactly the same way as the
 'mouse' keyword in a Red Hat Kickstart.  For complete documentation of
 this key please see the Kickstart Options page at the following URL.
 
+    xconfig [options]
+
+Optional.  This key will define the X options that your system will be
+configured with. You only need to specify the options that you want to 
+change. The default options are:
+
+    --hsync 31.5-80.0 --vsync 50-90 --resolution "1280x1024" --depth 24
+
+All available options are listed in the Red Hat kickstart documentation. 
+
     service <service name> <on|off>
 
 Optional. This key will let you turn services off and on in the post.

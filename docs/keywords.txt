@@ -131,6 +131,16 @@ Optional.  Use only if you need to change the default firewall rules.  Most
 people shouldn't need to do this.  Follows same format as kickstart firewall
 key. See Red Hat kickstart documentation for more information.
 
+    xconfig [options]
+
+Optional.  This key will define the X options that your system will be
+configured with. You only need to specify the options that you want to change.
+The default options are:
+
+    --hsync 31.5-80.0 --vsync 50-90 --resolution "1280x1024" --depth 24
+
+All available options are listed in the Red Hat kickstart documentation.
+
     mouse [options] <mouse type>
 
 Optional.  This key will define the exact type of mouse connected to
