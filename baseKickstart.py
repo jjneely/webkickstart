@@ -523,7 +523,7 @@ rm /etc/pam.d/login~\n
             post = post + string.join(scriptlist[1:], "\n")
 
         # Check if we have any posys at all
-        if len(scriptlist) == 0:
+        if len(scriptlist) != 0:
             post = post + "\n" + scriptlist[0]
 
         return post
