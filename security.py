@@ -38,10 +38,14 @@ cnf.read(configFile)
 
 def check(headers, fqdn):
     # check for anaconda
-    if len(headers) > 1:
+    if headers.has_key("X-RHN-Provisioning-MAC-0"):
+        # continue through...we *know* this is anaconda
+        # only present in version >= FC1
+        pass
+    elif len(headers) > 1:
         # Bad
         return 0
-    if not headers.has_key('Host'):
+    elif not headers.has_key('Host'):
         # More bad
         return 0
 
