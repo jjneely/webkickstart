@@ -21,6 +21,7 @@
 """This module contains the class used to generate a RK8.0 kickstart."""
 
 import baseKickstart
+import string
 
 class psycho(baseKickstart.baseKickstart):
 
