@@ -6,6 +6,11 @@
     * Implemented "owner" key
     * changed % handling so that the %blah --options is included in the ks.
     This makes %pre, %post, etc useful when you want to run..say...python
+    * The Reinstall Workstation boot option used the URL of the server
+    that was build in such a way that everytime that was used it add an ./
+    to the URL.  I believe I've fixed that with building the URL in ks.py
+    a little more sanely.
+    * You can use the "use" key multiple times now and it even works.
 
 2003-06-20 Jack Neely <jjneely@pams.ncsu.edu>
 

@@ -29,8 +29,8 @@ def handler(req):
     req.send_http_header()
 
     # build requested URL
-    url = "http://"+req.server.server_hostname + req.unparsed_uri
-
+    url = "http://" + req.hostname + req.uri
+    
     # set current working dir to something sane
     os.chdir(sys.path[0])
 

@@ -442,7 +442,7 @@ ncftpget ftp://kickstart.linux.ncsu.edu/pub/realmkit/realmkit-%s/i386/dosutils/a
 mv /root/initrd.img /boot/initrd-reinstall.img
 mv /root/vmlinuz /boot/vmlinuz-reinstall.img
 rm -f cdboot.img
-/sbin/grubby --add-kernel=/boot/vmlinuz-reinstall.img --initrd=/boot/initrd-reinstall.img --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell"
+/sbin/grubby --add-kernel=/boot/vmlinuz-reinstall.img --initrd=/boot/initrd-reinstall.img --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0"
 """ % (self.version, self.url)
 
 
