@@ -519,7 +519,8 @@ rm /etc/pam.d/login~\n
             scriptlist.append(sc.getPost())
 
         # Make sure %post from the top level config is last
-        post = post + string.join(scriptlist[0:], "\n")
+        if len(scriptlist) > 1:
+            post = post + string.join(scriptlist[1:], "\n")
         post = post + "\n" + scriptlist[0]
 
         return post
