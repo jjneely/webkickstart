@@ -26,14 +26,14 @@ import string
 import errors
 
 class webksconf:
-    def __init__(self, configfile='./configfile'):
+    def __init__(self, configfile=['/etc/solaris2ks.conf',
+                                   './solaris2ks.conf']):
         self.cfg = ConfigParser.ConfigParser()
 
         self.cfg_file = configfile
 
-        if os.access(self.cfg_file, os.R_OK):
-            self.cfg.read(self.cfg_file)
-        else:
+        self.cfg.read(self.cfg_file)
+        if self.cfg.sections() == 0:
             raise errors.AccessError("Can't access %s" % (self.cfg_file))
 
         #setup defualts

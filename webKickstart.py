@@ -30,13 +30,6 @@ import os
 import os.path
 
 
-cfg = config.webksconf()
-config.cfg = cfg
-
-
-if cfg.enable_security:
-    import security
-    security.cfg = cfg
 
 class webKickstart:
 
@@ -47,6 +40,14 @@ class webKickstart:
         self.url = url
         # client's headers
         self.headers = headers
+
+        self.cfg = config.webksconf()
+        config.cfg = self.cfg
+
+        if self.cfg.enable_security:
+            import security
+            security.cfg = self.cfg
+
 
     def getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
@@ -62,7 +63,7 @@ class webKickstart:
             
             if not debug and sc != None:
                 # Security check
-                if cfg.enable_security:
+                if self.cfg.enable_security:
                     if not security.check(self.headers, filename):
                         return (2, "# You do not appear to be Anaconda.")
                 
@@ -72,12 +73,12 @@ class webKickstart:
             
                 version = sc.getVersion()
                 args = {'url': self.url, 'sc': sc}
-                generator = cfg.get_obj(version, args)
+                generator = self.cfg.get_obj(version, args)
             else:
                 # disable the default, no-config file, generic kickstart
-                if cfg.enable_generic_ks:
+                if self.cfg.enable_generic_ks:
                     args = {'url': self.url, 'sc': sc}
-                    generator = cfg.get_obj('default', args)
+                    generator = self.cfg.get_obj('default', args)
                 else:
                     return (1, "# No config file for host " + host)
                 
