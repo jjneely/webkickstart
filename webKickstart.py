@@ -83,7 +83,8 @@ class webKickstart:
             s = "%sThe Exception was:\n\n" % s
             for line in text:
                 s = s + line
-            return (1, s)
+
+            return (42, s)
         
 
 

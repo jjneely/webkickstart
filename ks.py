@@ -51,4 +51,8 @@ def handler(req):
     # send on the kickstart
     req.write(tuple[1])
 
+    # if error code == 42 we need to log the output because its a traceback
+    if tuple[0] == 42:
+        apache.log_error(tuple[1], apache.APLOG_ERR)
+
     return apache.OK

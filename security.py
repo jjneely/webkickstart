@@ -23,6 +23,14 @@ import ConfigParser
 import MySQLdb
 import time
 
+configFile = "/afs/eos/www/linux/configs/web-kickstart.conf"
+
+try:
+    import debug
+    configFile = "/home/slack/projects/tmp/keys/testing.conf"
+except ImportError:
+    pass
+
 def check(headers, fqdn):
     # check for anaconda
     if len(headers) > 1:
@@ -44,7 +52,7 @@ def getDB():
     # Return information about DB
     # returns (host, user, passwd, db)
     cnf = ConfigParser.ConfigParser()
-    cnf.read("/afs/eos/www/linux/configs/web-kickstart.conf")
+    cnf.read(configFile)
     host = cnf.get('main', 'host')
     user = cnf.get('main', 'user')
     passwd = cnf.get('main', 'passwd')
