@@ -38,12 +38,13 @@ def handler(req):
     ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
 
     # Init webKickstart
-    w = webKickstart(url)
+    w = webKickstart(url, req.headers_in)
 
     # get the GET/POST thingies
     args = util.FieldStorage(req)
     if 'debugtool' in args.keys():
-        tuple = w.getKS(args['debugtool'])
+        # Pass what we intered into the debug field and turn on debug mode
+        tuple = w.getKS(args['debugtool'], 1)
     else:
         tuple = w.getKS(ip)
 

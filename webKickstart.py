@@ -30,16 +30,19 @@ import os
 import os.path
 
 import baseKickstart
+import security
 
 class webKickstart:
 
     url = ""
 
-    def __init__(self, url):
+    def __init__(self, url, headers):
         # set up url from reinstalls
         self.url = url
+        # client's headers
+        self.headers = headers
 
-    def getKS(self, host):
+    def getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
@@ -50,6 +53,13 @@ class webKickstart:
 
         try:
             sc = self.findFile(filename)
+            
+            if not debug and sc != None:
+                # Security check
+                ok = security.check(self.headers, filename)
+                if not ok:
+                    return (2, "# You do not appear to be Anaconda.")
+                
             if sc != None:
                 if sc.isKickstart():
                     return (0, sc.getFile())
