@@ -299,7 +299,7 @@ firewall --medium --ssh --dhcp
         
     def rootwords(self):
         # handles the root password and grub password
-        roottable = self.getKeys('root')
+        roottable = self.getKeys('rootpw')
         grubtable = self.getKeys('grub')
         bootlocation = self.getKeys('enable', 'keepmbr')
 

@@ -22,10 +22,12 @@ Keys
 
 Optional.  Sets the department for the machine.  Default is PAMS.
 
-    root  <MD5 Crypt>
+    rootpw  <MD5 Crypt>
 
 Optional.  Sets the root password to the password represented by the
-MD5 Crypt.
+MD5 Crypt.  The default root password is pulled from AFS use this to
+override.  Note that this does not stop the realm-cron from updating
+the password to the system default after the machine is installed.
         
     owner <owner>
 
