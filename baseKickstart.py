@@ -448,7 +448,7 @@ rm -f cdboot.img
 
     def admins(self):
         # admin users
-        userstable = self.getKeys('users')
+        userstable = self.getKeys('adminusers')
         lusertable = self.getKeys('enable', 'normalusers')
         dept = self.getDept()
         users = []

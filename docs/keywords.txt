@@ -27,13 +27,14 @@ Optional.  Sets the department for the machine.  Default is PAMS.
 Optional.  Sets the root password to the password represented by the
 MD5 Crypt.
         
-    users <user list>
+    adminusers <user list>
 
 Optional.  This is a list of admin users for the Linux Realm Kit box.
 These user names are added to /etc/users.local, /root/.klogin, and
 /etc/sudoers.  Only put people here if you want them to have root
-access.  The default list is taken out of AFS based on the machine's
-department.  User IDs are delimited with whitespace.
+access.  This keyword is to add extra admins to the machine.  The
+lists from AFS (based on the 'users' key) will be added as well.  
+User IDs are delimited with whitespace.
 
     owner <owner>
 
