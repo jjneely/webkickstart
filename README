@@ -1,0 +1,10 @@
+
+This is version 0.2.0 of solaris2ks. It should handle most of the
+common NCSU Realm Kit kickstart configuration for 7.3, 8.0, and 9.
+
+Very basically, this pile of python needs mod_python and apache and
+takes Solaris Jump Start like config files and serves out Red Hat
+Kickstarts.
+
+For real information see the docs/ directory and the index.html file.
+
