@@ -22,3 +22,8 @@ enable mailmasq pams.ncsu.edu
 
 #enable localcluster bob
 #enable remotecluster joe
+
+dept billyjoe
+
+#printer dab120
+#enable norealmcron

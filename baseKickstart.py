@@ -77,6 +77,35 @@ class baseKickstart:
         return list
 
 
+    def checkKey(self, min_argc, max_argc, key, enable=None):
+        # Get the matching key with getKeys() and do my basic
+        # error checking so I don't have to do it in every function.
+        # We check that we have the proper # of arguments, that there's
+        # only one matching key, and that arg ezists.
+        # If key exists we return a list of its args, otherwise we
+        # return None.
+        table = self.getKeys(key, enable)
+
+        if len(table) <= 0:
+            return None
+        
+        if not enable == None:
+            strkey = "%s %s" % (key, enable)
+        else:
+            strkey = key
+                
+        if len(table) > 1:
+            raise exceptions.ParseError("Multiple %s keys found" % strkey)
+
+        argc = len(table[0]['options'])
+        if argc < min_argc:
+            raise exceptions.ParseError("%s key has too few arguments"%strkey)
+        if argc > max_argc:
+            raise exceptions.ParseError("%s key has too many arguments"%strkey)
+
+        return table[0]['options']
+    
+
     def makeKS(self):
         """Return a string containing a RHL kickstart."""
         
@@ -202,7 +231,7 @@ firewall --medium --ssh --dhcp
 
         if len(depttable) == 1:
             if len(depttable[0]['options']) == 1:
-                detp = depttable[0]['options'][0]
+                dept = depttable[0]['options'][0]
             else:
                 raise exceptions.ParseError("dept key only takes 1 option")
         elif len(depttable) > 1:
@@ -521,29 +550,22 @@ rm /etc/pam.d/login~
         # localcluster <cluster>
         # remotecluster <cluster>
 
-        local = self.getKeys('enable', 'localcluster')
-        remote = self.getKeys('enable', 'remotecluster')
+        local = self.checkKey(0, 1, 'enable', 'localcluster')
+        remote = self.checkKey(0, 1, 'enable', 'remotecluster')
 
-        lcluster = "ncsu"
-        rcluster = "None"
-
-        if len(local) > 1:
-            raise exceptions.ParseError("Multiple localcluster keys found")
-        if len(remote) > 1:
-            raise exceptions.ParseError("Multiple remotecluster keys found")
-        if len(local) > 0 and len(local[0]['options']) > 1:
-            raise exceptions.ParseError("Too many arguments for localcluster")
-        if len(remote) > 0 and len(remote[0]['options']) > 1:
-            raise exceptions.ParseError("Too many arguments for remotecluster")
-
-        if len(local) > 0 and len(local[0]['options']) > 0:
-            lcluster = local[0]['options'][0]
-        elif len(local) > 0 and len(local[0]['options']) == 0:
+        if local == None:
+            lcluster = "ncsu"
+        elif len(local) == 0:
             lcluster = ""
-        if len(remote) > 0 and len(remote[0]['options']) > 0:
-            rcluster = remote[0]['options'][0]
-        elif len(remote) > 0 and len(remote[0]['options']) == 0:
+        else:
+            lcluster = local[0]
+
+        if remote == None:
+            rcluster = "None"
+        elif len(remote) == 0:
             rcluster = ""
+        else:
+            rcluster = remote[0]
 
         if lcluster != "None":
             retval = "realmconfig --kickstart clusters --local-enable %s\n" % (lcluster)
@@ -555,3 +577,32 @@ rm /etc/pam.d/login~
             retval = "%srealmconfig --kickstart clusters --remote-disable\n" % (retval)
 
         return retval
+
+
+    def department(self):
+        # Set department
+
+        dept = self.getDept()
+
+        return "realmconfig --kickstart dept --set %s\n" % dept
+
+    
+    def printer(self):
+        # set up default printer.  default is lp
+        printer = self.checkKey(1, 1, 'printer')
+
+        if printer == None:
+            return "realmconfig --kickstart printing --default lp\n"
+        else:
+            return "realmconfig --kickstart printing --default %s\n" % printer[0]
+
+
+    def realmhooks(self):
+        # set up realm hooks, default is to use them
+        hooks = self.checkKey(0, 0, 'enable', 'norealmcron')
+
+        if hooks == None:
+            return "realmconfig --kickstart support --enable-support\n"
+        else:
+            return "realmconfig --kickstart support --disable-support\n"
+    
