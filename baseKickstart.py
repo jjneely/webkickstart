@@ -477,3 +477,81 @@ rm -f cdboot.img
         retval = "%s %s %s\n" % (retval, daemon, masq)
 
         return retval
+
+
+    def consolelogin(self):
+        # are text console treated as local users?  Default is no.
+        ctable = self.getKeys('enable', 'consolelogin')
+
+        if len(ctable) > 1:
+            raise exceptions.ParseError("Multiple consolelogin keys found")
+        if len(ctable) > 0 and len(ctable[0]['options']) > 0:
+            raise exceptions.ParseError("consolelogin key takes no arguments")
+
+        retval = """
+# disable login on the console for non-local users
+mv /etc/pam.d/login /etc/pam.d/login~
+sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
+rm /etc/pam.d/login~
+"""
+        if len(ctable) == 1:
+            return ""
+        else:
+            return retval
+
+
+    def notempclean(self):
+        # Default here is to inable tmpwatch
+        table = self.getKeys('enable', 'notempclean')
+        if len(table) > 1:
+            raise exceptions.ParseError("Multiple notempclean keys found")
+        if len(table) > 0 and len(table[0]['options']) > 0:
+            raise exceptions.ParseError("notempclean key takes no arguments")
+
+        if len(table) == 1:
+            return ""
+        else:
+            return "realmconfig --kickstart tmpclean --enable-tmpclean\n"
+
+
+    def clusters(self):
+        # Check for clustered logins
+        # defaults are "ncsu" for local and no cluster enabled for remote
+        # we can completely disable by setting cluster values to "None"
+        # localcluster <cluster>
+        # remotecluster <cluster>
+
+        local = self.getKeys('enable', 'localcluster')
+        remote = self.getKeys('enable', 'remotecluster')
+
+        lcluster = "ncsu"
+        rcluster = "None"
+
+        if len(local) > 1:
+            raise exceptions.ParseError("Multiple localcluster keys found")
+        if len(remote) > 1:
+            raise exceptions.ParseError("Multiple remotecluster keys found")
+        if len(local) > 0 and len(local[0]['options']) > 1:
+            raise exceptions.ParseError("Too many arguments for localcluster")
+        if len(remote) > 0 and len(remote[0]['options']) > 1:
+            raise exceptions.ParseError("Too many arguments for remotecluster")
+
+        if len(local) > 0 and len(local[0]['options']) > 0:
+            lcluster = local[0]['options'][0]
+        elif len(local) > 0 and len(local[0]['options']) == 0:
+            lcluster = ""
+        if len(remote) > 0 and len(remote[0]['options']) > 0:
+            rcluster = remote[0]['options'][0]
+        elif len(remote) > 0 and len(remote[0]['options']) == 0:
+            rcluster = ""
+
+        if lcluster != "None":
+            retval = "realmconfig --kickstart clusters --local-enable %s\n" % (lcluster)
+        else:
+            retval = "realmconfig --kickstart clusters --local-disable\n"
+        if rcluster != "None":
+            retval = "%srealmconfig --kickstart clusters --remote-enable %s\n" % (retval, rcluster)
+        else:
+            retval = "%srealmconfig --kickstart clusters --remote-disable\n" % (retval)
+
+        return retval

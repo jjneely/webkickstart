@@ -16,3 +16,9 @@ enable normalusers jjneely
 
 #enable receivemail
 enable mailmasq pams.ncsu.edu
+
+#enable consolelogin
+#enable notempclean 
+
+#enable localcluster bob
+#enable remotecluster joe
