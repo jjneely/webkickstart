@@ -433,16 +433,20 @@ rm /etc/sysconfig/init~
 #set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
-wget %s://%s/%s/isolinux/vmlinuz
-wget %s://%s/%s/isolinux/initrd.img
-mv /boot/install/vmlinuz /boot/install/vmlinuz-reinstall-%s
-mv /boot/install/initrd.img /boot/install/initrd-reinstall-%s.img
-/sbin/grubby --add-kernel=/boot/install/vmlinuz-reinstall-%s --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0" --initrd=/boot/install/initrd-reinstall-%s.img
-""" % (self.cfg['install_method'], self.cfg['%s_server' % self.cfg['install_method']], 
-       self.cfg['%s_path' % self.cfg['install_method']], self.cfg['install_method'],
+if [ ! -f vmlinuz ] ; then
+    wget %s://%s/%s/isolinux/vmlinuz
+fi
+if [ ! -f initrd.img ] ; then
+    wget %s://%s/%s/isolinux/initrd.img
+fi
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0" --initrd=/boot/install/initrd.img
+""" % (self.cfg['install_method'], 
        self.cfg['%s_server' % self.cfg['install_method']], 
-       self.cfg['%s_path' % self.cfg['install_method']], self.cfg['version'], 
-       self.cfg['version'], self.cfg['version'], self.url, self.cfg['version'])
+       self.cfg['%s_path' % self.cfg['install_method']], 
+       self.cfg['install_method'],
+       self.cfg['%s_server' % self.cfg['install_method']], 
+       self.cfg['%s_path' % self.cfg['install_method']], 
+       self.url)
 
 
     def admins(self):
