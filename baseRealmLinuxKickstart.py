@@ -153,6 +153,20 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
         return self.pullRoot()
 
 
+    def firewall(self):
+        firewalltable = self.getKeys('firewall')
+        firewallstatus = self.getKeys('enable', 'nofirewall')
+                                                                                
+        ret = "firewall --medium --ssh --dhcp --port=afs3-callback:tcp, afs3-callback:udp, afs3-errors:tcp, afs3-errors:udp\n"
+                                                                                
+        if len(firewallstatus) > 0:
+            ret = "firewall --diabled\n"
+        elif len(firewalltable) > 0:
+            ret = "firewall %s\n" % (ret, string.join(row['options']))
+                                                                                
+        return ret
+
+
     def packages(self):
         # Do the packages section of the KS
         packagetable = self.getKeys('package')
