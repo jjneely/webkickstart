@@ -33,6 +33,12 @@ import baseKickstart
 
 class webKickstart:
 
+    url = ""
+
+    def __init__(self, url):
+        # set up url from reinstalls
+        self.url = url
+
     def getKS(self, host):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
@@ -49,9 +55,9 @@ class webKickstart:
                     return (0, sc.getFile())
             
                 version = sc.getVersion()
-                generator = versionMap[version](sc)
+                generator = versionMap[version](self.url, sc)
             else:
-                generator = versionMap['default']()
+                generator = versionMap['default'](self.url)
                 
             retval = generator.makeKS()
             return (0, retval)

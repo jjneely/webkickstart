@@ -35,6 +35,7 @@ Usage: check.py [options] <jump start file>
 Options:
     -h        | --help          Print this message
     -o <file> | --output <file> Save Kickstart to this file
+    -u <URL>  | --url <URL>     URL to grab kickstart at for reinstalls
 """
 
 
@@ -48,13 +49,19 @@ def main():
         help()
         sys.exit(1)
 
+    # file name to save kickstart
     save = None
+    # url for reinstall
+    url = "http://web-kickstart.linux.ncsu.edu/ks.py"
+    
     if len(files) != 1:
         print "I need exactly one file to check."
         help()
         sys.exit(2)
 
     for o, a in optlist:
+        if o in ('--url', '-u'):
+            url = a
         if o in ('--help', '-h'):
             help()
             sys.exit(0)
@@ -69,7 +76,7 @@ def main():
 
     try:
         version = sc.getVersion()
-        generator = versionMap[version](sc)
+        generator = versionMap[version](url, sc)
         ks = generator.makeKS()
     except ParseError, e:
         print "A parse error occured.  The error is:"

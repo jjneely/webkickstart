@@ -28,6 +28,9 @@ def handler(req):
     req.content_type = "text/plain"
     req.send_http_header()
 
+    # build requested URL
+    url = "http://"+req.server.server_hostname + req.unparsed_uri
+
     # set current working dir to something sane
     os.chdir(sys.path[0])
 
@@ -35,7 +38,7 @@ def handler(req):
     ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
 
     # Init webKickstart
-    w = webKickstart()
+    w = webKickstart(url)
 
     # get the GET/POST thingies
     args = util.FieldStorage(req)

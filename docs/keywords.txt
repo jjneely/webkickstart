@@ -1,10 +1,3 @@
-Solaris keywords:
-
-mac  <mac address>        ignored
-host <hostname>           UNIQUE, OPTIONAL, default is filename
-addr <IP address>         UNIQUE, OPTIONAL, default is DNS lookup of `host'
-sys  <AFS @sys name>      ignored
-cell  <AFS cell>          ignored
 keywords.txt
 
 This file contains all the key words that can be within a config file
@@ -35,35 +28,146 @@ Optional.  Sets the root password to the password represented by the
 MD% Crypt.
         
     users <user list>
-owner <owner>             UNIQUE, REQUIRED
-printer <printername>     UNIQUE, OPTIONAL, no default
-workgrp <workgroup>       UNIQUE, OPTIONAL, no default *not really used*
-package <packagename>     LIST, OPTIONAL, no default
-enable  <service>         LIST, OPTIONAL, no default
-use <filename>            function
 
-Mine:
+Optional.  This is a list of admin users for the Linux Relam Kit box.
+These user names are added to /etc/users.local, /root/.klogin, and
+/etc/sudoers.  Only put people here if you want them to have root
+access.  The default list is taken out of AFS based on the machine's
+department.  User IDs are delimited with whitespace.
 
-lang <default lang>
-langs <list of langs to install>
-part <partition def>
-src <from/how to install>   
-version <version string>
-enable <service> <option>
-grub  <MD5 Crypt>         OPTIONAL
+    owner <owner>
 
-Enables:
+Optional.  NOT IMPLEMENTED YET.  Take one option which should be a
+valid email address.  All of root's mail will be sent here.
 
-mailmasq <domain> can be empty for no masq'ing
-receivemail
-consolelogin
-localcluster <cluster>
-remotecluster <cluster>
-norealmcron
-normalusers <user list> users are added to users.local
-users <comma list>
-notmpclean
-nox
-3bmouse
-grubpassword <MD5 crypt>
-reinstall <KS kernel line>
+    printer <printername>
+
+Optional.  Defaults to lp.  To configure printing to a campus printer
+give the name of the printer to this key as its option.
+
+    package <packagename> 
+
+Optional.  Defaults to "@ Realm Kit Workstation".  Use this key to
+configure what packages and package groups get installed.  This key
+can be used multiple times.  Specify one package or package group for
+each use of the key.  (If you use this you really want to start out
+with "package @ Realm Kit Workstation" and then add further packages.
+Things can break hear pretty easily.)
+
+    use <filename> 
+
+Include another config file.
+
+    lang <default lang>
+
+Optional.  Specify the default language.  The default is "en_US".
+
+    langs <list of langs to install>
+
+Optional.  Default is "en_US".  Use this key word to tell the
+installer what languages to install.  You can specify multiple
+languages by separating them with whitespace.
+
+    part <partition def>
+
+Optional.  Use this key to override the default and specify your own
+partitioning scheme.  See the "part" option in the Kickstart
+documentation in Red Hat's Customization guide at
+http://www.redhat.com/docs to see the options this can take.
+
+    src <from/how to install>
+
+Optional.  This key can specify how and where to install from.
+Currently, there are two options "nfs" and "ftp".  The default is
+"ftp" and will install the kit from kickstart.linux.ncsu.edu.  The
+"nfs" option installs via nfs from the same source.  More options can
+be added in the future to support other install methods from other
+mirrors. 
+ 
+    version <version string>
+
+REQUIRED.  This key specifies what version of the Linux Realm Kit to
+install.  Currently, there are two options: "7.3" and "default".  The
+"default" option should install the latest stable version where the
+numeric option will install the Linux Realm Kit based off of that
+version of Red Hat Linux.
+
+    grub  <MD5 Crypt>
+
+Optional.  Use this key to specify a password from grub, the
+bootloader.  You must use an MD5 Crypt here.
+
+    enable <service> [option1] [option2] [...]
+
+Enable certain other services.  The services supported are described
+below. 
+
+
+Enable Style Services
+=====================
+
+    enable mailmasq [domain]
+
+Optional.  Configure the domain from which email sent from this
+machine should look like it is coming from.  The default is
+unity.ncsu.edu.  Leave the option out to disable mail masqurading.
+
+    enable receivemail
+
+Optional.  Enable being able to receive email locally on this machine.
+
+    enable consolelogin
+
+Optional.  Enable "local" users to be able to log into the machine at
+the text console.  Default only treats logins from GDM as "local."
+
+    enable localcluster [cluster]
+
+Optional.  Enable the use of clusters to control local logins.  The
+default is to allow local users in the "ncsu" cluster to login.  (Yes,
+that's everyone at NCSU.)  You can specify a cluster yourself, or
+leave the cluster out to use the cluster information in hesiod.
+
+    enable remotecluster [cluster]
+
+Optional.  Enable the use of clusters to control remote logins.  The
+default setting is to not use cluster from remote logins.  You can
+specify a cluster yourself or leave blank to get cluster out of
+hesiod. 
+
+    enable norealmcron
+
+Optional.  Disable the realmcron system.  The realmcron system updates
+root and user information from AFS.  Also runs cron jobs from AFS.
+This is required for support from the Realm Kit for Red Hat Linux
+Developers.
+
+   enable normalusers <user list>
+
+Optional.  Adds given users to /etc/users.local.  Does not give the
+users any administrative abilities.  Multiple user IDs can be
+separated via whitespace.
+ 
+    enable notmpclean
+
+Optional.  Disables tmpwatch.  Not recommened.
+
+    enable nox
+
+Optional.  Does not configure the X server.  It will be skipped by the
+installer and must be configure manually after installation.
+
+    enable 3bmouse
+
+Optional.  Confugre mouse for 3 buttons.  The default os a generic 2
+button ps/2.
+
+    enable noreinstall 
+
+Optional.  Disables the magic that lets you select Reinstall from Grub
+to reinstall the machine.  The default is to set this up.  It does
+require a URL of the web-kickstart server which is generated from the
+Apache request object when a request to generate a Kickstart is
+received.  There's a -u option to check.py to work with this as well.
+
+

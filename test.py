@@ -47,6 +47,6 @@ import socket
 import webKickstart
 #print socket.gethostbyaddr("anduril.pams.ncsu.edu")
 
-go = webKickstart.webKickstart()
+go = webKickstart.webKickstart("http://MY SERVER HERE/")
 t = go.getKS('anduril.pams.ncsu.edu')
 print t[1]

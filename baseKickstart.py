@@ -32,8 +32,12 @@ class baseKickstart:
     table = []
     configs = []
     buildOrder = []
+    url = ""
     
-    def __init__(self, sc=None):
+    def __init__(self, url, sc=None):
+        # set url for reinstall
+        self.url = url
+        
         # suck in config file
         if not sc == None:
             self.includeFile(sc)
@@ -405,22 +409,14 @@ realmconfig --kickstart updates --enable-updates
 
     def reinstall(self):
         # Part of %post.  Configure reinstall options
-        table = self.getKeys('enable', 'reinstall')
+        table = self.getKeys('enable', 'noreinstall')
 
-        if len(table) > 1:
-            raise errors.ParseError("Multiple reinstall keys found")
-        if len(table) == 0:
-            # no enable reinstall
-            # I'd do this by default but I'm not sure how to
-            # "know" the ks URL to give the kernel.  Future issue.
-            # XXX
+        opts = self.checkKey(0, 0, 'enable', 'noreinstall')
+        if opts == []:
+            # Key was not found
             return ""
-
-        if len(table[0]['options']) > 1:
-            raise errors.ParseError("reinstall key only takes 1 option")
-
-        ksline = table[0]['options'][0]
-        return """
+        else:
+            return """
 #set up a reinstall image
 cd /root
 ncftpget ftp://kickstart.linux.ncsu.edu/pub/realmkit/realmkit-7.3/i386/dosutils/autoboot/*
@@ -428,7 +424,7 @@ mv /root/initrd.img /boot/initrd-reinstall.img
 mv /root/vmlinuz /boot/vmlinuz-reinstall.img
 rm -f cdboot.img
 /sbin/grubby --add-kernel=/boot/vmlinuz-reinstall.img --initrd=/boot/initrd-reinstall.img --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell"
-""" % ksline
+""" % self.url
 
 
     def admins(self):
