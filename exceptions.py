@@ -19,11 +19,11 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 class ParseError(StandardError):
-	
-	def __init__(self, value="A parse error has occured."):
-		self.value = value
-		
-	def __str__(self):
-		return self.value
-		
+    
+    def __init__(self, value="A parse error has occured."):
+        self.value = value
+        
+    def __str__(self):
+        return self.value
+        
 
