@@ -43,7 +43,6 @@ class webKickstart:
 
         self.cfg = config.webksconf()
         config.cfg = self.cfg
-
         security.cfg = self.cfg
 
 
@@ -58,12 +57,11 @@ class webKickstart:
 
         try:
             sc = self.findFile(filename)
-            
+
             if not debug and sc != None:
                 # Security check
-                if self.cfg.enable_security:
-                    if not security.check(self.headers, filename):
-                        return (2, "# You do not appear to be Anaconda.")
+                if self.cfg.enable_security and not security.check(self.headers, filename):
+                    return (2, "# You do not appear to be Anaconda.")
                 
             if sc != None:
                 if sc.isKickstart():
