@@ -26,6 +26,8 @@ import errors
 import socket
 import traceback
 import sys
+import os
+import os.path
 
 import baseKickstart
 
@@ -42,12 +44,15 @@ class webKickstart:
 
         try:
             sc = self.findFile(filename)
-        
-            if sc.isKickstart():
-                return (0, sc.getFile())
+            if sc != None:
+                if sc.isKickstart():
+                    return (0, sc.getFile())
             
-            version = sc.getVersion()
-            generator = versionMap[version](sc)
+                version = sc.getVersion()
+                generator = versionMap[version](sc)
+            else:
+                generator = versionMap['default']()
+                
             retval = generator.makeKS()
             return (0, retval)
         except:
@@ -62,7 +67,35 @@ class webKickstart:
         
 
 
-    def findFile(self, fn):
+    def findFile(self, fn, cd="."):
         # Look through dirs to find this file
+        #print "Looking for a file in: " + cd
+        try:
+            list = os.listdir(cd)
+        except OSError, e:
+            s = str(e) + "\nDir: " + cd
+            raise OSError(s)
+        if fn in list:
+            #print "Found file: " + os.path.join(cd, fn)
+            return solarisConfig(os.path.join(cd, fn))
+        else:
+            retval = None
+            dirs = self.getDirs(list, cd)
+            for dir in dirs:
+                retval = self.findFile(fn, dir)
+                if retval != None:
+                    return retval
+            # So we didn't find in, return None
+            return None
 
-        return solarisConfig("examples/linux-box")
+        
+
+    def getDirs(self, dirlist, basepath=""):
+        # Returns a list of all directories in the directory listing
+        # provided.
+        dirs = []
+        for node in dirlist:
+            if os.path.isdir(os.path.join(basepath, node)):
+                dirs.append(os.path.join(basepath, node))
+
+        return dirs

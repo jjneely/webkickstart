@@ -18,7 +18,6 @@ Functionality modules:
 * config file parser == solarisConfig
 * kickstart generator == baseKickstart
 * mod_python web code
-* Server/DB back end
 * cli utility to generate kickstart and check config files
 
 solarisConfig:
@@ -39,8 +38,8 @@ mod_python web code:
 * If unknown host generate a default ks and return it
 
 Server/DB back end:
-* reads all configs and can determine IP/hostname
-* stores IP/hostname and filename of config in DB for web code
+* upon lots of thinking...I took this section out because I don't
+  believe we need one.
 
 cli tool:
 * can check config file for validity

@@ -139,6 +139,10 @@ class baseKickstart:
         """Return a string containing a RHL kickstart."""
         retval = ""
 
+        if self.table == []:
+            retval = "# This is the default kickstart -- no config file found"
+            retval = retval + "\n"
+
         for func in self.buildOrder:
             retval = retval + func()
         

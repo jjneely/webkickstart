@@ -5,9 +5,36 @@ host <hostname>           UNIQUE, OPTIONAL, default is filename
 addr <IP address>         UNIQUE, OPTIONAL, default is DNS lookup of `host'
 sys  <AFS @sys name>      ignored
 cell  <AFS cell>          ignored
-dept  <department>        UNIQUE, OPTIONAL, default is "unity" for files
-root  <MD5 Crypt>         OPTIONAL defaults to department/default client
-users <user list>	  if not present dept list from AFS is used
+keywords.txt
+
+This file contains all the key words that can be within a config file
+and is used to generate a kickstart.  The file takes commands
+delimited by newlines of the type
+
+    <key> [option1] [option2] [option3] [...]
+
+where the 'enable' key is a special case of the above.  Any key, and
+its options/arguments, that is not known is ignored by the sys.  For
+example, if you use the 'mac' keyword and specify the machines mac
+address this key will be silently ignored.  (Having the MAC address
+does not give this system any advantages.)  Options may also be
+contained within double or single quotes so that an option may contain
+spaces.  Also, have comments that begin with a '#' are supported.
+
+
+Keys
+====
+
+    dept  <department>
+
+Optional.  Sets the department for the machine.  Default is PAMS.
+
+    root  <MD5 Crypt>
+
+Optional.  Sets the root password to the password represented by the
+MD% Crypt.
+        
+    users <user list>
 owner <owner>             UNIQUE, REQUIRED
 printer <printername>     UNIQUE, OPTIONAL, no default
 workgrp <workgroup>       UNIQUE, OPTIONAL, no default *not really used*

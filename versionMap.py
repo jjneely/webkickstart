@@ -20,4 +20,5 @@
 
 import baseKickstart
 
-versionMap = { "7.3": baseKickstart.baseKickstart }
+versionMap = { "7.3"    : baseKickstart.baseKickstart,
+               "default": baseKickstart.baseKickstart }
