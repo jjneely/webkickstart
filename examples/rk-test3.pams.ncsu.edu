@@ -1,8 +1,8 @@
+use examples/script1
 version 7.3
 src ftp
 lang en_US
 langs en_US fr_FR
-#enable 3bmouse
 package logwatch
 package @Realm Kit Workstation
 enable normalusers jjneely
@@ -10,3 +10,9 @@ enable normalusers jjneely
 enable mailmasq pams.ncsu.edu
 dept pams
 printer dab120
+mouse --emulthree genericps/2
+
+%post
+
+echo "Kickstarted by web-kickstart.linux.ncsu.edu" > /KICKSTART
+

@@ -20,6 +20,7 @@
 
 from versionMap import versionMap
 from solarisConfig import solarisConfig
+import errors
 
 import getopt
 import sys
@@ -78,7 +79,7 @@ def main():
         version = sc.getVersion()
         generator = versionMap[version](url, sc)
         ks = generator.makeKS()
-    except ParseError, e:
+    except errors.ParseError, e:
         print "A parse error occured.  The error is:"
         print e.value
         sys.exit(3)

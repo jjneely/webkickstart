@@ -39,22 +39,48 @@ hostname.  Files must be placed under the following directory:</p>
  
 <tt>/ncsu/jjneely/web-kickstart/configs</tt>.
 
-<p>The following links are to documentation of a bit more detail.</p>
+<h3>Examples and More Documentation.</h3>
 <ul>
 <li><a href="docs/keywords.txt">keywords.txt</a> - List of all
 keywords, their syntax, and what they will do.</li>
 <li><a href="docs/design.txt">design.txt</a> - A rough design
 document.</li>
 <li><a
+href="http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/ch-kickstart2.html">Red
+Hat Linux Kickstart Documentation</li>
+<li><a
+href="http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html">
+Red Hat Linux Kickstart Options</li>
+<li><a
 href="examples/rk-test3.pams.ncsu.edu">rk-test3.pams.ncsu.edu</a> - An
 example.</li>
+<li><a href="examples/script1">script1</a> - config file included by
+the above config file.</li>
 </ul>
 
-<p>Also, here's a disk image that is set up to automatically do a
+<h3>Disk Image</h3>
+<p>Here's a disk image that is set up to automatically do a
 kickstart install from web-kickstart.linux.ncsu.edu.  (This was done
 by modifying the syslinux.cfg file on the floppy.</p>
 <ul>
 <li><a href="73-web-ks.img">73-web-ks.img</a> - RK 7.3 Boot Disk</li>
+</ul>
+
+<h3>Recent Changes</h3>
+
+<p>The following are some recent changes to the system there were made
+after I released it to public testing.  These changes are also
+documented in the <a href="docs/keywords.txt">keywords.txt</a> file or
+their relivant place.</p>
+<ul>
+<li>Glaring bugs in the check.py script are fixed.</li>
+<li>The docs for the 'use' keyword have been cleared up a bit.  Need
+to be carefull about current directories and paths.</li>
+<li>Implemented including scripts in the config files after a '%post'
+key.  See the examples above.</li>
+<li>Completely changed how mouse configuration is done.  This now
+works with all types of mice that the Red Hat Kickstart stuff knows
+of.  See the docs.</li>
 </ul>
 
 <h2>Debuging Tool</h2>

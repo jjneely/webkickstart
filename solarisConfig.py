@@ -123,9 +123,9 @@ class solarisConfig:
         
         
     def getPost(self):
-        """Returns a string of the rest of the file including the first % command."""
+        """Returns a string of the rest of the file after the '%post'"""
         
-        return string.join(self.fileposts, '\n')
+        return string.join(self.fileposts[1:], '\n')
         
         
     def getFile(self):

@@ -25,7 +25,7 @@ Optional.  Sets the department for the machine.  Default is PAMS.
     root  <MD5 Crypt>
 
 Optional.  Sets the root password to the password represented by the
-MD% Crypt.
+MD5 Crypt.
         
     users <user list>
 
@@ -56,7 +56,9 @@ Things can break hear pretty easily.)
 
     use <filename> 
 
-Include another config file.
+Include another config file.  The filename must be a path to the
+included file that is relative to the directory containing the Python
+scripts for the system.  (Specifically, ks.py.)
 
     lang <default lang>
 
@@ -96,6 +98,16 @@ version of Red Hat Linux.
 
 Optional.  Use this key to specify a password from grub, the
 bootloader.  You must use an MD5 Crypt here.
+
+    mouse [options] <mouse type>
+
+Optional.  This key will define the exact type of mouse connected to
+the system.  The default value is a generic 2 button mouse with 3
+button emulation.  This key behaves exactly the same way as the
+'mouse' keyword in a Red Hat Kickstart.  For complete documentation of
+this key please see the Kickstart Options page at the following URL. 
+
+http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html
 
     enable <service> [option1] [option2] [...]
 
@@ -156,12 +168,7 @@ Optional.  Disables tmpwatch.  Not recommend.
 
 Optional.  Does not configure the X server.  It will be skipped by the
 installer and must be configure manually after installation.
-
-    enable 3bmouse
-
-Optional.  Configure mouse for 3 buttons.  The default is a generic 2
-button ps/2.
-
+.
     enable noreinstall 
 
 Optional.  Disables the magic that lets you select Reinstall from Grub

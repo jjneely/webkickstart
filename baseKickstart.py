@@ -68,7 +68,8 @@ class baseKickstart:
                            self.clusters,
                            self.department,
                            self.printer,
-                           self.realmhooks ]
+                           self.realmhooks,
+                           self.extraPost ]
         
         
     def includeFile(self, sc):
@@ -235,11 +236,10 @@ part /var/cache --size 256
 
     def inputdevs(self):
         # Mostly stuff here we don't modify
-        # we don't support USB mice yet...
-        mousetable = self.getKeys('enable', '3bmouse')
+        mouseargs = self.checkKey(1, 4, 'mouse')
 
-        if len(mousetable) > 0:
-            retval = "mouse generic3ps/2\n"
+        if mouseargs != None:
+            retval = "mouse " + string.join(mouseargs) + "\n"
         else:
             retval = "mouse --emulthree genericps/2\n"
 
@@ -639,3 +639,18 @@ rm /etc/pam.d/login~
         else:
             return "realmconfig --kickstart support --disable-support\n"
     
+
+    def extraPost(self):
+        # Attach %posts found in config files
+        post = "# The following scripts provided by the Jump Start confgs.\n"
+
+        for sc in self.configs:
+            script = sc.getPost()
+            post = post + script
+
+        if self.configs == []:
+            return ""
+        else:
+            return post
+
+        
