@@ -95,10 +95,14 @@ class taroonWS(realmLinux.baseRealmLinuxKickstart):
 /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
 /bin/rpm --import /usr/share/realmconfig/realmkit.gpg
 
+# Set Up2Date Configuration
+if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
+    /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
+fi
+
 # Run Up2Date
 chvt 3
 /usr/sbin/up2date --nox -u
-sleep 60
 chvt 1
 """ % key
         
