@@ -198,6 +198,7 @@ realmconfig --kickstart updates --enable-updates
         dept = self.getDept()
         users = []
         admin = []
+        extrausers = []
 
         if len(userstable) > 1:
             raise errors.ParseError("Multiple users keys found")
@@ -208,12 +209,14 @@ realmconfig --kickstart updates --enable-updates
             if len(userstable[0]['options']) == 0:
                 raise errors.ParseError("users key requires arguments")
             admin.extend(userstable[0]['options'])
+            extrausers.extend(userstable[0]['options'])
 
         if len(lusertable) == 1:
             if len(lusertable[0]['options']) == 0:
                 raise errors.ParseError("localuser key requires arguments")
             for id in lusertable[0]['options']:
                 users.append(id)
+                extrausers.append(id)
 
         retval = "cat << EOF > /root/.klogin\n"
         for id in admin:
@@ -228,6 +231,12 @@ realmconfig --kickstart updates --enable-updates
         users.extend(admin)
         retval = retval + string.join(users, ',') + "\n"
 
+        # adminusers and normalusers may get wiped out if not specially saved
+        for id in extrausers:
+            retval = "%secho %s >> /etc/users.local.base\n" % (retval, id)
+            if id in admin:
+                retval = "%secho %s/root@EOS.NCSU.EDU >> /root/.k5login.base\n" % (retval, id)
+                
         return retval
     
 

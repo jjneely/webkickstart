@@ -36,6 +36,14 @@ class baseKickstart:
     url = ""
 
     def __init__(self, url, cfg, sc=None):
+        # rebind important vars to initially empty objects
+        # otherwise if this class is instantiated again in the same
+        # interpreter, these vars will still point to the original objects
+        # that will contain data we don't want.
+        self.table = []
+        self.configs = []
+        self.buildOrder = []
+        
         # set url for reinstall
         self.url = url
 
@@ -44,7 +52,7 @@ class baseKickstart:
             self.includeFile(sc)
 
         self.cfg = cfg
-
+        
         # suck in all includes
         usetable = self.getKeys('use')
         for row in usetable:
@@ -54,7 +62,7 @@ class baseKickstart:
                 file = row['options'][0]
                 if not os.access(file, os.R_OK):
                     raise errors.AccessError("Could not open included file '%s'" % file)
-                    
+                
                 tmp_sc = solarisConfig(file)
                 self.includeFile(tmp_sc)
 
@@ -96,7 +104,8 @@ class baseKickstart:
                       'volgroup',
                       'logvol',
                       'package',
-                      'use']
+                      'use',
+                      'cluster']
         
         for rec in t:
             # For part, use and package we just append as we allow

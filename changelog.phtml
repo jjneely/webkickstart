@@ -90,8 +90,25 @@ Ported some bugfixes and improvements from the devel branch to stable.
 This fixes usage problems with raid and LVM associated keys.</li>
 <li>05/16/04 - 
 Merged changes from stable branch to head. Added "firewall" keyword that works 
-just like Red Hat's kickstart and enable "nofirewall" which disables the 
+just like Red Hat's kickstart and "enable nofirewall" which disables the 
 firewall all together.</li>
+<li>05/21/04 -
+Added extra code for RHEL based Realm Linux to configure Up2Date more
+completely.  Also made the Grub reinstall trick a bit smarter so that one
+can provide the vmlinuz and initrd.img files in a different manager.</li>
+<li>06/25/04 -
+User/Password update scripts in AFS were removing the admin users added by
+'enable adminusers' is fixed by also dropping the user IDs in users.local.base
+and .k5login.base.  Also, the 'cluster' keyword now works via the
+update.conf file to control login cluster via PTS groups.</li>
+<li>06/25/04 -
+Fixed bug that was appearing as duplicated output in the update.conf files
+and generated kickstarts.</li>
+<li>07/23/04 -
+A similar bug that was causing the loss of admin users added by 'enable 
+adminusers' was also affecting 'enable normalusers'. </li>
+<li>09/02/04 -
+Added support for Realm Linux FC2.</li>
 </ul>
 
 </body>
