@@ -4,6 +4,8 @@
 	* Today also got a new CD image for 9 that does the ksdevice=eth0
     magic.
     * Implemented "owner" key
+    * changed % handling so that the %blah --options is included in the ks.
+    This makes %pre, %post, etc useful when you want to run..say...python
 
 2003-06-20 Jack Neely <jjneely@pams.ncsu.edu>
 

@@ -86,13 +86,13 @@ class baseKickstart:
     
     def mergeTable(self, t):
         """Merge a table from a solarisConfig into the current table.
-           This does a streigh merge without spacial cases for part and
-           package."""
+           This does a streight merge without spacial cases for part,
+           package, and use."""
         
         for rec in t:
             # For part and package we just append as we allow
             # multiple entries for both keys
-            if rec['key'] != 'part' and rec['key'] != 'package':
+            if rec['key'] != 'part' and rec['key'] != 'package' and rec['key'] != "use":
                 for rec2 in self.table:
                     # if key is not part or package then we let an identical
                     # key from imported file override a present key.
@@ -120,7 +120,7 @@ class baseKickstart:
         # Get the matching key with getKeys() and do my basic
         # error checking so I don't have to do it in every function.
         # We check that we have the proper # of arguments, that there's
-        # only one matching key, and that arg ezists.
+        # only one matching key, and that arg exists.
         # If key exists we return a list of its args, otherwise we
         # return None.
         table = self.getKeys(key, enable)
@@ -675,7 +675,7 @@ rm /etc/pam.d/login~
 
     def extraPost(self):
         # Attach %posts found in config files
-        post = "# The following scripts provided by the Jump Start confgs.\n"
+        post = "\n# The following scripts provided by the Jump Start confgs.\n"
 
         for sc in self.configs:
             script = sc.getPost()

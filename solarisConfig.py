@@ -56,7 +56,7 @@ class solarisConfig:
             if len(s) > 0 and s[0] == "%":
                 break
             breakpoint = breakpoint + 1
-            
+        
         return lines[0:breakpoint], lines[breakpoint:]
         
         
@@ -125,7 +125,7 @@ class solarisConfig:
     def getPost(self):
         """Returns a string of the rest of the file after the '%post'"""
         
-        return string.join(self.fileposts[1:], '\n')
+        return string.join(self.fileposts, '\n')
         
         
     def getFile(self):

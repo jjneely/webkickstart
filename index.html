@@ -115,7 +115,9 @@ default to that option of "http" which installs from install.linux.ncsu.edu.</li
 Added "enable keepmbr" which doesn't overwrite the MBR with the bootloader.
 The bootloader is placed in the boot partition (/boot).</li>
 <li>06/20/03 -
-Implemented "owner" key.  </li>
+Implemented "owner" key.  Fixed % handling so that anything after a line
+beginning with "%" is included, including that % line.  This makes adding
+%post, %pre, etc a bit more useful as you can pass options to them.</li>
 </ul>
 
 <h2>Debuging Tool</h2>
