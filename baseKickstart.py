@@ -45,21 +45,19 @@ class baseKickstart:
         
     
     def mergeTable(self, t):
-        """Merge a table from a solarisConfig into the current table."""
+        """Merge a table from a solarisConfig into the current table.
+           This does a streigh merge without spacial cases for part and
+           package."""
         
-        clearpartinfo = 1
-        # part information is multiple keys...
-        # and package?
         for rec in t:
-            if rec['key'] == 'part' and clearpartinfo:
-                clearpartinfo = 0
+            # For part and package we just append as we allow
+            # multiple entries for both keys
+            if rec['key'] != 'part' and rec['key'] != 'package':
                 for rec2 in self.table:
-                    if rec2['key'] == 'part':
+                    # if key is not part or package then we let an identical
+                    # key from imported file override a present key.
+                    if rec['key'] == rec2['key'] and rec['enable'] == rec2['enable']:
                         self.table.remove(rec2)
-            
-            for rec2 in self.table:
-                if rec['key'] == rec2['key'] and rec['enable'] == rec2['enable'] and rec['key'] != 'part':
-                    self.table.remove(rec2)
             
             self.table.append(rec)
         
