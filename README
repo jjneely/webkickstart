@@ -1,10 +1,121 @@
+Web-Kickstart
+=============
 
-This is version 0.2.0 of solaris2ks. It should handle most of the
-common NCSU Realm Kit kickstart configuration for 7.3, 8.0, and 9.
+Also known as Solaris2ks.
 
-Very basically, this pile of python needs mod_python and apache and
-takes Solaris Jump Start like config files and serves out Red Hat
-Kickstarts.
+Version 2.0.
 
-For real information see the docs/ directory and the index.html file.
+Copyright 2002, 2003, 2004 NC State University
+Written by
+   Jack Neely   <jjneely@pams.ncsu.edu>
+   Elliot Peele <ebpeele2@pams.ncsu.edu>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+Introduction
+------------
+
+Your IT team has thousands of workstations and servers to maintain just
+like every other enterprise class organization or educational institution.
+Hundreds of these machines run Red Hat Linux or a custom distribution
+based on Red Hat Linux or Fedora Core.  Clearly you need an automated
+solution to install these linux machines and configure them properly for
+your environment.
+
+With Red Hat Linux or Fedora Core this is where Kickstart comes into
+play.  You simply have a custom boot disk that grabs the kickstart file
+off a server and automates the complete install.  However, your
+kickstarts are mostly the same except for small bits, like a printer,
+and there's not an overly good way to have server based kickstart that
+can include one another.  Also, other folks in your IT team(s) may not
+know how a kickstart works enough to create them.  Kickstart are long
+and tedious.
+
+Here is where Web-Kickstart comes in.  Web-Kickstart reads small
+config files from a central location, such as your distributed file
+system or a server.  These files follow in a similar style to
+Solaris's Jumpstart.  With two to four lines you can have a highly
+customized and configure linux install.  Config files can include
+other files, and you can even attach multiple %post's and %pre's.
+Web-Kickstart takes this config file, loads it into a Python class
+that you can customize, dynamically generates a complete kickstart,
+and sends it to the installing client via HTTP.  For example, I can
+install a Realm Linux 9 machine (which is a customized version of
+Red Hat Linux 9 used at NC State University) with something this
+simple:
+
+   version 9
+   printer cox359a@print-server.ncsu.edu
+   enable adminusers jjneely
+
+This specifies the version to install which is the only required line,
+specifies the proper default printer, and adds a user to the administrative
+users for the machine.  The rest of the install is controlled by the
+defaults in the class.  
+
+Included is a class and documentation for installing stock Red Hat Linux
+or Fedora Core.  I also include the working classes that we use at NC
+State University to install Realm Linux as an example for how you can
+customize the software.
+
+
+Installing
+----------
+
+Installing the software is pretty easy.  There are a couple of things
+that are still specific to the setup at NCSU that we are working out
+so we can have a more generally useful project.  Accepting patches.
+
+You will need an Apache server with mod_python setup and running on 
+a machine that has read access to your distributed file system or
+where ever you want to keep your config files.  I'd recommend a 
+virtual host dedicated to this service.
+
+    http://web-kickstart.linux.ncsu.edu
+
+All the files in this tarball go into the top level directory that is 
+served out on the virtual domain.  You want to be able to do a
+
+    http://web-kickstart.linux.ncsu.edu/ks.py
+
+among other things.  The "configs/" directory should be either where
+you keep your configs or a symlink to where they live in your distributed
+file system. 
+
+Lastly, make sure that the Apache overrides are set properly to let 
+mod_python code run.  With this version you will also want to edit the
+web pages so that they have the extension html instead of phtml which
+is for a templating engine called Pharser we use at NCSU.
+
+
+Configuring
+-----------
+
+The next part of the install is setting up the config file called
+solaris2ks.conf.  There is an example included that is fairly well
+documented.  Start from there.  This is where you map the version keys,
+like '9' in the above example, to a class and supply some base URLs.
+
+At this point you should have a semi-working system.  Make a few config
+files and start testing and customizing.
+
+
+More Information
+----------------
+
+See the docs/ directory and the actual included web pages.
+
 
