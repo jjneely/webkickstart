@@ -23,7 +23,6 @@ import psycho
 import shreak
 
 versionMap = { "7.3"    : baseKickstart.baseKickstart,
-               "default": baseKickstart.baseKickstart,
-               "8.0"    : psycho.psycho,
+               "default": shreak.shreak,
                "9"      : shreak.shreak }
                
