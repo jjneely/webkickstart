@@ -21,6 +21,7 @@
 from solarisConfig import solarisConfig
 import exceptions
 import string
+import os
 
 class baseKickstart:
     """Base class for generating a kickstart from a solarisConfig.  To be
@@ -62,10 +63,233 @@ class baseKickstart:
             self.table.append(rec)
         
             
+    def getKeys(self, key, enable=None):
+        # Return a list of matching keys
+        list = []
+        for rec in self.table:
+            if enable == None:
+                if rec['key'] == key:
+                    list.append(rec)
+            else:
+                if rec['key'] == 'enable' and rec['enable'] == enable:
+                    list.append(rec)
+
+        return list
+
+
     def makeKS(self):
         """Return a string containing a RHL kickstart."""
         
         return ""
         
         
-    
+    def language(self):
+        # Return stirng that defines the language parts of ks
+        langtable = self.getKeys('lang')
+        langstable = self.getKeys('langs')
+        
+        if len(langtable) > 1:
+            raise exceptions.ParseError("lang key found multiple times")
+        if len(langtable) > 0 and len(langtable[0]['options']) != 1:
+            raise exceptions.ParseError("lang key found with improper number of options")
+        if len(langstable) > 1:
+            raise exceptions.ParseError("langs key found multiple times")
+        if len(langstable) > 0 and not len(langstable[0]['options']) > 0:
+            raise exceptions.ParseError("langs key found with improper number of options")
+
+        if len(langtable) > 0:
+            lang = langtable[0]['options'][0]
+        else:
+            lang = "en_US"
+
+        if len(langstable) > 0:
+            tmp = string.join(langstable[0]['options'])
+            langs = "--default %s %s" % (lang, tmp)
+        else:
+            langs = "--default %s %s" % (lang, lang)
+
+        retval = "lang %s\nlangsupport %s\n\n" % (lang, langs)
+        return retval
+
+
+    def install(self):
+        # network, install, and method parts of KS
+        retval = "install\nnetwork --bootproto dhcp\n"
+
+        installtable = self.getKeys('src')
+        if len(installtable) > 1:
+            raise exceptions.ParseError("The src key is found multiple times")
+        if len(installtable) > 0 and len(installtable[0]['options']) != 1:
+            raise exceptions.ParseError("The src key takes one option only")
+
+        if len(installtable) > 0:
+            src = installtable[0]['options'][0]
+        else:
+            src = "ftp"
+        if src == "ftp":
+            url = "url --url ftp://kickstart.linux.ncsu.edu/pub/realmkit/7.3/i386"
+        elif src == "nfs":
+            url = "nfs --server kickstart.linux.ncsu.edu --dir /export/realmkit-7.3"
+        else:
+            raise exceptions.ParseError("Invalid option to src key")
+
+        retval = "%s%s\n\n" %(retval, url)
+        return retval
+
+
+
+    def partition(self):
+        # Return partition information
+        retval = "zerombr yes\nclearpart --all\n"
+
+        parttable = self.getKeys('part')
+        # We are just going to take what's in the cfg file and go with it
+        if len(parttable) == 0:
+            parts = """
+part / --size 4072
+part swap --recommended
+part /boot --size 50
+part /tmp --size 256 --grow 
+part /var --size 256
+part /var/cache --size 256
+"""
+        else:
+            parts = ""
+            for row in parttable:
+                tmp = "part " + string.join(row['options'])
+                parts = "%s%s\n" % (parts, tmp)
+
+        retval = "%s%s" % (retval, parts)
+        return retval
+
+
+    def inputdevs(self):
+        # Mostly stuff here we don't modify
+        # we don't support USB mice yet...
+        mousetable = self.getKeys('enable', '3bmouse')
+
+        if len(mousetable) > 0:
+            retval = "mouse generic3ps/2\n"
+        else:
+            retval = "mouse --emulthree genericps/2\n"
+
+        retval = "timezone US/Eastern\nkeyboard us\nreboot\n" + retval
+        retval = retval + """
+auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.eos.ncsu.edu:88,kerberos-2.eos.ncsu.edu:88,kerberos-3.eos.ncsu.edu:88,kerberos-4.unity.ncsu.edu:88 --krb5adminserver kerberos.eos.ncsu.edu:749
+
+firewall --medium --ssh --dhcp
+"""
+
+        return retval
+
+
+    def xconfig(self):
+        # Define the xconf line
+        xtable = self.getKeys('enable', 'nox')
+
+        if len(xtable) > 0:
+            retval = "skipx\n"
+        else:
+            retval = 'xconfig --hsync 31.5-57.0 --vsync 50-90 --startxonboot --resolution "1152x864" --depth 16\n'
+
+        return retval
+
+
+    def getDept(self):
+        # Get the department out
+        dept = None
+        depttable = self.getKeys('dept')
+
+        if len(depttable) == 1:
+            if len(depttable[0]['options']) == 1:
+                detp = depttable[0]['options'][0]
+            else:
+                raise exceptions.ParseError("dept key only takes 1 option")
+        elif len(depttable) > 1:
+            raise exceptions.ParseError("dept key found multiple times")
+
+        if dept == None:
+            return "pams"
+        else:
+            return dept
+
+        
+    def rootwords(self):
+        # handles the root password and grub password
+        roottable = self.getKeys('root')
+        grubtable = self.getKeys('grub')
+
+        rootmd5 = None
+        grubmd5 = None
+
+        if len(roottable) == 1:
+            if len(roottable[0]['options']) == 1:
+                rootmd5 = roottable[0]['options'][0]
+            else:
+                raise exceptions.ParseError("root key only takes 1 option")
+        elif len(roottable) > 1:
+            raise exceptions.ParseError("root key found multiple times")
+
+        if len(grubtable) == 1:
+            if len(grubtable[0]['options']) == 1:
+                grubmd5 = grubtable[0]['options'][0]
+            else:
+                raise exceptions.ParseError("grub key only takes 1 option")
+        elif len(grubtable) > 1:
+            raise exceptions.ParseError("grub key found multiple times")
+        
+        # okay now that we've error checked the hole in the wall...
+        dept = self.getDept()
+
+        if rootmd5 == None:
+            rootmd5 = self.pullRoot(dept)
+
+        if grubmd5 == None:
+            retval = "bootloader --location mbr\n"
+        else:
+            retval = "bootloader --location mbr --md5pass %s\n" % grubmd5
+        retval = "%srootpw --iscrypted %s\n" %(retval, rootmd5)
+        del rootmd5
+        del grubmd5
+
+        return retval
+        
+
+    def pullRoot(self, dptname=None):
+        # Get root MD5 crypt out of AFS
+        # Quite heavily based off code by John Berninger
+        
+        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
+        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
+        openssl = '/usr/bin/openssl'
+
+        key = ""
+
+        getDefault = 0
+        if dptname == None:
+            getDefault = 1
+        else:
+            if not os.access(conftree+dptname+'/root', os.R_OK):
+                getDefault = 1
+            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
+                keyline = os.popen('/bin/grep "^root\>" '+conftree+dptname+'/update.conf').read()[:-1]
+                (name, key) = string.split(keyline)
+            else:
+                key = defaultkey
+
+            if getDefault == 0:
+                cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/root -k '+key).read()[:-1]
+                
+                return cryptroot
+
+        if getDefault == 1:
+            #Update the default root word
+            cryptroot = os.popen(openssl+' bf -d -in '+conftree+'/root -k '+defaultkey).read()[:-1]
+            
+            return cryptroot
+        
+        raise StandardError
+
+     
+
+

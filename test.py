@@ -16,7 +16,14 @@ cf = solarisConfig('examples/linux-box')
 from baseKickstart import *
 
 ks = baseKickstart(cf)
-ks.includeFile(solarisConfig('examples/pams-server'))
+#ks.includeFile(solarisConfig('examples/pams-server'))
 for i in ks.table:
    print i
+
+print ks.language()
+print ks.install()
+print ks.partition()
+print ks.inputdevs()
+print ks.xconfig()
+print ks.rootwords()
 
