@@ -89,10 +89,15 @@ mirrors.
     version <version string>
 
 REQUIRED.  This key specifies what version of the Linux Realm Kit to
-install.  Currently, there are two options: "7.3" and "default".  The
-"default" option should install the latest stable version where the
-numeric option will install the Linux Realm Kit based off of that
-version of Red Hat Linux.
+install.  Currently, the options are: 
+
+    7.3
+    8.0
+    default  
+    
+The "default" option should install the latest stable version (7.3)
+where the numeric option will install the Linux Realm Kit based off 
+of that version of Red Hat Linux.
 
     grub  <MD5 Crypt>
 

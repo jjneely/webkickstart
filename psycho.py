@@ -18,10 +18,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import baseKickstart
-import psycho
+"""This module contains the class used to generate a RK8.0 kickstart."""
 
-versionMap = { "7.3"    : baseKickstart.baseKickstart,
-               "default": baseKickstart.baseKickstart,
-               "8.0":     psycho.psycho }
-               
+import baseKickstart
+
+class psycho(baseKickstart.baseKickstart):
+
+    version = "8.0"
+        

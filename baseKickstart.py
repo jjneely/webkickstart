@@ -33,6 +33,9 @@ class baseKickstart:
     configs = []
     buildOrder = []
     url = ""
+
+    # To help make expanding this to other version even easier
+    version = "7.3"
     
     def __init__(self, url, sc=None):
         # set url for reinstall
@@ -198,9 +201,9 @@ class baseKickstart:
         else:
             src = "ftp"
         if src == "ftp":
-            url = "url --url ftp://kickstart.linux.ncsu.edu/pub/realmkit/7.3/i386"
+            url = "url --url ftp://kickstart.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
         elif src == "nfs":
-            url = "nfs --server kickstart.linux.ncsu.edu --dir /export/realmkit-7.3"
+            url = "nfs --server kickstart.linux.ncsu.edu --dir /export/realmkit-%s" % self.version
         else:
             raise errors.ParseError("Invalid option to src key")
 
@@ -419,12 +422,12 @@ realmconfig --kickstart updates --enable-updates
             return """
 #set up a reinstall image
 cd /root
-ncftpget ftp://kickstart.linux.ncsu.edu/pub/realmkit/realmkit-7.3/i386/dosutils/autoboot/*
+ncftpget ftp://kickstart.linux.ncsu.edu/pub/realmkit/realmkit-%s/i386/dosutils/autoboot/*
 mv /root/initrd.img /boot/initrd-reinstall.img
 mv /root/vmlinuz /boot/vmlinuz-reinstall.img
 rm -f cdboot.img
 /sbin/grubby --add-kernel=/boot/vmlinuz-reinstall.img --initrd=/boot/initrd-reinstall.img --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell"
-""" % self.url
+""" % (self.version, self.url)
 
 
     def admins(self):
@@ -491,10 +494,10 @@ rm -f cdboot.img
             else:
                 key = defaultkey
 
-            if getDefault == 0:
-                cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/users -k '+key).read()[:-1]
+        if getDefault == 0:
+            cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/users -k '+key).read()[:-1]
                 
-                return cryptroot
+            return cryptroot
 
         if getDefault == 1:
             #Update the default root word
