@@ -1,13 +1,13 @@
 Solaris keywords:
 
-mac  <mac address>        UNIQUE, REQUIRED
+mac  <mac address>        ignored
 host <hostname>           UNIQUE, OPTIONAL, default is filename
 addr <IP address>         UNIQUE, OPTIONAL, default is DNS lookup of `host'
-sys  <AFS @sys name>      UNIQUE, REQUIRED
-cell  <AFS cell>          UNIQUE, REQUIRED
+sys  <AFS @sys name>      ignored
+cell  <AFS cell>          ignored
 dept  <department>        UNIQUE, OPTIONAL, default is "unity" for files
-root  <id>  <key>         UNIQUE, OPTIONAL, default is "default" and its key
-users <id>  <key>         UNIQUE, OPTIONAL, default is "default" and its key
+root  <MD5 Crypt>         OPTIONAL defaults to department/default client
+users <user list>	  if not present dept list from AFS is used
 owner <owner>             UNIQUE, REQUIRED
 printer <printername>     UNIQUE, OPTIONAL, no default
 workgrp <workgroup>       UNIQUE, OPTIONAL, no default *not really used*
@@ -20,19 +20,23 @@ Mine:
 lang <default lang>
 langs <list of langs to install>
 part <partition def>
-src <from/how to install>
+src <from/how to install>   
 version <version string>
 enable <service> <option>
+grub  <MD5 Crypt>         OPTIONAL
 
 Enables:
 
-mailmasq <domain>
+mailmasq <domain> can be empty for no masq'ing
+receivemail
 consolelogin
 localcluster <cluster>
 remotecluster <cluster>
 realmcron
-localusers
+normalusers <user list> users are added to users.local
 users <comma list>
-tmpclean
+notmpclean
 nox
-
+3bmouse
+grubpassword <MD5 crypt>
+reinstall <KS kernel line>
