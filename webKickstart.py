@@ -48,7 +48,7 @@ class webKickstart:
         security.cfg = self.cfg
 
 
-    def getKS(self, host, debug=0):
+    def getKS(self, host, debug=0, collision_detection=0):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
@@ -57,8 +57,17 @@ class webKickstart:
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]
 
+        # Get the value for collision_detection
+        collision_detection = collision_detection or self.cfg.enable_config_collision_detection
+
         try:
-            sc = self.findFile(filename)
+            sc = self.findFile(filename, collision_detection)
+
+            if type(sc) == type([]):
+                s = 'multiple config files found:<br>\n'
+                for line in sc:
+                    s += '\t' + line + '\n'
+                return (1, s)
 
             if not debug and sc != None:
                 # Security check
@@ -96,29 +105,40 @@ class webKickstart:
             return (42, s)
         
 
-
-    def findFile(self, fn, cd="./configs"):
-        # Look through dirs to find this file
-        #print "Looking for a file in: " + cd
+    def findFile(self, fn, collision_detection=0, cd="./configs", configs=[]):
+        #print "XXX: directory = %s" % cd
         try:
             list = os.listdir(cd)
         except OSError, e:
             s = str(e) + "\nDir: " + cd
             raise OSError(s)
-        if fn in list:
-            #print "Found file: " + os.path.join(cd, fn)
-            return solarisConfig(os.path.join(cd, fn))
-        else:
-            retval = None
-            dirs = self.getDirs(list, cd)
-            for dir in dirs:
-                retval = self.findFile(fn, dir)
-                if retval != None:
-                    return retval
-            # So we didn't find in, return None
-            return None
-
         
+        if fn in list and not os.path.join(cd, fn) in configs:
+            if collision_detection:
+                configs.append(os.path.join(cd, fn))
+                #print "XXX: added config (%s)" % os.path.join(cd, fn)
+                self.findFile(fn, collision_detection, cd, configs)
+            else:
+                return solarisConfig(os.path.join(cd, fn))
+        else:
+            #print "XXX: processing directories"
+            for dir in self.getDirs(list, cd):
+                if collision_detection:
+                    self.findFile(fn, collision_detection, dir, configs)
+                else:
+                    retval = self.findFile(fn, collision_detection, cd)
+                    if retval != None:
+                        return retval
+                    else:
+                        return None
+
+        if len(configs) == 0:
+            return None
+        elif len(configs) == 1:
+            return solarisConfig(configs[0])
+        else:
+            return configs
+
 
     def getDirs(self, dirlist, basepath=""):
         # Returns a list of all directories in the directory listing

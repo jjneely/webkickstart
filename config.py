@@ -44,6 +44,7 @@ class webksconf(ConfigParser.ConfigParser):
 
         self.enable_security = 0
         self.enable_generic_ks = 0
+        self.enable_config_collision_detection = 0
 
         self.defaultkey = None
 
@@ -68,6 +69,8 @@ class webksconf(ConfigParser.ConfigParser):
             self.enable_security = int(self._getoption('main','enable_security'))
         if self._getoption('main','enable_generic_ks') != None:
             self.enable_generic_ks = int(self._getoption('main','enable_generic_ks'))
+        if self._getoption('main','enable_config_collision_detection') != None:
+            self.enable_config_collision_detection = int(self._getoption('main','enable_config_collision_detection'))
 
         if self._getoption('main','defaultkey') != None:
             self.defaultkey = self._getoption('main','defaultkey')

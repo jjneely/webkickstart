@@ -42,11 +42,15 @@ def handler(req):
 
     # get the GET/POST thingies
     args = util.FieldStorage(req)
+    if 'collision_detection' in args.keys():
+        col_detect = 1
+    else:
+        col_detect = 0
     if 'debugtool' in args.keys():
         # Pass what we intered into the debug field and turn on debug mode
-        tuple = w.getKS(args['debugtool'], 1)
+        tuple = w.getKS(args['debugtool'], 1, col_detect)
     else:
-        tuple = w.getKS(ip)
+        tuple = w.getKS(ip, 0, col_detect)
 
     # send on the kickstart
     req.write(tuple[1])
