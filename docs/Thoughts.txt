@@ -1,0 +1,47 @@
+* Config file format needs changing
+- We don't appear to be using anthing close to what's documented
+  in /afs/bp/system/config/README.example
+- Geting rid of the brakets makes parsing much easer and less prone
+  to breakage.  (Looks like the current stuff is real easy to break.)
+- add a "use" keyword which is an include
+- tokens are broken by whitespace unless in quotes
+- for simplicity require that tokens may use quotes but must be
+  separated by whitespace.  Otherwise the quote will be considered
+  part of the token
+- We need to be able to include %post snippets
+- use /afs/bp/system/config/README.config as start
+
+* use a mod_python script
+- the php is a bit messy (of course, what PHP isn't...)
+- things can really be done much cleaner with a python module
+  and not have to rewrite code that does the same thing in a different
+  lanuguage
+
+* things we don't want to support
+- upgrades  -- this is just asking for problems
+- disabling user mountable media.  This doesn't work here.
+- receiving email.  This is bad because we don't modify sendmail any
+  more. 
+
+* change install sources
+- ftp and nfs
+- then maybe ftppams/nfspams
+- no coe crap
+- this should be done in a more dynamic way anyway
+  as in read config options out of DB
+
+* Update the realmcron stuff to use realmconfig 
+
+* use a dynamic way to determine what the config mean
+- with a ConfigParser object ??
+- pickles ??
+- handle different RK versions
+
+* use a class to define language
+- can be subclassed for differences and versions
+
+* file parsing
+- use commands based on one line
+- find %post section first and split out
+
+

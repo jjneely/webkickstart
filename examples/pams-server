@@ -1,0 +1,33 @@
+cell	eos.ncsu.edu
+dept	pams
+owner	'"PAMS Computer Operations" <root@pams.ncsu.edu>'
+
+root	esr mjHeRlz5RyNKy7HMW36aOOyU4vYzSp
+users	psr SoBDXrbbdN5ODmilITjixFX33575dF
+
+package  base
+enable   afs.client
+enable   cron
+enable   cron:update
+enable   config.files
+enable   config.files:copyto-/etc/passwd="/etc/passwd.base"
+enable   config.files:copyto-/etc/group="/etc/group.base"
+enable   config.files:copyto-/etc/printcap="/etc/printcap.base"
+enable   config.files:copyto-/var/spool/cron/crontabs/root="/etc/crontab.base"
+enable   fs.cleanup
+enable   inetsvc
+enable	 inetsvc:inetd
+enable   syslog
+enable   utmpd
+enable   zhm
+enable   rpc
+package  xdm
+enable   xdm
+enable   xdm:config-file="/usr/lib/X11/wdm/wdm-config"
+
+
+package  ssh
+enable   sshd:admin
+
+package  pams/utils/top
+package  pams/utils/syslog-report
