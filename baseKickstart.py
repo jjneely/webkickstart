@@ -203,9 +203,9 @@ class baseKickstart:
         else:
             src = "http"
         if src == "ftp":
-            url = "url --url ftp://kickstart.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
+            url = "url --url ftp://ftp.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
         elif src == "nfs":
-            url = "nfs --server kickstart.linux.ncsu.edu --dir /export/realmkit-%s" % self.version
+            url = "nfs --server ftp.linux.ncsu.edu --dir /export/realmkit-%s" % self.version
         elif src == "http":
             # this is default
             url = "url --url http://install.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
@@ -438,7 +438,7 @@ realmconfig --kickstart updates --enable-updates
             return """
 #set up a reinstall image
 cd /root
-ncftpget ftp://kickstart.linux.ncsu.edu/pub/realmkit/realmkit-%s/i386/dosutils/autoboot/*
+ncftpget ftp://ftp.linux.ncsu.edu/pub/realmkit/realmkit-%s/i386/dosutils/autoboot/*
 mv /root/initrd.img /boot/initrd-reinstall.img
 mv /root/vmlinuz /boot/vmlinuz-reinstall.img
 rm -f cdboot.img
