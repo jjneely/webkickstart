@@ -421,17 +421,3 @@ realmconfig --kickstart updates --enable-updates
             return "realmconfig --kickstart support --disable-support\n"
     
 
-    def extraPost(self):
-        # Attach %posts found in config files
-        post = "\n# The following scripts provided by the Jump Start confgs.\n"
-
-        for sc in self.configs:
-            script = sc.getPost()
-            post = post + script
-
-        if self.configs == []:
-            return ""
-        else:
-            return post
-
-

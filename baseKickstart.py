@@ -23,6 +23,7 @@
 from solarisConfig import solarisConfig
 import errors
 import string
+import os
 
 class baseKickstart:
     """Base class for generating a kickstart from a solarisConfig.  To be
@@ -50,7 +51,11 @@ class baseKickstart:
             if len(row['options']) != 1:
                 raise errors.ParseError("use key takes exactly one filename as an argument")
             else:
-                tmp_sc = solarisConfig(row['options'][0])
+                file = row['options'][0]
+                if not os.access(file, os.R_OK):
+                    raise errors.AccessError("Could not open included file '%s'" % file)
+                    
+                tmp_sc = solarisConfig(file)
                 self.includeFile(tmp_sc)
 
         # init buildOrder list
@@ -83,17 +88,23 @@ class baseKickstart:
            This does a streight merge without spacial cases for part,
            package, and use."""
         
+        flag = 0
+        
         for rec in t:
-            # For part and package we just append as we allow
+            # For part, use and package we just append as we allow
             # multiple entries for both keys
-            if rec['key'] != 'part' and rec['key'] != 'package' and rec['key'] != 'use':
-                for rec2 in self.table:
-                    # if key is not part or package then we let an identical
-                    # key from imported file override a present key.
-                    if rec['key'] == rec2['key'] and rec['enable'] == rec2['enable']:
-                        self.table.remove(rec2)
+            if rec['key'] == 'part' or rec['key'] == 'package' or rec['key'] == 'use':
+                self.table.append(rec)
+                continue
             
-            self.table.append(rec)
+            for rec2 in self.table:
+                # included configs cannot override alread present keys
+                if rec['key'] == rec2['key'] and rec['enable'] == rec2['enable']:
+                    flag = 1
+                    break
+                
+            if not flag:
+                self.table.append(rec)
         
             
     def getKeys(self, key, enable=None):
@@ -232,7 +243,7 @@ part swap --recommended
 part /boot --size 128
 part /tmp --size 256 --grow 
 part /var --size 1024
-part /var/cache --size 2048
+part /var/cache --size 1024
 """
         else:
             parts = ""
@@ -498,13 +509,15 @@ rm /etc/pam.d/login~\n
         # Attach %posts found in config files
         post = "\n# The following scripts provided by the Jump Start confgs.\n"
 
+        scriptlist = []
         for sc in self.configs:
-            script = sc.getPost()
-            post = post + script
+            scriptlist.append(sc.getPost())
 
-        if self.configs == []:
-            return ""
-        else:
-            return post
+        # Reverse the order so that scripts from higher level config files
+        # come after scripts included via the 'use' keyword
+        scriptlist.reverse()
+        post = post + string.join(scriptlist, "\n")
+
+        return post
 
 
