@@ -317,7 +317,7 @@ part /var/cache --size 1024
         if len(xtable) > 0:
             retval = "skipx\n"
         else:
-            retval = 'xconfig --hsync 31.5-57.0 --vsync 50-90 --startxonboot --resolution "1280x1024" --depth 16\n'
+            retval = 'xconfig --hsync 31.5-80.0 --vsync 50-90 --startxonboot --resolution "1280x1024" --depth 24\n'
 
         return retval
 
