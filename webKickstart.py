@@ -28,7 +28,7 @@ import traceback
 import sys
 import os
 import os.path
-
+import security
 
 
 class webKickstart:
@@ -45,7 +45,6 @@ class webKickstart:
         config.cfg = self.cfg
 
         if self.cfg.enable_security:
-            import security
             security.cfg = self.cfg
 
 

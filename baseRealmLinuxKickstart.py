@@ -60,7 +60,7 @@ class baseRealmLinuxKickstart(baseKickstart):
 
     def authConfig(self):
         return """
-auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.eos.ncsu.edu:88,kerberos-2.eos.ncsu.edu:88,kerberos-3.eos.ncsu.edu:88,kerberos-4.unity.ncsu.edu:88 --krb5adminserver kerberos.eos.ncsu.edu:749
+auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
 """
 
 
