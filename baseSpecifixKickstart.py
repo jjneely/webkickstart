@@ -23,5 +23,5 @@ from baseKickstart import baseKickstart
 class baseSpecifixKickstart(baseKickstart):
 
     def packages(self):
-        return "@foo"
+        return "%packages\n@foo"
 
