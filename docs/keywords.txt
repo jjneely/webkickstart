@@ -37,8 +37,8 @@ department.  User IDs are delimited with whitespace.
 
     owner <owner>
 
-Optional.  NOT IMPLEMENTED YET.  Take one option which should be a
-valid email address.  All of root's mail will be sent here.
+Optional.  Take one option which should be a valid email address.  All 
+of root's mail will be sent here.
 
     printer <printername>
 

@@ -67,6 +67,7 @@ class baseKickstart:
                            self.reinstall,
                            self.admins,
                            self.sendmail,
+                           self.owner,
                            self.consolelogin,
                            self.notempclean,
                            self.clusters,
@@ -557,6 +558,20 @@ rm -f cdboot.img
         retval = "%s %s %s\n" % (retval, daemon, masq)
 
         return retval
+
+
+    def owner(self):
+        owner = self.checkKey(1, 1, 'owner')
+        if owner == None:
+            return ""
+        else:
+            return """
+# Setup forwarding for root's mail
+cat << EOF >> /etc/aliases
+root:       %s
+EOF
+/usr/bin/newaliases
+""" % owner[0]
 
 
     def consolelogin(self):

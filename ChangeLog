@@ -3,6 +3,7 @@
 	* This is adding Elliot's GNU-ify patch.
 	* Today also got a new CD image for 9 that does the ksdevice=eth0
     magic.
+    * Implemented "owner" key
 
 2003-06-20 Jack Neely <jjneely@pams.ncsu.edu>
 
