@@ -223,3 +223,10 @@ web-kickstart system.  This key takes a space delimited list of NCSU
 user IDs and adds them to the user lists pulled from AFS that are placed
 in /etc/users.local, /etc/sudoers, and /root/.klogin.
 
+    enable staticip <ip> <netmask> <gateway> <nameserver>
+
+Optional.  Will configure the client to use static network information
+rather than DHCP.  (Note that DHCP is still required for web-kickstart
+install.)  After the client DHCPs and gets its kickstart these are the
+network settings it will use during install.
+

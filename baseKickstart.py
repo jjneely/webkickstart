@@ -202,7 +202,17 @@ class baseKickstart:
 
     def install(self):
         # network, install, and method parts of KS
-        retval = "install\nnetwork --bootproto dhcp\n"
+        retval = "install\n"
+
+        network = self.checkKey(4, 4, 'enable', 'staticip')
+        if network == None:
+            net = "network --bootproto dhcp\n" 
+        else:
+            net = "network --bootproto static --ip %s --netmask %s "
+            net = net + "--gateway %s --nameserver %s\n"
+            net = net % (network[0], network[1], network[2], network[3])
+
+        retval = "%s%s" % (retval, net)
 
         installtable = self.getKeys('src')
         if len(installtable) > 1:
