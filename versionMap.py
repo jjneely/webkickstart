@@ -21,8 +21,10 @@
 import baseKickstart
 import psycho
 import shreak
+import yarrow
 
 versionMap = { "7.3"    : baseKickstart.baseKickstart,
                "default": shreak.shreak,
-               "9"      : shreak.shreak }
+               "9"      : shreak.shreak,
+               "FC1"    : yarrow.yarrow }
                
