@@ -96,8 +96,7 @@ class baseKickstart:
                       'volgroup',
                       'logvol',
                       'package',
-                      'use',
-                      'firewall']
+                      'use']
         
         for rec in t:
             # For part, use and package we just append as we allow
@@ -370,7 +369,7 @@ part /var/cache --size 1024
 
 
         if len(firewallstatus) > 0:
-            ret = "nofirewall\n"
+            ret = "firewall --diabled\n"
         elif len(firewalltable) > 0:
             ret = ""
             for row in firewalltable:
