@@ -19,7 +19,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from solarisConfig import solarisConfig
-import exceptions
+import errors
 import string
 import os
 
@@ -30,12 +30,41 @@ class baseKickstart:
        generating a kickstart for the RK7.3."""
        
     table = []
-    callOrder = []
     configs = []
+    buildOrder = []
     
     def __init__(self, sc=None):
+        # suck in config file
         if not sc == None:
             self.includeFile(sc)
+
+        # suck in all includes
+        usetable = self.getKeys('use')
+        for row in usetable:
+            if len(row['options']) != 1:
+                raise errors.ParseError("use key takes exactly one filename as an argument")
+            else:
+                tmp_sc = solarisConfig(row['options'][0])
+                self.includeFile(tmp_sc)
+
+        # init buildOrder list
+        self.buildOrder = [self.language,
+                           self.install,
+                           self.partition,
+                           self.inputdevs,
+                           self.xconfig,
+                           self.rootwords,
+                           self.packages,
+                           self.startPost,
+                           self.reinstall,
+                           self.admins,
+                           self.sendmail,
+                           self.consolelogin,
+                           self.notempclean,
+                           self.clusters,
+                           self.department,
+                           self.printer,
+                           self.realmhooks ]
         
         
     def includeFile(self, sc):
@@ -95,21 +124,25 @@ class baseKickstart:
             strkey = key
                 
         if len(table) > 1:
-            raise exceptions.ParseError("Multiple %s keys found" % strkey)
+            raise errors.ParseError("Multiple %s keys found" % strkey)
 
         argc = len(table[0]['options'])
         if argc < min_argc:
-            raise exceptions.ParseError("%s key has too few arguments"%strkey)
+            raise errors.ParseError("%s key has too few arguments"%strkey)
         if argc > max_argc:
-            raise exceptions.ParseError("%s key has too many arguments"%strkey)
+            raise errors.ParseError("%s key has too many arguments"%strkey)
 
         return table[0]['options']
     
 
     def makeKS(self):
         """Return a string containing a RHL kickstart."""
+        retval = ""
+
+        for func in self.buildOrder:
+            retval = retval + func()
         
-        return ""
+        return retval
         
         
     def language(self):
@@ -118,13 +151,13 @@ class baseKickstart:
         langstable = self.getKeys('langs')
         
         if len(langtable) > 1:
-            raise exceptions.ParseError("lang key found multiple times")
+            raise errors.ParseError("lang key found multiple times")
         if len(langtable) > 0 and len(langtable[0]['options']) != 1:
-            raise exceptions.ParseError("lang key found with improper number of options")
+            raise errors.ParseError("lang key found with improper number of options")
         if len(langstable) > 1:
-            raise exceptions.ParseError("langs key found multiple times")
+            raise errors.ParseError("langs key found multiple times")
         if len(langstable) > 0 and not len(langstable[0]['options']) > 0:
-            raise exceptions.ParseError("langs key found with improper number of options")
+            raise errors.ParseError("langs key found with improper number of options")
 
         if len(langtable) > 0:
             lang = langtable[0]['options'][0]
@@ -147,9 +180,9 @@ class baseKickstart:
 
         installtable = self.getKeys('src')
         if len(installtable) > 1:
-            raise exceptions.ParseError("The src key is found multiple times")
+            raise errors.ParseError("The src key is found multiple times")
         if len(installtable) > 0 and len(installtable[0]['options']) != 1:
-            raise exceptions.ParseError("The src key takes one option only")
+            raise errors.ParseError("The src key takes one option only")
 
         if len(installtable) > 0:
             src = installtable[0]['options'][0]
@@ -160,7 +193,7 @@ class baseKickstart:
         elif src == "nfs":
             url = "nfs --server kickstart.linux.ncsu.edu --dir /export/realmkit-7.3"
         else:
-            raise exceptions.ParseError("Invalid option to src key")
+            raise errors.ParseError("Invalid option to src key")
 
         retval = "%s%s\n\n" %(retval, url)
         return retval
@@ -233,9 +266,9 @@ firewall --medium --ssh --dhcp
             if len(depttable[0]['options']) == 1:
                 dept = depttable[0]['options'][0]
             else:
-                raise exceptions.ParseError("dept key only takes 1 option")
+                raise errors.ParseError("dept key only takes 1 option")
         elif len(depttable) > 1:
-            raise exceptions.ParseError("dept key found multiple times")
+            raise errors.ParseError("dept key found multiple times")
 
         if dept == None:
             return "pams"
@@ -255,17 +288,17 @@ firewall --medium --ssh --dhcp
             if len(roottable[0]['options']) == 1:
                 rootmd5 = roottable[0]['options'][0]
             else:
-                raise exceptions.ParseError("root key only takes 1 option")
+                raise errors.ParseError("root key only takes 1 option")
         elif len(roottable) > 1:
-            raise exceptions.ParseError("root key found multiple times")
+            raise errors.ParseError("root key found multiple times")
 
         if len(grubtable) == 1:
             if len(grubtable[0]['options']) == 1:
                 grubmd5 = grubtable[0]['options'][0]
             else:
-                raise exceptions.ParseError("grub key only takes 1 option")
+                raise errors.ParseError("grub key only takes 1 option")
         elif len(grubtable) > 1:
-            raise exceptions.ParseError("grub key found multiple times")
+            raise errors.ParseError("grub key found multiple times")
         
         # okay now that we've error checked the hole in the wall...
         dept = self.getDept()
@@ -371,7 +404,7 @@ realmconfig --kickstart updates --enable-updates
         table = self.getKeys('enable', 'reinstall')
 
         if len(table) > 1:
-            raise exceptions.ParseError("Multiple reinstall keys found")
+            raise errors.ParseError("Multiple reinstall keys found")
         if len(table) == 0:
             # no enable reinstall
             # I'd do this by default but I'm not sure how to
@@ -380,7 +413,7 @@ realmconfig --kickstart updates --enable-updates
             return ""
 
         if len(table[0]['options']) > 1:
-            raise exceptions.ParseError("reinstall key only takes 1 option")
+            raise errors.ParseError("reinstall key only takes 1 option")
 
         ksline = table[0]['options'][0]
         return """
@@ -403,20 +436,20 @@ rm -f cdboot.img
         admin = []
 
         if len(userstable) > 1:
-            raise exceptions.ParseError("Multiple users keys found")
+            raise errors.ParseError("Multiple users keys found")
         if len(lusertable) > 1:
-            raise exceptions.ParseError("Multiple localuser keys found")
+            raise errors.ParseError("Multiple localuser keys found")
         if len(userstable) == 0:
             tmp = self.pullUsers(dept)
             admin = string.split(tmp)
         else:
             if len(userstable[0]['options']) == 0:
-                raise exceptions.ParseError("users key requires arguments")
+                raise errors.ParseError("users key requires arguments")
             admin = userstable[0]['options']
 
         if len(lusertable) == 1:
             if len(lusertable[0]['options']) == 0:
-                raise exceptions.ParseError("localuser key requires arguments")
+                raise errors.ParseError("localuser key requires arguments")
             for id in lusertable[0]['options']:
                 users.append(id)
 
@@ -480,14 +513,14 @@ rm -f cdboot.img
         gmtable = self.getKeys('enable', 'receivemail')
 
         if len(smtable) > 1:
-            raise exceptions.ParseError("Multiple mailmasq keys found")
+            raise errors.ParseError("Multiple mailmasq keys found")
         if len(gmtable) > 1:
-            raise exceptions.ParseError("Multiple receivemail keys found")
+            raise errors.ParseError("Multiple receivemail keys found")
 
         if len(smtable) > 0 and len(smtable[0]['options']) > 1:
-            raise exceptions.ParseError("mailmasq key only takes zero or one argument")
+            raise errors.ParseError("mailmasq key only takes zero or one argument")
         if len(gmtable) > 0 and len(gmtable[0]['options']) > 0:
-            raise exceptions.ParseError("receivemail key takes no arguments")
+            raise errors.ParseError("receivemail key takes no arguments")
 
         if len(smtable) > 0:
             if len(smtable[0]['options']) > 0:
@@ -513,9 +546,9 @@ rm -f cdboot.img
         ctable = self.getKeys('enable', 'consolelogin')
 
         if len(ctable) > 1:
-            raise exceptions.ParseError("Multiple consolelogin keys found")
+            raise errors.ParseError("Multiple consolelogin keys found")
         if len(ctable) > 0 and len(ctable[0]['options']) > 0:
-            raise exceptions.ParseError("consolelogin key takes no arguments")
+            raise errors.ParseError("consolelogin key takes no arguments")
 
         retval = """
 # disable login on the console for non-local users
@@ -533,9 +566,9 @@ rm /etc/pam.d/login~
         # Default here is to inable tmpwatch
         table = self.getKeys('enable', 'notempclean')
         if len(table) > 1:
-            raise exceptions.ParseError("Multiple notempclean keys found")
+            raise errors.ParseError("Multiple notempclean keys found")
         if len(table) > 0 and len(table[0]['options']) > 0:
-            raise exceptions.ParseError("notempclean key takes no arguments")
+            raise errors.ParseError("notempclean key takes no arguments")
 
         if len(table) == 1:
             return ""

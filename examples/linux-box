@@ -1,13 +1,13 @@
-mac	08:00:20:90:7a:89
+#mac	08:00:20:90:7a:89
+version 7.3
+#sys	sun4x_56
+#src ftp
+#version	7.3
+#lang en_US
+#langs en_US fr_FR
 
-sys	sun4x_56
-src ftp
-version	7.3
-lang en_US
-langs en_US fr_FR
-
-enable 3bmouse
-enable reinstall http://ks.blow.com/ks/
+#enable 3bmouse
+#enable reinstall http://ks.blow.com/ks/
 #package logwatch
 #package @Realm Kit Workstation
 
@@ -23,7 +23,7 @@ enable mailmasq pams.ncsu.edu
 #enable localcluster bob
 #enable remotecluster joe
 
-dept billyjoe
+#dept billyjoe
 
 #printer dab120
 #enable norealmcron

@@ -21,7 +21,7 @@
 import string
 import shlex
 import cStringIO
-import exceptions
+import errors
 
 class solarisConfig:
     """This class has tools and functions for parsing a solaris config file.
@@ -172,12 +172,12 @@ class solarisConfig:
         for rec in coms:
             if rec['key'] == 'version':
                 if len(rec['options']) != 1:
-                    raise exceptions.ParseError, "'version' key must have one argument."
+                    raise errors.ParseError, "'version' key must have one argument."
                 else:
                     return rec['options'][0]
             
         if not self.isKickstart():
-            raise exceptions.ParseError, "version key is required"
+            raise errors.ParseError, "version key is required"
         else:
             return None
             

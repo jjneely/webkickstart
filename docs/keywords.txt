@@ -32,7 +32,7 @@ receivemail
 consolelogin
 localcluster <cluster>
 remotecluster <cluster>
-realmcron
+norealmcron
 normalusers <user list> users are added to users.local
 users <comma list>
 notmpclean
