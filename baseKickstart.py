@@ -364,7 +364,7 @@ part /var/cache --size 1024
         
 
     def firewall(self):
-        firewalltable = self.checkKey(0, 1000, 'firewall')
+        firewalltable = self.checkKey(1, 1000, 'firewall')
         firewallstatus = self.checkKey(0, 0, 'enable', 'nofirewall')
 
         ret = "firewall --medium --ssh --dhcp\n"
