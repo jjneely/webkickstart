@@ -73,14 +73,17 @@ class webksconf:
                 self.db[option] = self._getoption('db',option)
         else:
             self.enable_security = 0
-
+        
+        # Require "default" section
+        if not self.cfg.has_section("default"):
+            raise errors.ConfigError('A "default" section is required.')
+        
         # make sure default is first in the list
+        # this enables the default to be parsed first so we can
+        # refer to the default in other sections
         sections = self.cfg.sections()
-        for i in range(len(sections)):
-            if sections[i] == 'default':
-                tmp = sections[0]
-                sections[0] = sections[i]
-                sections[i] = tmp
+        sections.remove("default")
+        sections.insert(0, "default")
 
         for section in sections:
             if section != 'main' and section != 'db':
@@ -133,16 +136,16 @@ class webksconf:
                     install_method = self._getdefault('install_method')
                 else:
                     install_method = 'ftp'
-
-                if self._getoption(section, 'module') != None and self._getoption(section, 'class') != None:
-                    module = self._getoption(section, 'module')
-                    module_class = self._getoption(section, 'class')
-                elif name == 'default':
-                    module = 'baseKickstart'
-                    module_class = 'baseKickstart'
-                else:
-                    module = self._getdefault('module')
-                    module_class = self._getdefault('module_class')
+                    
+                module = self._getoption(section, 'module')
+                module_class = self._getoption(section, 'module_class')
+                if module == None or module_class == None:
+                    if name == 'default':
+                        module = 'baseKickstart'
+                        module_class = 'baseKickstart'
+                    else:
+                        module = self._getdefault('module')
+                        module_class = self._getdefault('module_class')
 
                 self.versionMap[name] = {}
                 self.versionMap[name]['version'] = version
