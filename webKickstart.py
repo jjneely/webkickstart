@@ -20,8 +20,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from solarisConfig import solarisConfig
-from versionMap import versionMap
 
+import config
 import errors
 import socket
 import traceback
@@ -29,8 +29,14 @@ import sys
 import os
 import os.path
 
-import baseKickstart
-import security
+
+cfg = config.webksconf()
+config.cfg = cfg
+
+
+if cfg.enable_security:
+    import security
+    security.cfg = cfg
 
 class webKickstart:
 
@@ -56,20 +62,24 @@ class webKickstart:
             
             if not debug and sc != None:
                 # Security check
-                ok = security.check(self.headers, filename)
-                if not ok:
-                    return (2, "# You do not appear to be Anaconda.")
+                if cfg.enable_security:
+                    if not security.check(self.headers, filename):
+                        return (2, "# You do not appear to be Anaconda.")
                 
             if sc != None:
                 if sc.isKickstart():
                     return (0, sc.getFile())
             
                 version = sc.getVersion()
-                generator = versionMap[version](self.url, sc)
+                args = {'url': self.url, 'sc': sc}
+                generator = cfg.get_obj(version, args)
             else:
                 # disable the default, no-config file, generic kickstart
-                # generator = versionMap['default'](self.url)
-                return (1, "# No config file for host " + host)
+                if cfg.enable_generic_ks:
+                    args = {'url': self.url, 'sc': sc}
+                    generator = cfg.get_obj('default', args)
+                else:
+                    return (1, "# No config file for host " + host)
                 
             retval = generator.makeKS()
             del generator
@@ -88,7 +98,7 @@ class webKickstart:
         
 
 
-    def findFile(self, fn, cd="."):
+    def findFile(self, fn, cd="./configs"):
         # Look through dirs to find this file
         #print "Looking for a file in: " + cd
         try:

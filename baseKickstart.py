@@ -3,7 +3,8 @@
 # baseKickstart.py -- class to generate a kickstart from a solarisConfig
 #
 # Copyright 2002, 2003 NC State University
-# Written by Jack Neely <slack@quackmaster.net>
+# Written by Jack Neely <slack@quackmaster.net> and
+#            Elliot Peele <elliot@bentlogic.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,29 +23,26 @@
 from solarisConfig import solarisConfig
 import errors
 import string
-import os
 
 class baseKickstart:
     """Base class for generating a kickstart from a solarisConfig.  To be
-       subclassed
-       to handle multiple versions although this class should be successful at 
-       generating a kickstart for the RK7.3."""
+       subclassed to handle multiple versions although this class should be 
+       successful at generating a kickstart for Red Hat Linux 9."""
        
     table = []
     configs = []
     buildOrder = []
     url = ""
 
-    # To help make expanding this to other version even easier
-    version = "7.3"
-    
-    def __init__(self, url, sc=None):
+    def __init__(self, url, cfg, sc=None):
         # set url for reinstall
         self.url = url
-        
+
         # suck in config file
         if not sc == None:
             self.includeFile(sc)
+
+        self.cfg = cfg
 
         # suck in all includes
         usetable = self.getKeys('use')
@@ -66,14 +64,10 @@ class baseKickstart:
                            self.startPost,
                            self.reinstall,
                            self.admins,
-                           self.sendmail,
                            self.owner,
                            self.consolelogin,
                            self.notempclean,
-                           self.clusters,
-                           self.department,
                            self.printer,
-                           self.realmhooks,
                            self.extraPost ]
         
         
@@ -92,7 +86,7 @@ class baseKickstart:
         for rec in t:
             # For part and package we just append as we allow
             # multiple entries for both keys
-            if rec['key'] != 'part' and rec['key'] != 'package' and rec['key'] != "use":
+            if rec['key'] != 'part' and rec['key'] != 'package' and rec['key'] != 'use':
                 for rec2 in self.table:
                     # if key is not part or package then we let an identical
                     # key from imported file override a present key.
@@ -201,14 +195,17 @@ class baseKickstart:
         if len(installtable) > 0:
             src = installtable[0]['options'][0]
         else:
-            src = "http"
+            src = self.cfg['install_method']
         if src == "ftp":
-            url = "url --url ftp://ftp.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
+            url = "url --url ftp://%s/%s" % (self.cfg['ftp_server'], 
+                                             self.cfg['ftp_path'])
         elif src == "nfs":
-            url = "nfs --server ftp.linux.ncsu.edu --dir /export/realmkit-%s" % self.version
+            url = "nfs --server %s --dir %s" % (self.cfg['nfs_server'],
+                                                self.cfg['nfs_path'])
         elif src == "http":
             # this is default
-            url = "url --url http://install.linux.ncsu.edu/pub/realmkit/%s/i386" % self.version
+            url = "url --url http://%s/%s" % (self.cfg['http_server'],
+                                              self.cfg['http_path'])
         else:
             raise errors.ParseError("Invalid option to src key")
 
@@ -230,18 +227,41 @@ class baseKickstart:
         # We are just going to take what's in the cfg file and go with it
         if len(parttable) == 0:
             parts = """
-part / --size 4072
+part / --size 5120
 part swap --recommended
-part /boot --size 75
+part /boot --size 128
 part /tmp --size 256 --grow 
-part /var --size 390
-part /var/cache --size 512
+part /var --size 1024
+part /var/cache --size 2048
 """
         else:
             parts = ""
             for row in parttable:
                 tmp = "part " + string.join(row['options'])
                 parts = "%s%s\n" % (parts, tmp)
+
+            #Note: The raid and lvm stuff assumes that the user understands
+            #      the syntax for raid and lvm in kickstarts.
+                                                                                
+            raidtable = self.getKeys('raid')
+            raids = ""
+            for row in raidtable:
+                tmp = "raid " + string.join(row['options'])
+                raids = "%s%s\n" % (raids, tmp)
+                                                                                
+            volgrouptable = self.getKeys('volgroup')
+            volgroups = ""
+            for row in volgrouptable:
+                tmp = "volgroup " + string.join(row['options'])
+                volgroups = "%s%s\n" % (volgroups, tmp)
+                                                                                
+            logvoltable = self.getKeys('logvol')
+            logvols = ""
+            for row in logvoltable:
+                tmp = "logvol " + string.join(row['options'])
+                logvols = "%s%s\n" % (logvols, tmp)
+                                                                                
+            parts = "%s%s%s%s" % (parts, raids, volgroups, logvols)
 
         retval = "%s%s" % (retval, parts)
         return retval
@@ -256,12 +276,8 @@ part /var/cache --size 512
         else:
             retval = "mouse --emulthree genericps/2\n"
 
-        retval = "timezone US/Eastern\nkeyboard us\nreboot\n" + retval
-        retval = retval + """
-auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.eos.ncsu.edu:88,kerberos-2.eos.ncsu.edu:88,kerberos-3.eos.ncsu.edu:88,kerberos-4.unity.ncsu.edu:88 --krb5adminserver kerberos.eos.ncsu.edu:749
-
-firewall --medium --ssh --dhcp
-"""
+        retval = "timezone US/Eastern\nkeyboard us\nreboot\n%s" % retval
+        retval = "%sfirewall --medium --ssh --dhcp" % retval
 
         return retval
 
@@ -273,30 +289,11 @@ firewall --medium --ssh --dhcp
         if len(xtable) > 0:
             retval = "skipx\n"
         else:
-            retval = 'xconfig --hsync 31.5-57.0 --vsync 50-90 --startxonboot --resolution "1152x864" --depth 16\n'
+            retval = 'xconfig --hsync 31.5-57.0 --vsync 50-90 --startxonboot --resolution "1280x1024" --depth 16\n'
 
         return retval
 
 
-    def getDept(self):
-        # Get the department out
-        dept = None
-        depttable = self.getKeys('dept')
-
-        if len(depttable) == 1:
-            if len(depttable[0]['options']) == 1:
-                dept = depttable[0]['options'][0]
-            else:
-                raise errors.ParseError("dept key only takes 1 option")
-        elif len(depttable) > 1:
-            raise errors.ParseError("dept key found multiple times")
-
-        if dept == None:
-            return "pams"
-        else:
-            return dept
-
-        
     def rootwords(self):
         # handles the root password and grub password
         roottable = self.getKeys('rootpw')
@@ -327,12 +324,6 @@ firewall --medium --ssh --dhcp
         else:
             loc = "mbr"
         
-        # okay now that we've error checked the hole in the wall...
-        dept = self.getDept()
-
-        if rootmd5 == None:
-            rootmd5 = self.pullRoot(dept)
-
         if grubmd5 == None:
             retval = "bootloader --location %s\n" % loc
         else:
@@ -344,48 +335,12 @@ firewall --medium --ssh --dhcp
         return retval
         
 
-    def pullRoot(self, dptname=None):
-        # Get root MD5 crypt out of AFS
-        # Quite heavily based off code by John Berninger
-        
-        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
-        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
-        openssl = '/usr/bin/openssl'
-
-        key = ""
-
-        getDefault = 0
-        if dptname == None:
-            getDefault = 1
-        else:
-            if not os.access(conftree+dptname+'/root', os.R_OK):
-                getDefault = 1
-            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
-                keyline = os.popen('/bin/grep "^root\>" '+conftree+dptname+'/update.conf').read()[:-1]
-                (name, key) = string.split(keyline)
-            else:
-                key = defaultkey
-
-            if getDefault == 0:
-                cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/root -k '+key).read()[:-1]
-                
-                return cryptroot
-
-        if getDefault == 1:
-            #Update the default root word
-            cryptroot = os.popen(openssl+' bf -d -in '+conftree+'/root -k '+defaultkey).read()[:-1]
-            
-            return cryptroot
-        
-        raise StandardError("I shouldn't have gotten here in pullRoot()")
-
-     
     def packages(self):
         # Do the packages section of the KS
         packagetable = self.getKeys('package')
 
         if len(packagetable) == 0:
-            return "%packages\n@ Realm Kit Workstation\n"
+            return "%packages\n@ Workstation\n"
         else:
             retval = "%packages\n"
             for package in packagetable:
@@ -417,9 +372,6 @@ rm /etc/sysconfig/init~
 # fix /etc/hosts still
 (grep -v localhost /etc/hosts ; echo "127.0.0.1 localhost.localdomain   localhost") > /etc/hosts.new && mv /etc/hosts.new /etc/hosts
 
-# updates
-realmconfig --kickstart updates --enable-updates
-
 #so apropos works
 /usr/sbin/makewhatis >/dev/null 2>&1 || :
 
@@ -437,128 +389,52 @@ realmconfig --kickstart updates --enable-updates
         else:
             return """
 #set up a reinstall image
-cd /root
-ncftpget ftp://ftp.linux.ncsu.edu/pub/realmkit/realmkit-%s/i386/dosutils/autoboot/*
-mv /root/initrd.img /boot/initrd-reinstall.img
-mv /root/vmlinuz /boot/vmlinuz-reinstall.img
-rm -f cdboot.img
-/sbin/grubby --add-kernel=/boot/vmlinuz-reinstall.img --initrd=/boot/initrd-reinstall.img --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0"
-""" % (self.version, self.url)
+mkdir -p /boot/install
+cd /boot/install
+lftpget ftp://%s/%s/isolinux/vmlinuz
+lftpget ftp://%s/%s/isolinux/initrd.img
+mv /boot/install/vmlinuz /boot/install/vmlinuz-reinstall-%s
+mv /boot/install/initrd.img /boot/install/initrd-reinstall-%s.img
+cat << EOF >> /boot/grub/grub.conf
+title Reinstall Workstation
+        kernel /install/vmlinuz-reinstall-%s ks=%s ramdisk_size=8192 noshell ksdevice=eth0
+        initrd /install/initrd-reinstall-%s.img
+EOF
+""" % (self.cfg['ftp_server'], self.cfg['ftp_path'], self.cfg['ftp_server'], 
+       self.cfg['ftp_path'], self.cfg['version'], self.cfg['version'], 
+       self.cfg['version'], self.url, self.cfg['version'])
 
 
     def admins(self):
         # admin users
-        userstable = self.getKeys('enable', 'adminusers')
-        lusertable = self.getKeys('enable', 'normalusers')
-        dept = self.getDept()
-        users = []
-        admin = []
+        usertable = self.getKeys('user')
+        admintable = self.getKeys('admusers')
 
-        if len(userstable) > 1:
-            raise errors.ParseError("Multiple users keys found")
-        if len(lusertable) > 1:
-            raise errors.ParseError("Multiple localuser keys found")
-        tmp = self.pullUsers(dept)
-        admin = string.split(tmp)
-        if len(userstable) != 0:
-            if len(userstable[0]['options']) == 0:
-                raise errors.ParseError("users key requires arguments")
-            admin.extend(userstable[0]['options'])
+        retval = ""
 
-        if len(lusertable) == 1:
-            if len(lusertable[0]['options']) == 0:
-                raise errors.ParseError("localuser key requires arguments")
-            for id in lusertable[0]['options']:
-                users.append(id)
+        if len(admintable) > 1:
+            raise errors.ParseError("Multiple admusers keys found")
+        if len(admintable) == 1:
+            if len(admintable[0]['options']) == 0:
+                raise errors.ParseError("admuser key requires arguments")
 
-        retval = "cat << EOF > /root/.klogin\n"
-        for id in admin:
-            retval = "%s%s.root@EOS.NCSU.EDU\n" % (retval, id)
-        retval = "%sEOF\nchmod 400 /root/.klogin\n" % retval
-        retval = "%s\ncat << EOF >> /etc/sudoers\n" % retval
-        for id in admin:
-            retval = "%s%s  ALL=(ALL) ALL\n" % (retval, id)
-        retval = "%sEOF\nchmod 400 /etc/sudoers\n" % retval
+            retval = "%scat << EOF >> /etc/sudoers\n" % retval
+            for id in admintable[0]['options']:
+                retval = "%s%s  ALL=(ALL) ALL\n" % (retval, id)
+            retval = "%sEOF\nchmod 400 /etc/sudoers\n" % retval
 
-        retval = "%srealmconfig --kickstart auth --users " % retval
-        users.extend(admin)
-        retval = retval + string.join(users, ',') + "\n"
+        if len(usertable) > 0:
+            for id in usertable:
+                if len(id['options']) != 2:
+                    raise errors.ParseError("User key requires exactly " 
+                                            "two arguments")
+                else:
+                    retval = "%s/usr/sbin/useradd -p %s %s\n" % (retval, 
+                              user['options'][1], user['options'][0])
 
         return retval
+
     
-
-    def pullUsers(self, dptname=None):
-        # Get users out of AFS
-        # Quite heavily based off code by John Berninger
-        
-        conftree = '/afs/bp.ncsu.edu/system/@sys/update/'
-        defaultkey = 'HZv33Q6cqj7mLPVjX6qwiPRVcqswUsbL'
-        openssl = '/usr/bin/openssl'
-
-        key = ""
-
-        getDefault = 0
-        if dptname == None:
-            getDefault = 1
-        else:
-            if not os.access(conftree+dptname+'/users', os.R_OK):
-                getDefault = 1
-            elif os.access(conftree+dptname+'/update.conf', os.R_OK):
-                keyline = os.popen('/bin/grep "^users\>" '+conftree+dptname+'/update.conf').read()[:-1]
-                (name, key) = string.split(keyline)
-            else:
-                key = defaultkey
-
-        if getDefault == 0:
-            cryptroot = os.popen(openssl+' bf -d -in '+conftree+dptname+'/users -k '+key).read()[:-1]
-                
-            return cryptroot
-
-        if getDefault == 1:
-            #Update the default root word
-            cryptroot = os.popen(openssl+' bf -d -in '+conftree+'/users -k '+defaultkey).read()[:-1]
-            
-            return cryptroot
-        
-        raise StandardError("I shouldn't have gotten here in pullUsers()")
-
-
-     
-    def sendmail(self):
-        # Check for sendmail masq
-        # if none...use the default of unity.ncsu.edu
-        smtable = self.getKeys('enable', 'mailmasq')
-        gmtable = self.getKeys('enable', 'receivemail')
-
-        if len(smtable) > 1:
-            raise errors.ParseError("Multiple mailmasq keys found")
-        if len(gmtable) > 1:
-            raise errors.ParseError("Multiple receivemail keys found")
-
-        if len(smtable) > 0 and len(smtable[0]['options']) > 1:
-            raise errors.ParseError("mailmasq key only takes zero or one argument")
-        if len(gmtable) > 0 and len(gmtable[0]['options']) > 0:
-            raise errors.ParseError("receivemail key takes no arguments")
-
-        if len(smtable) > 0:
-            if len(smtable[0]['options']) > 0:
-                masq = "--masquerade " + smtable[0]['options'][0]
-            else:
-                masq = "--no-masq"
-        else:
-            masq = "--masquerade unity.ncsu.edu"
-
-        if len(gmtable) > 0:
-            daemon = "--enable-daemon"
-        else:
-            daemon = "--disable-daemon"
-        
-        retval = "realmconfig --kickstart sendmail"
-        retval = "%s %s %s\n" % (retval, daemon, masq)
-
-        return retval
-
-
     def owner(self):
         owner = self.checkKey(1, 1, 'owner')
         if owner == None:
@@ -586,7 +462,7 @@ EOF
 # disable login on the console for non-local users
 mv /etc/pam.d/login /etc/pam.d/login~
 sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
-rm /etc/pam.d/login~
+rm /etc/pam.d/login~\n
 """
         if len(ctable) == 1:
             return ""
@@ -603,74 +479,20 @@ rm /etc/pam.d/login~
             raise errors.ParseError("notempclean key takes no arguments")
 
         if len(table) == 1:
-            return ""
+            return "chkconfig tmpclean off\n\n"
         else:
-            return "realmconfig --kickstart tmpclean --enable-tmpclean\n"
+            return "chkconfig tmpclean on\n\n"
 
 
-    def clusters(self):
-        # Check for clustered logins
-        # defaults are "ncsu" for local and no cluster enabled for remote
-        # we can completely disable by setting cluster values to "None"
-        # localcluster <cluster>
-        # remotecluster <cluster>
-
-        local = self.checkKey(0, 1, 'enable', 'localcluster')
-        remote = self.checkKey(0, 1, 'enable', 'remotecluster')
-
-        if local == None:
-            lcluster = "ncsu"
-        elif len(local) == 0:
-            lcluster = ""
-        else:
-            lcluster = local[0]
-
-        if remote == None:
-            rcluster = "None"
-        elif len(remote) == 0:
-            rcluster = ""
-        else:
-            rcluster = remote[0]
-
-        if lcluster != "None":
-            retval = "realmconfig --kickstart clusters --local-enable %s\n" % (lcluster)
-        else:
-            retval = "realmconfig --kickstart clusters --local-disable\n"
-        if rcluster != "None":
-            retval = "%srealmconfig --kickstart clusters --remote-enable %s\n" % (retval, rcluster)
-        else:
-            retval = "%srealmconfig --kickstart clusters --remote-disable\n" % (retval)
-
-        return retval
-
-
-    def department(self):
-        # Set department
-
-        dept = self.getDept()
-
-        return "realmconfig --kickstart dept --set %s\n" % dept
-
-    
     def printer(self):
         # set up default printer.  default is lp
         printer = self.checkKey(1, 1, 'printer')
 
         if printer == None:
-            return "realmconfig --kickstart printing --default lp\n"
+            return "redhat-config-printer-tui --Xdefault --queue=lp\n"
         else:
-            return "realmconfig --kickstart printing --default %s\n" % printer[0]
+            return "redhat-config-printer-tui --Xdefault --queue=%s\n" % printer[0]
 
-
-    def realmhooks(self):
-        # set up realm hooks, default is to use them
-        hooks = self.checkKey(0, 0, 'enable', 'norealmcron')
-
-        if hooks == None:
-            return "realmconfig --kickstart support --enable-support\n"
-        else:
-            return "realmconfig --kickstart support --disable-support\n"
-    
 
     def extraPost(self):
         # Attach %posts found in config files
@@ -685,4 +507,4 @@ rm /etc/pam.d/login~
         else:
             return post
 
-        
+

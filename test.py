@@ -51,6 +51,12 @@
 #t = go.getKS('anduril.pams.ncsu.edu')
 #print t[1]
 
-import security
-print security.rootMD5('')
+#import security
+#print security.rootMD5('')
+
+#import config
+#obj = config.webksconf('./configfile')
+#import pprint
+#obj2 = pprint.PrettyPrinter(indent=2)
+#obj2.pprint(obj.versionMap)
 

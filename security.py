@@ -19,22 +19,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import ConfigParser
+import config
 import MySQLdb
 import time
 import os
 import os.path 
-
-configFile = "/afs/eos/www/linux/configs/web-kickstart.conf"
-
-try:
-    import debug
-    configFile = "/home/slack/projects/tmp/keys/testing.conf"
-except ImportError:
-    pass
-
-cnf = ConfigParser.ConfigParser()
-cnf.read(configFile)
 
 def check(headers, fqdn):
     # check for anaconda
@@ -60,10 +49,10 @@ def check(headers, fqdn):
 def getDB():
     # Return information about DB
     # returns (host, user, passwd, db)
-    host = cnf.get('main', 'host')
-    user = cnf.get('main', 'user')
-    passwd = cnf.get('main', 'passwd')
-    db = cnf.get('main', 'db')
+    host = cfg.db['host']
+    user = cfg.db['user']
+    passwd = cfg.db['passwd']
+    db = cfg.db['db']
 
     return (host, user, passwd, db)
 

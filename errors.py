@@ -27,3 +27,20 @@ class ParseError(StandardError):
         return self.value
         
 
+class AccessError(StandardError):
+
+    def __init__(self, value="An access error has occured."):
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
+
+class ConfigError(StandardError):
+                                                                                
+    def __init__(self, value="A config error has occured."):
+        self.value = value
+                                                                                
+    def __str__(self):
+        return self.value
+

@@ -180,4 +180,4 @@ class solarisConfig:
             raise errors.ParseError, "version key is required"
         else:
             return None
-            
+
