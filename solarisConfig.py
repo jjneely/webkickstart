@@ -2,7 +2,9 @@
 #
 # solarisConfig.py -- tools for parsing solaris config files
 #
-# Copyright, 2002 Jack Neely <slack@quackmaster.net>
+# Copyright 2002-2005 NC State University
+# Written by Jack Neely <slack@quackmaster.net> and
+#            Elliot Peele <elliot@bentlogic.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

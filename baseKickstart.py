@@ -2,7 +2,7 @@
 #
 # baseKickstart.py -- class to generate a kickstart from a solarisConfig
 #
-# Copyright 2002, 2003 NC State University
+# Copyright 2002-2005 NC State University
 # Written by Jack Neely <slack@quackmaster.net> and
 #            Elliot Peele <elliot@bentlogic.net>
 #
@@ -54,17 +54,7 @@ class baseKickstart:
         self.cfg = cfg
         
         # suck in all includes
-        usetable = self.getKeys('use')
-        for row in usetable:
-            if len(row['options']) != 1:
-                raise errors.ParseError("use key takes exactly one filename as an argument")
-            else:
-                file = row['options'][0]
-                if not os.access(file, os.R_OK):
-                    raise errors.AccessError("Could not open included file '%s'" % file)
-                
-                tmp_sc = solarisConfig(file)
-                self.includeFile(tmp_sc)
+        self.__handleUse(sc)
 
         # init buildOrder list
         self.buildOrder = [self.language,
@@ -83,7 +73,22 @@ class baseKickstart:
                            self.printer,
                            self.extraPost ]
         
-        
+
+    def __handleUse(self, sc):
+        """Handle recursive includes"""
+
+        for rec in sc.parseCommands():
+            if rec['key'] == 'use':
+                if len(rec['options']) != 1:
+                    raise errors.ParseError, "'use' key must have one argument."
+                elif rec['options'][0] in self.configs:
+                    raise errors.ParseError, "Recursive 'use' loop detected."
+                else:
+                    tmp_sc = solarisConfig(rec['options'][0])
+                    self.includeFile(tmp_sc)
+                    self.__handleUse(tmp_sc)
+
+
     def includeFile(self, sc):
         """Parse a solarisConfig object."""
         

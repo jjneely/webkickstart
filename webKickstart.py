@@ -3,7 +3,9 @@
 # webKickstart.py -- finds solaris config file or ks and builds string
 #                    to send out apache
 #
-# Copyright, 2002 Jack Neely <slack@quackmaster.net>
+# Copyright 2002-2005 NC State University
+# Written by Jack Neely <slack@quackmaster.net> and
+#            Elliot Peele <elliot@bentlogic.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -3,7 +3,7 @@
 # baseRealmLinuxKickstart.py -- class to generate a kickstart from a 
 #                               solarisConfig
 #
-# Copyright 2002, 2003 NC State University
+# Copyright 2002-2005 NC State University
 # Written by Jack Neely <slack@quackmaster.net> and
 #            Elliot Peele <elliot@bentlogic.net>
 #

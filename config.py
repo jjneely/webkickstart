@@ -2,8 +2,8 @@
 #
 # config.py -- Configuration class for webKickstrart
 #
-# Copyright 2003 NC State University
-# Written by Elliot Peele <ebpeele2@pams.ncsu.edu>
+# Copyright 2003-2005 NC State University
+# Written by Elliot Peele <elliot@bentlogic.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
