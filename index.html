@@ -89,18 +89,20 @@ key.  See the examples above.</li>
 works with all types of mice that the Red Hat Kickstart stuff knows
 of.  See the docs.</li>
 <li>Added support for the 8.0 RK.  The version string is "8.0".</li>
+<li>02/14/03 - 
+Moved the Debug Tool to a WRAP'd directory that's served from 
+secure.linux.ncsu.edu to protect the information while you are debuging.</li>
 </ul>
 
 <h2>Debuging Tool</h2>
-<form action="ks.py" method="post">
 <p>
-This tool is provided so that you can test the system and see the
-kickstart that it will send a specific machine.  It should be very
-useful for tracking down configuration error and bugs in the system.
-Enter the DNS host name or the IP address of a machine below to see
-the Red Hat Linux Kickstart that would be generated for it.</p>
-<p>IP or host name: <input type="text" name="debugtool">
-<input type="submit"></p>
+For security reasons the debuging tool has been moved to a WRAP protected
+directory.  Please email <a href="mailto:linux@help.ncsu.edu">
+linux@help.ncsu.edu</a> if you are not on the access list and think you
+should be.  Otherwise, 
+<a href="https://secure.linux.ncsu.edu/web-kickstart/WRAP/index.html">
+start debuging</a>.
+</p>
 
 </body>
 </html>
