@@ -1,0 +1,51 @@
+[main]
+debug_level = 0
+log_level = 0
+error_level = 3
+enable_security = 0
+enable_generic_ks = 0
+
+[db]
+host = localhost.localdomain
+user = solaris2ks
+passwd = solaris2ks
+db = solaris2ks
+
+[default]
+version = 9
+install_method = ftp
+nfs_server = ftp.linux.ncsu.edu
+nfs_path = /export/redhat-9
+ftp_server = ftp.linux.ncsu.edu
+ftp_path = /pub/redhat/linux/9/en/os/i386
+
+[9]
+version = 9
+nfs_path = /export/redhat-9
+ftp_path = /pub/redhat/linux/9/en/os/i386
+
+[fc1]
+version = 1
+nfs_path = /export/fedora-core-1
+ftp_path = /pub/fedora/linux/core/1/i386
+
+[RealmLinux9]
+version = 9
+install_method = http
+module = baseRealmLinuxKickstart
+class = baseRealmLinuxKickstart
+nfs_path = /export/realmkit-9
+ftp_path = /pub/realmkit/9/i386
+http_server = install.linux.ncsu.edu
+http_path = /pub/realmkit/9/i386
+
+[RealmLinuxFC1]
+version = FC1
+install_method = http
+module = baseRealmLinuxKickstart
+class = baseRealmLinuxKickstart
+nfs_path = /export/realmkit-FC1
+ftp_path = /pub/realmkit/realmkit-FC1/i386
+http_server = install.linux.ncsu.edu
+http_path = /pub/realmkit/realmkit-FC1/i386
+
