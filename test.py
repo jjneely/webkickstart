@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-from solarisConfig import *
+#from solarisConfig import *
 
-cf = solarisConfig('examples/linux-box')
+#cf = solarisConfig('examples/linux-box')
 #p = cf.parseCommands()
 #for i in p:
 #    print i
@@ -13,9 +13,9 @@ cf = solarisConfig('examples/linux-box')
 #cf = solarisConfig('examples/ks.cfg')
 #print cf.isKickstart()
 
-from baseKickstart import *
+#from baseKickstart import *
 
-ks = baseKickstart(cf)
+#ks = baseKickstart(cf)
 #ks.includeFile(solarisConfig('examples/pams-server'))
 #for i in ks.table:
 #   print i
@@ -43,10 +43,14 @@ ks = baseKickstart(cf)
 #print ks.pullUsers('pams')
 #print ks.pullRoot('pams')
 
-import socket
-import webKickstart
+#import socket
+#import webKickstart
 #print socket.gethostbyaddr("anduril.pams.ncsu.edu")
 
-go = webKickstart.webKickstart("http://MY SERVER HERE/")
-t = go.getKS('anduril.pams.ncsu.edu')
-print t[1]
+#go = webKickstart.webKickstart("http://MY SERVER HERE/")
+#t = go.getKS('anduril.pams.ncsu.edu')
+#print t[1]
+
+import security
+print security.rootMD5('')
+

@@ -22,6 +22,8 @@
 import ConfigParser
 import MySQLdb
 import time
+import os
+import os.path 
 
 configFile = "/afs/eos/www/linux/configs/web-kickstart.conf"
 
@@ -30,6 +32,9 @@ try:
     configFile = "/home/slack/projects/tmp/keys/testing.conf"
 except ImportError:
     pass
+
+cnf = ConfigParser.ConfigParser()
+cnf.read(configFile)
 
 def check(headers, fqdn):
     # check for anaconda
@@ -51,8 +56,6 @@ def check(headers, fqdn):
 def getDB():
     # Return information about DB
     # returns (host, user, passwd, db)
-    cnf = ConfigParser.ConfigParser()
-    cnf.read(configFile)
     host = cnf.get('main', 'host')
     user = cnf.get('main', 'user')
     passwd = cnf.get('main', 'passwd')
@@ -87,5 +90,50 @@ def loghost(fqdn):
     conn.close()
 
 
+def rootMD5(group, key=None):
+    """Returns the MD5 Hash for the root password for this admin group
+       or, on failure the default MD5 hash."""
 
-        
+    return _decryptData('root.md5', group, key)
+
+
+def adminUsers(group, key=None):
+    """Returns a list of admin users.  If the list for the admin group is 
+       not found the default list will be returned."""
+
+    data = _decryptData('users', group, key)
+
+    list = data.split()
+    return list
+
+
+def _decryptData(what, group, key=None):
+    """Returns a stripped string of data.  what can be 'root.md5' or 'users'.
+       Pulls information out of the conftree."""
+
+    defaultkey = cnf.get('update', 'defaultkey')
+    conftree = '/afs/bp.ncsu.edu/system/common/update'
+    openssl = '/usr/bin/openssl'
+    
+    if key == None:
+        #print "key is None...using default"
+        group = 'default'
+        key = defaultkey
+    else:
+        # check if group exists
+        path = os.path.join(conftree, what, group)
+        if not os.access(path, os.R_OK):
+            #print "Data file missing, using default"
+            group = 'default'
+            key = defaultkey
+    
+    path = os.path.join(conftree, what, group)
+    command = "%s bf -d -k %s -in %s" % (openssl, key, path)
+    pipe = os.popen(command)
+    stuff = pipe.read().strip()
+    ret = pipe.close()
+    if not ret == None:
+        raise StandardError,"Blowfish decryption failed in security.decryptData"
+
+    return stuff
+    
