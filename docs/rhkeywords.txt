@@ -101,6 +101,10 @@ Linux 9.
 Optional.  Use this key to specify a password from grub, the
 bootloader.  You must use an MD5 Crypt here.
 
+    driveorder <devices>
+
+Optional.  Use this key to redefine the drive boot order.
+
     mouse [options] <mouse type>
 
 Optional.  This key will define the exact type of mouse connected to

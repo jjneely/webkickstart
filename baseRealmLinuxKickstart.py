@@ -288,6 +288,27 @@ realmconfig --kickstart updates --enable-updates
         return retval
 
 
+    def consolelogin(self):
+        # are text console treated as local users?  Default is no.
+        ctable = self.getKeys('enable', 'consolelogin')
+
+        if len(ctable) > 1:
+            raise errors.ParseError("Multiple consolelogin keys found")
+        if len(ctable) > 0 and len(ctable[0]['options']) > 0:
+            raise errors.ParseError("consolelogin key takes no arguments")
+
+        retval = """
+# disable login on the console for non-local users
+mv /etc/pam.d/login /etc/pam.d/login~
+sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
+rm /etc/pam.d/login~\n
+"""
+        if len(ctable) == 1:
+            return ""
+        else:
+            return retval
+
+
     def notempclean(self):
         # Default here is to inable tmpwatch
         table = self.getKeys('enable', 'notempclean')

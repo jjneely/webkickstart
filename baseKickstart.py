@@ -79,7 +79,6 @@ class baseKickstart:
                            self.reinstall,
                            self.admins,
                            self.owner,
-                           self.consolelogin,
                            self.notempclean,
                            self.printer,
                            self.extraPost ]
@@ -382,6 +381,7 @@ part /var/cache --size 1024
         roottable = self.getKeys('rootpw')
         grubtable = self.getKeys('grub')
         bootlocation = self.getKeys('enable', 'keepmbr')
+        driveorder = self.getKeys('driveorder')
 
         rootmd5 = None
         grubmd5 = None
@@ -408,10 +408,18 @@ part /var/cache --size 1024
             loc = "mbr"
         
         if grubmd5 == None:
-            retval = "bootloader --location %s\n" % loc
+            retval = "bootloader --location %s" % loc
         else:
-            retval = "bootloader --location %s --md5pass %s\n" % (loc, grubmd5)
-        retval = "%srootpw --iscrypted %s\n" %(retval, rootmd5)
+            retval = "bootloader --location %s --md5pass %s" % (loc, grubmd5)
+
+        if len(driveorder) == 1:
+            retval += ' --driveorder '
+            for drive in driveorder[0]['options']:
+                retval += '%s ' % drive
+        elif len(driveorder) > 1:
+            raise errors.ParseError('driveorder key found more than once')
+
+        retval = "%s\nrootpw --iscrypted %s\n" %(retval, rootmd5)
         del rootmd5
         del grubmd5
 
@@ -546,27 +554,6 @@ root:       %s
 EOF
 /usr/bin/newaliases
 """ % owner[0]
-
-
-    def consolelogin(self):
-        # are text console treated as local users?  Default is no.
-        ctable = self.getKeys('enable', 'consolelogin')
-
-        if len(ctable) > 1:
-            raise errors.ParseError("Multiple consolelogin keys found")
-        if len(ctable) > 0 and len(ctable[0]['options']) > 0:
-            raise errors.ParseError("consolelogin key takes no arguments")
-
-        retval = """
-# disable login on the console for non-local users
-mv /etc/pam.d/login /etc/pam.d/login~
-sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
-rm /etc/pam.d/login~\n
-"""
-        if len(ctable) == 1:
-            return ""
-        else:
-            return retval
 
 
     def notempclean(self):

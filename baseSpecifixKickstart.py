@@ -23,5 +23,12 @@ from baseKickstart import baseKickstart
 class baseSpecifixKickstart(baseKickstart):
 
     def packages(self):
-        return "%packages\n@foo"
+        if len(self.getKeys('package')) == 0:
+            return '%packages'
+        else:
+            return baseKickstart.packages(self)
+
+    def printer(self):
+        return ''
+
 
