@@ -27,7 +27,8 @@ class solarisConfig:
 	"""This class has tools and functions for parsing a solaris config file.
 	   We can recognize if this is a normal kickstart instead.  This class is
 	   ment to be used by a factory class to produce a Red Hat Kickstart."""
-	   
+	
+	filename = ""
 	filedata = ""
 	filecommands = []
 	fileposts = []
@@ -37,6 +38,7 @@ class solarisConfig:
 	def __init__(self, filename):
 		file = open(filename)
 		# Do we need to handle exception or let them propigate up?
+		self.filename = filename
 		
 		self.filedata = file.read()
 		file.close()

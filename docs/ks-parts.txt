@@ -1,0 +1,63 @@
+Functional parts to a kickstart
+17 parts
+
+Languages:
+	lang <blah>
+	langsupport <blah>
+
+Install server:
+	network --bootproto dhcp
+	<install method>
+	install (as opposed to upgrade)
+
+Partioning:
+	zerombr yes
+	clearpart --all
+	part <options>
+	<...>
+
+Input devices and stuff we don't modify at all:
+	keyboard us
+	mouse generic3ps/2
+	timezone US/Eastern
+	auth ...
+	firewall ...
+
+X Config:
+	xconfig ...
+
+Root Password:
+	rootpw <blah>
+	bootloader <blah password>
+
+Packages:
+	%packages
+	<blah>
+
+Post:
+	Enable DNS
+	/.version files
+	non-interactive boot
+	fix /etc/hosts
+	apropos??
+	updates
+
+	set up reinstall
+
+	users
+	ksu
+	sudo
+
+	sendmail masqerade
+
+	consolelogin
+
+	tmpwatch
+
+	cluster logins
+
+	department
+
+	default printer
+
+	realmhooks	
