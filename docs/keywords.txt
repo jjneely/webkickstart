@@ -191,4 +191,9 @@ require a URL of the web-kickstart server which is generated from the
 Apache request object when a request to generate a Kickstart is
 received.  There's a -u option to check.py to work with this as well.
 
+    enable keepmbr
+
+Optional.  Does not replaced the MBR with the bootloader.  Instead the
+bootloader is placed in the boot partition which is normally /boot.
+
 

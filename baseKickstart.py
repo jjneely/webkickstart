@@ -2,7 +2,8 @@
 #
 # baseKickstart.py -- class to generate a kickstart from a solarisConfig
 #
-# Copyright, 2002 Jack Neely <slack@quackmaster.net>
+# Copyright 2002, 2003 NC State University
+# Written by Jack Neely <slack@quackmaster.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -299,6 +300,7 @@ firewall --medium --ssh --dhcp
         # handles the root password and grub password
         roottable = self.getKeys('root')
         grubtable = self.getKeys('grub')
+        bootlocation = self.getKeys('enable', 'keepmbr')
 
         rootmd5 = None
         grubmd5 = None
@@ -319,6 +321,11 @@ firewall --medium --ssh --dhcp
         elif len(grubtable) > 1:
             raise errors.ParseError("grub key found multiple times")
         
+        if len(bootlocation) > 0:
+            loc = "partition"
+        else:
+            loc = "mbr"
+        
         # okay now that we've error checked the hole in the wall...
         dept = self.getDept()
 
@@ -326,9 +333,9 @@ firewall --medium --ssh --dhcp
             rootmd5 = self.pullRoot(dept)
 
         if grubmd5 == None:
-            retval = "bootloader --location mbr\n"
+            retval = "bootloader --location %s\n" % loc
         else:
-            retval = "bootloader --location mbr --md5pass %s\n" % grubmd5
+            retval = "bootloader --location %s --md5pass %s\n" % (loc, grubmd5)
         retval = "%srootpw --iscrypted %s\n" %(retval, rootmd5)
         del rootmd5
         del grubmd5
