@@ -89,11 +89,18 @@ class baseKickstart:
            package, and use."""
         
         flag = 0
+
+        exceptions = ['part',
+                      'raid',
+                      'volgroup',
+                      'logvol',
+                      'package',
+                      'use']
         
         for rec in t:
             # For part, use and package we just append as we allow
             # multiple entries for both keys
-            if rec['key'] == 'part' or rec['key'] == 'package' or rec['key'] == 'use':
+            if rec['key'] in exceptions:
                 self.table.append(rec)
                 continue
             
