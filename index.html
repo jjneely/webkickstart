@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>Jump Start for the Linux Realm Kit</title>
+</head>
+<body>
+
+<h1>Jump Start for the Linux Realm Kit</h1>
+
+<p>Red Hat Linux uses an automated install system known as Kickstart.
+Very basically, this is a detailed text file that the Red Hat Linux
+installer can retreive and use to install the machine rather than
+asking the a human many questions.  One of the most powerfull methods
+of delivering a kickstart file to the installer is by HTTP which
+allows complex scripting to generate the proper kickstart file.  This
+is what we are doing here.</p>
+
+<p>The Solaris Kit on campus uses the Solaris equivalent known as Jump
+Start which has a few key advantages.  First, its well known and
+understood around campus, it uses include files much more easily that
+kickstart can, and most common configurations can be done in four or
+five lines rather than hundreds.  Hence, this system was developed to
+take a config file in the form of a Solaris Jump Start, convert it to
+a Red Hat Kickstart, and HTTP it directly to the requesting client for
+instalation.</p>
+
+<p>Maintained by <a href="mailto:linux@help.ncsu.edu">Jack Neely</a>.</p>
+
+<h2>Documentation</h2>
+
+<p>Its documentation.  Of course its in progress.  More information to
+come as things get written.</p>
+
+<p>This system will send out a very generic kickstart to clients that
+have not been otherwise configured.  The default is very functional
+but there are a few things you will want to customize.</p>
+
+<h2>Debuging Tool</h2>
+<form action="ks.py" method="post">
+<p>
+This tool is provided so that you can test the system and see the
+kickstart that it will send a specific machine.  It should be very
+useful for tracking down configuration error and bugs in the system.
+Enter the DNS host name or the IP address of a machine below to see
+the Red Hat Linux Kickstart that would be generated for it.</p>
+<p>IP or host name: <input type="text" name="debugtool">
+<input type="submit"></p>
+
+</body>
+</html>
