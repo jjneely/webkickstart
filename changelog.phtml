@@ -72,7 +72,26 @@ Fixed #296 which adds the key 'enable staticip' to configure a client
 with a static IP address rather than DHCP.  See the documentation
 for exact usage.  Note that web-kickstart will requires DHCP to get
 the kickstart to the client.</li>
-
+<li>3/29/04 -
+Got some great feedback from a user about the web page and documentation.
+The web page and docs were updated to try to make them more user
+friendly.</li>
+<li>3/31/04 -
+Added support for Realm Linux WS3.  Use 'WS3' for the version string.</li>
+<li>4/20/04 -
+Added <i>enable activationkey &lt;key&gt;</i>.  This allows you to use
+a non-default RHN activation key to register RHEL-based systems.</li>
+<li>4/23/04 -
+Added a call to up2date for RHEL.  This installs all updates to the system
+during post-install rather than having to wait until the nightly cron 
+job.</li>
+<li>05/12/04 -
+Ported some bugfixes and improvements from the devel branch to stable.
+This fixes usage problems with raid and LVM associated keys.</li>
+<li>05/16/04 - 
+Merged changes from stable branch to head. Added "firewall" keyword that works 
+just like Red Hat's kickstart and enable "nofirewall" which disables the 
+firewall all together.</li>
 </ul>
 
 </body>

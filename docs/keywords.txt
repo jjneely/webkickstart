@@ -125,6 +125,12 @@ Optional.  Use this key to specify a password from grub, the
 bootloader.  You must use an MD5 Crypt here.  If left blank the root
 MD5 from AFS will be used.  See the root key.
 
+    firewall --enabled|--disabled [--trust=] <device> [--port=]
+
+Optional.  Use only if you need to change the default firewall rules.  Most
+people shouldn't need to do this.  Follows same format as kickstart firewall
+key. See Red Hat kickstart documentation for more information.
+
     mouse [options] <mouse type>
 
 Optional.  This key will define the exact type of mouse connected to
@@ -188,7 +194,7 @@ root and user information from AFS.  Also runs cron jobs from AFS.
 This is required for support from the Realm Kit for Red Hat Linux
 Developers.
 
-   enable normalusers <user list>
+    enable normalusers <user list>
 
 Optional.  Adds given users to /etc/users.local.  Does not give the
 users any administrative abilities.  Multiple user IDs can be
@@ -229,4 +235,17 @@ Optional.  Will configure the client to use static network information
 rather than DHCP.  (Note that DHCP is still required for web-kickstart
 install.)  After the client DHCPs and gets its kickstart these are the
 network settings it will use during install.
+
+    enable activationkey <key>
+
+Optional.  For RHEL based versions of Realm Linux you can supply the
+activation key that the rhnreg_ks program will use to register the
+machine.  Keys are used instead of RHN username/password pairs.  The key
+will register your machine, assign it to one or more groups, and
+associate this machine with the Realm Linux RHN channels.
+
+    enable nofirewall
+
+Optional.  Disables default firewall that is provided by the installer. Will
+overide any use of the firewall keyword.
 

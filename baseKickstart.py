@@ -63,6 +63,7 @@ class baseKickstart:
                            self.install,
                            self.partition,
                            self.inputdevs,
+                           self.firewall,
                            self.xconfig,
                            self.rootwords,
                            self.packages,
@@ -95,7 +96,8 @@ class baseKickstart:
                       'volgroup',
                       'logvol',
                       'package',
-                      'use']
+                      'use',
+                      'firewall']
         
         for rec in t:
             # For part, use and package we just append as we allow
@@ -305,7 +307,6 @@ part /var/cache --size 1024
             retval = "mouse --emulthree genericps/2\n"
 
         retval = "timezone US/Eastern\nkeyboard us\nreboot\n%s" % retval
-        retval = "%sfirewall --medium --ssh --dhcp" % retval
 
         return retval
 
@@ -363,6 +364,21 @@ part /var/cache --size 1024
         return retval
         
 
+    def firewall(self):
+        firewalltable = self.getKeys('firewall')
+        firewallstatus = self.getKeys('enable', 'nofirewall')
+
+
+        if len(firewallstatus) > 0:
+            ret = "nofirewall\n"
+        elif len(firewalltable) > 0:
+            ret = ""
+            for row in firewalltable:
+                ret = "%sfirewall %s\n" % (ret, string.join(row['options']))
+
+        return ret
+
+
     def packages(self):
         # Do the packages section of the KS
         packagetable = self.getKeys('package')
@@ -411,10 +427,10 @@ rm /etc/sysconfig/init~
         table = self.getKeys('enable', 'noreinstall')
 
         opts = self.checkKey(0, 0, 'enable', 'noreinstall')
-        if opts == [] or self.cfg['isntall_method'] == 'nfs':
+        if opts == [] or self.cfg['install_method'] == 'nfs':
             # Key was not found
             return ""
-        else
+        else:
             return """
 #set up a reinstall image
 mkdir -p /boot/install
@@ -427,7 +443,7 @@ mv /boot/install/initrd.img /boot/install/initrd-reinstall-%s.img
 """ % (self.cfg['install_method'], self.cfg['%s_server' % self.cfg['install_method']], 
        self.cfg['%s_path' % self.cfg['install_method']], self.cfg['install_method'],
        self.cfg['%s_server' % self.cfg['install_method']], 
-       self.cfg['%s_path' %s self.cfg['install_method']], self.cfg['version'], 
+       self.cfg['%s_path' % self.cfg['install_method']], self.cfg['version'], 
        self.cfg['version'], self.cfg['version'], self.url, self.cfg['version'])
 
 

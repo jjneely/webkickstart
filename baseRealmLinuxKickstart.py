@@ -40,6 +40,7 @@ class baseRealmLinuxKickstart(baseKickstart):
                            self.install,
                            self.partition,
                            self.inputdevs,
+                           self.firewall,
                            self.authConfig,
                            self.xconfig,
                            self.rootwords,

@@ -10,7 +10,15 @@ enable normalusers jjneely
 enable mailmasq pams.ncsu.edu
 dept pams
 printer dab120
+
+# A generic PS/2 2 button mouse
 mouse --emulthree genericps/2
+
+# A 2 button PS/2 wheel mouse
+# mouse --emulthree genericwheelps/2
+
+# A 3 button USB mouse 
+# mouse generic3usb
 
 %post
 
