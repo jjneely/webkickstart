@@ -62,6 +62,8 @@ class webKickstart:
                 return (1, "# No config file for host " + host)
                 
             retval = generator.makeKS()
+            del generator
+            del sc
             return (0, retval)
         except:
             text = traceback.format_exception(sys.exc_type,

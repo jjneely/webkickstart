@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# versionMap.py -- Maps version numbers to kickstart generator classes
+# psycho.py -- class to generate kickstart from solars config for rk8.0
 #
 # Copyright, 2002 Jack Neely <slack@quackmaster.net>
 #
