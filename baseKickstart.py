@@ -398,7 +398,7 @@ rm -f cdboot.img
         retval = "%s\ncat << EOF >> /etc/sudoers\n" % retval
         for id in admin:
             retval = "%s%s  ALL=(ALL) ALL\n" % (retval, id)
-        retval = "%sEOF\nchmod 440 /etc/sudoers\n" % retval
+        retval = "%sEOF\nchmod 400 /etc/sudoers\n" % retval
 
         retval = "%srealmconfig --kickstart auth --users " % retval
         users.extend(admin)
@@ -444,4 +444,36 @@ rm -f cdboot.img
 
 
      
- 
+    def sendmail(self):
+        # Check for sendmail masq
+        # if none...use the default of unity.ncsu.edu
+        smtable = self.getKeys('enable', 'mailmasq')
+        gmtable = self.getKeys('enable', 'receivemail')
+
+        if len(smtable) > 1:
+            raise exceptions.ParseError("Multiple mailmasq keys found")
+        if len(gmtable) > 1:
+            raise exceptions.ParseError("Multiple receivemail keys found")
+
+        if len(smtable) > 0 and len(smtable[0]['options']) > 1:
+            raise exceptions.ParseError("mailmasq key only takes zero or one argument")
+        if len(gmtable) > 0 and len(gmtable[0]['options']) > 0:
+            raise exceptions.ParseError("receivemail key takes no arguments")
+
+        if len(smtable) > 0:
+            if len(smtable[0]['options']) > 0:
+                masq = "--masquerade " + smtable[0]['options'][0]
+            else:
+                masq = "--no-masq"
+        else:
+            masq = "--masquerade unity.ncsu.edu"
+
+        if len(gmtable) > 0:
+            daemon = "--enable-daemon"
+        else:
+            daemon = "--disable-daemon"
+        
+        retval = "realmconfig --kickstart sendmail"
+        retval = "%s %s %s\n" % (retval, daemon, masq)
+
+        return retval

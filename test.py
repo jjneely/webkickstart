@@ -30,6 +30,7 @@ print ks.packages()
 print ks.startPost()
 print ks.reinstall()
 print ks.admins()
+print ks.sendmail()
 
 #print ks.pullUsers('pams')
 #print ks.pullRoot('pams')
