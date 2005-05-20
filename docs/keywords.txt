@@ -95,7 +95,7 @@ partitioning scheme.  See the "part" option in the Kickstart
 documentation in Red Hat's Customization guide at
 http://www.redhat.com/docs to see the options this can take. 
 
-    part / --size 5120
+    part / --size 8192
     part swap --recommended
     part /boot --size 128
     part /tmp --size 256 --grow
