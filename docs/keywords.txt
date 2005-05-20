@@ -280,3 +280,7 @@ associate this machine with the Realm Linux RHN channels.
 Optional.  Disables default firewall that is provided by the installer. Will
 overide any use of the firewall keyword.
 
+    enable audit
+
+Optional. Enables the auditd daemon.
+

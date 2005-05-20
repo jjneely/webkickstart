@@ -47,6 +47,7 @@ class baseRealmLinuxKickstart(baseKickstart):
                            self.packages,
                            self.startPost,
                            self.enableUpdates,
+                           self.audit,
                            self.reinstall,
                            self.admins,
                            self.sendmail,
@@ -189,6 +190,28 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
 realmconfig --kickstart updates --enable-updates
 
 """
+
+
+    def audit(self):
+        # kill auditd with a big hammer unless anyone really wants to use it
+        audittable = self.getKeys('enable', 'audit')
+        if len(audittable) > 1:
+            raise errors.ParseError('Multiple audit keys found')
+        elif len(audittable) == 1:
+            retval = """
+# make sure audit is on
+chkconfig audit on
+
+"""
+        else:
+            retval = """
+# turn off audit and wax any logs
+chkconfig audit off
+rm -rf /var/log/audit
+rm -rf /var/log/audit.d/*
+
+"""
+        return retval            
 
 
     def admins(self):
