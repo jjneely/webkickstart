@@ -269,7 +269,7 @@ class baseKickstart:
         # We are just going to take what's in the cfg file and go with it
         if len(parttable) == 0:
             parts = """
-part / --size 5120
+part / --size 8192
 part swap --recommended
 part /boot --size 128
 part /tmp --size 256 --grow 
