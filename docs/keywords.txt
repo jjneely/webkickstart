@@ -146,6 +146,15 @@ Optional.  Use this key to specify a password from grub, the
 bootloader.  You must use an MD5 Crypt here.  If left blank the root
 MD5 from AFS will be used.  See the root key.
 
+	selinux --enforcing | --permissive | --disabled
+	
+Optional. Change SELinux configuration.
+	enforcing  - Enables SELinux with the default targeted policy being 
+				 enforced.
+	permissive - Outputs warnings only based on the SELinux policy, but does 
+				 not actually enforce the policy.
+	disabled   - Disables SELinux completely on the system.
+
     firewall --enabled|--disabled [--trust=] <device> [--port=]
 
 Optional.  Use only if you need to change the default firewall rules.  Most
