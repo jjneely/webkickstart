@@ -26,6 +26,9 @@ enable_config_collision_detection = 0
 # with access to write configs because othewise the first config found
 # in the search path 
 
+disable_version_case_sensitivity = 1
+# Set to 1 if you don't want to have case sensitive version keys
+
 #defaultkey = XXX
 # A Blowfish encryption key used in the security module.
 

@@ -45,6 +45,7 @@ class webksconf(ConfigParser.ConfigParser):
         self.enable_security = 0
         self.enable_generic_ks = 0
         self.enable_config_collision_detection = 0
+        self.disable_version_case_sensitivity = 0
 
         self.defaultkey = None
 
@@ -71,6 +72,8 @@ class webksconf(ConfigParser.ConfigParser):
             self.enable_generic_ks = int(self._getoption('main','enable_generic_ks'))
         if self._getoption('main','enable_config_collision_detection') != None:
             self.enable_config_collision_detection = int(self._getoption('main','enable_config_collision_detection'))
+        if self._getoption('main','disable_version_case_sensitivity') != None:
+            self.disable_version_case_sensitivity = int(self._getoption('main','disable_version_case_sensitivity'))
 
         if self._getoption('main','defaultkey') != None:
             self.defaultkey = self._getoption('main','defaultkey')
@@ -96,6 +99,8 @@ class webksconf(ConfigParser.ConfigParser):
         for section in sections:
             if section != 'main' and section != 'db':
                 name = section
+                if self.disable_version_case_sensitivity and name != 'default':
+                    name = name.upper()
                 if self._getoption(section, 'version') != None:
                     version = self._getoption(section, 'version')
                 else:
@@ -192,6 +197,8 @@ class webksconf(ConfigParser.ConfigParser):
         module_class = self.versionMap[name]['module_class']
         url = args['url']
         sc = args['sc']
+        if self.disable_version_case_sensitivity:
+            name = name.upper()
         cmd = ("import %s\nobj = %s.%s('%s', %s, sc)") % (module, module, module_class, url, self.versionMap[name])
         exec(cmd)
         return obj

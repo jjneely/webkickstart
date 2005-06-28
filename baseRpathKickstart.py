@@ -1,5 +1,5 @@
 #
-# baseSpecifixKickstart.py -- class to generate a kickstart from a solarisConfig
+# baseRpathKickstart.py -- class to generate a kickstart from a solarisConfig
 #
 # Copyright 2005 NC State University
 # Written by Elliot Peele <elliot@bentlogic.net>
@@ -20,7 +20,7 @@
 
 from baseKickstart import baseKickstart
 
-class baseSpecifixKickstart(baseKickstart):
+class baseRpathKickstart(baseKickstart):
 
     def packages(self):
         if len(self.getKeys('package')) == 0:

@@ -42,21 +42,24 @@ def handler(req):
 
     # get the GET/POST thingies
     args = util.FieldStorage(req)
-    if 'collision_detection' in args.keys():
-        col_detect = 1
+    
+    # Check to see if we are just running a dns check
+    if 'dns_config_check' in args.keys():
+        tuple = w.checkConfigHostnames()
     else:
-        col_detect = 0
-    if 'debugtool' in args.keys():
-        # Pass what we intered into the debug field and turn on debug mode
-        tuple = w.getKS(args['debugtool'], 1, col_detect)
-    else:
-        tuple = w.getKS(ip, 0, col_detect)
+        if 'collision_detection' in args.keys(): col_detect = 1
+        else: col_detect = 0
+
+        if 'debugtool' in args.keys():
+            # Pass what we intered into the debug field and turn on debug mode
+            tuple = w.getKS(args['debugtool'], 1, col_detect)
+        else:
+            tuple = w.getKS(ip, 0, col_detect)
 
     # send on the kickstart
     req.write(tuple[1])
 
     # if error code == 42 we need to log the output because its a traceback
-    if tuple[0] == 42:
-        apache.log_error(tuple[1], apache.APLOG_ERR)
+    if tuple[0] == 42: apache.log_error(tuple[1], apache.APLOG_ERR)
 
     return apache.OK

@@ -60,7 +60,7 @@ class webKickstart:
         # Get the value for collision_detection
         collision_detection = collision_detection or self.cfg.enable_config_collision_detection
 
-        try:
+        try:        
             sc = self.findFile(filename, collision_detection)
 
             if type(sc) == type([]):
@@ -138,6 +138,39 @@ class webKickstart:
             return solarisConfig(configs[0])
         else:
             return configs
+
+    """
+    Check for config files that don't resolve in dns any longer.
+    """
+    def checkConfigHostnames(self):
+        list = self.__checkConfigHostnamesHelper(dir="./configs")
+        if len(list) == 0:
+            s = "No configs found that don't resolve in dns."
+        else:
+            s = 'The following configs no longer resolve in dns:\n\n'
+            for config in list:
+                s += '\t%s\n' % config
+        return (1, s)
+
+    
+    def __checkConfigHostnamesHelper(self, dir, configs=[]):
+        list = os.listdir(dir)
+        for file in list:
+            # Make sure host is still in dns
+            try: socket.gethostbyname(file)
+            
+            # Host that matches config no longer in dns
+            except socket.gaierror:
+                # Make sure file looks like a hostname
+                # (don't want include files)
+                if len(file.split('.')) >= 3:
+                    configs.append('/'.join([dir, file]))
+
+        # iterate of the rest of the subdirectories
+        for d in self.getDirs(list, dir):
+            self.__checkConfigHostnamesHelper(d, configs)
+            
+        return configs                    
 
 
     def getDirs(self, dirlist, basepath=""):
