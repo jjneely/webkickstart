@@ -60,6 +60,7 @@ class baseKickstart:
         self.buildOrder = [self.language,
                            self.install,
                            self.partition,
+                           self.selinux,
                            self.inputdevs,
                            self.firewall,
                            self.xconfig,
@@ -307,6 +308,14 @@ part /var/cache --size 1024
 
         retval = "%s%s" % (retval, parts)
         return retval
+
+
+    def selinux(self):
+        # Handle selinux keys (in selinux enabled versions of anaconda we use 
+        # the default)
+        seloptions = self.checkKey(1, 1, 'selinux')
+        if seloptions == None: return ''
+        else: return "selinux %s\n" % seloptions[0]
 
 
     def inputdevs(self):

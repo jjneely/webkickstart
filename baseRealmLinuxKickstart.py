@@ -39,6 +39,7 @@ class baseRealmLinuxKickstart(baseKickstart):
         self.buildOrder = [self.language,
                            self.install,
                            self.partition,
+                           self.selinux,
                            self.inputdevs,
                            self.firewall,
                            self.authConfig,
