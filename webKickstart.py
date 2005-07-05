@@ -58,20 +58,26 @@ class webKickstart:
         filename = addr[0]
 
         # Get the value for collision_detection
-        collision_detection = collision_detection or self.cfg.enable_config_collision_detection
+        collision_detection = collision_detection and self.cfg.enable_config_collision_detection
 
         try:        
-            sc = self.findFile(filename, collision_detection)
+            scList = self.findFile(filename)
 
-            if type(sc) == type([]):
-                s = 'multiple config files found:<br>\n'
+            if len(scList) > 1:
+                s = '# Error: Multiple Web-Kickstart config files found:<br>\n'
                 for line in sc:
-                    s += '\t' + line + '\n'
+                    s += '#\t' + line + '\n'
                 return (1, s)
+
+            if len(scList) == 0:
+                sc = None
+            else:
+                sc = scList[0]
 
             if not debug and sc != None:
                 # Security check
-                if self.cfg.enable_security and not security.check(self.headers, filename):
+                if ( self.cfg.enable_security and 
+                     not security.check(self.headers, filename) ):
                     return (2, "# You do not appear to be Anaconda.")
                 
             if sc != None:
@@ -90,9 +96,8 @@ class webKickstart:
                     return (1, "# No config file for host " + host)
                 
             retval = generator.makeKS()
-            del generator
-            del sc
             return (0, retval)
+        
         except:
             text = traceback.format_exception(sys.exc_type,
                                               sys.exc_value,
@@ -105,44 +110,33 @@ class webKickstart:
             return (42, s)
         
 
-    def findFile(self, fn, collision_detection=0, cd="./configs", configs=[]):
-        #print "XXX: directory = %s" % cd
+    def findFile(self, fn, cd="./configs"):
+        """Return a list of absolute paths that match the givein
+           filename.  Ie, /foo/bar and /baz/bar when fn="bar"
+        """
+
+        ret = []
+
         try:
-            list = os.listdir(cd)
+            files, dirs = self.getFilesAndDirs(cd)
         except OSError, e:
             s = str(e) + "\nDir: " + cd
             raise OSError(s)
-        
-        if fn in list and not os.path.join(cd, fn) in configs:
-            if collision_detection:
-                configs.append(os.path.join(cd, fn))
-                #print "XXX: added config (%s)" % os.path.join(cd, fn)
-                self.findFile(fn, collision_detection, cd, configs)
-            else:
-                return solarisConfig(os.path.join(cd, fn))
-        else:
-            #print "XXX: processing directories"
-            for dir in self.getDirs(list, cd):
-                if collision_detection:
-                    self.findFile(fn, collision_detection, dir, configs)
-                else:
-                    retval = self.findFile(fn, collision_detection, cd)
-                    if retval != None:
-                        return retval
-                    else:
-                        return None
 
-        if len(configs) == 0:
-            return None
-        elif len(configs) == 1:
-            return solarisConfig(configs[0])
-        else:
-            return configs
+        for f in files:
+            if os.path.basename(f) == fn:
+                ret.append(solarisConfig(f))
 
-    """
-    Check for config files that don't resolve in dns any longer.
-    """
+        for d in dirs:
+            ret.extend(self.findFile(fn, d))
+
+        return ret
+
+    
     def checkConfigHostnames(self):
+        """
+        Check for config files that don't resolve in dns any longer.
+        """
         list = self.__checkConfigHostnamesHelper(dir="./configs")
         if len(list) == 0:
             s = "No configs found that don't resolve in dns."
@@ -173,12 +167,18 @@ class webKickstart:
         return configs                    
 
 
-    def getDirs(self, dirlist, basepath=""):
-        # Returns a list of all directories in the directory listing
-        # provided.
+    def getFilesAndDirs(self, path):
+        # Split up a directory listing of files and directories
         dirs = []
-        for node in dirlist:
-            if os.path.isdir(os.path.join(basepath, node)):
-                dirs.append(os.path.join(basepath, node))
+        files = []
+        dir = os.listdir(os.path.abspath(path))
+        for node in dir:
+            apath = os.path.join(path, node)
+            if os.path.isdir(apath):
+                # isdir() does the right thing if its passed a symlink
+                dirs.append(apath)
+            elif os.path.isfile(apath):
+                files.append(apath)
 
-        return dirs
+        return files, dirs
+

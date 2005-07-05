@@ -47,7 +47,11 @@ class solarisConfig:
         lines = string.split(self.filedata, '\n')
         self.filecommands, self.fileposts = self.__splitFile(lines)
         
-        
+   
+    def __str__(self):
+        return "Web-Kickstart Config: %s " % self.filename
+
+
     def __splitFile(self, lines):
         """Separates the file into the first part of commands and the second
            part containing any %post, %pre, %packages, %anything."""
