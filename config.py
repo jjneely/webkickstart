@@ -193,12 +193,15 @@ class webksconf(ConfigParser.ConfigParser):
 
 
     def get_obj(self, name, args):
+        if self.disable_version_case_sensitivity:
+            name = name.upper()
+        if name not in self.versionMap.keys():
+            raise errors.ConfigError("Version %s is not defined" % name)
+
         module = self.versionMap[name]['module']
         module_class = self.versionMap[name]['module_class']
         url = args['url']
         sc = args['sc']
-        if self.disable_version_case_sensitivity:
-            name = name.upper()
         cmd = ("import %s\nobj = %s.%s('%s', %s, sc)") % (module, module, module_class, url, self.versionMap[name])
         exec(cmd)
         return obj
