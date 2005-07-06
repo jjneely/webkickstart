@@ -4,7 +4,7 @@
 #              RHEL WS3 (Taroon)
 #
 # Copyright 2004 NC State University
-# Written by Jack Neely <slack@quackmaster.net>
+# Written by Jack Neely <jjneely@pams.ncsu.edu>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ class taroonWS(realmLinux.baseRealmLinuxKickstart):
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
 . /etc/sysconfig/network
-/bin/hostname $HOSTNAME
+/bin/hostname `python -c "import socket; print socket.getfqdn('$HOSTNAME')`
 
 /usr/sbin/rhnreg_ks --activationkey %s --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
 

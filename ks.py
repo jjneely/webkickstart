@@ -1,6 +1,8 @@
 # ks.py -- apache mod_python handler
 #
-# Copyright, 2002 Jack Neely <slack@quackmaster.net>
+# Copyright, 2002, 2005 Jack Neely <slack@quackmaster.net>
+#
+# SDG
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

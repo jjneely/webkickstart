@@ -3,7 +3,7 @@
 # baseKickstart.py -- class to generate a kickstart from a solarisConfig
 #
 # Copyright 2002-2005 NC State University
-# Written by Jack Neely <slack@quackmaster.net> and
+# Written by Jack Neely <jjneely@pams.ncsu.edu> and
 #            Elliot Peele <elliot@bentlogic.net>
 #
 # This program is free software; you can redistribute it and/or modify
