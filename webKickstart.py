@@ -48,7 +48,7 @@ class webKickstart:
         security.cfg = self.cfg
 
 
-    def getKS(self, host, debug=0, collision_detection=0):
+    def getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
@@ -58,16 +58,15 @@ class webKickstart:
         filename = addr[0]
 
         # Get the value for collision_detection
-        collision_detection = collision_detection and self.cfg.enable_config_collision_detection
+        collision_detection = self.cfg.enable_config_collision_detection
 
         try:        
             scList = self.findFile(filename, self.cfg.jumpstarts)
 
-            if len(scList) > 1:
-                s = '# Error: Multiple Web-Kickstart config files found:<br>\n'
-                for line in sc:
-                    s += '#\t' + line + '\n'
-                return (1, s)
+            if len(scList) > 1 and collision_detection:
+                # if collision_detection is on then bitch
+                # otherwise we just want the first hit
+                return self.__collisionMessage(scList)
 
             if len(scList) == 0:
                 sc = None
@@ -133,6 +132,28 @@ class webKickstart:
         return ret
 
     
+    def collisionDetection(self, host):
+        addr = socket.gethostbyaddr(host)
+        # We look for the A record from DNS...not a CNAME
+        filename = addr[0]
+                         
+        scList = self.findFile(filename, self.cfg.jumpstarts)
+
+        if len(scList) > 1:
+            return self.__collisionMessage(scList)
+
+        s = "No collisions found for %s" % filename
+        return (1, s)
+
+        
+    def __collisionMessage(self, scList):
+        s = '# Error: Multiple Web-Kickstart config files found:<br>\n'
+        for line in scList:
+            s += '#\t' + line + '\n'
+            
+        return (1, s)
+
+        
     def checkConfigHostnames(self):
         """
         Check for config files that don't resolve in dns any longer.

@@ -45,18 +45,20 @@ def handler(req):
     # get the GET/POST thingies
     args = util.FieldStorage(req)
     
-    # Check to see if we are just running a dns check
-    if 'dns_config_check' in args.keys():
+    # Check to see what mode to run in
+    if 'collision_detection' in args.keys():
+        tuple = w.collisionDetection(args['collision_detection'])
+        
+    elif 'dns_config_check' in args.keys():
         tuple = w.checkConfigHostnames()
+        
+    elif 'debugtool' in args.keys():
+        # Pass what we intered into the debug field and turn on debug mode
+        tuple = w.getKS(args['debugtool'], 1)
+        
     else:
-        if 'collision_detection' in args.keys(): col_detect = 1
-        else: col_detect = 0
-
-        if 'debugtool' in args.keys():
-            # Pass what we intered into the debug field and turn on debug mode
-            tuple = w.getKS(args['debugtool'], 1, col_detect)
-        else:
-            tuple = w.getKS(ip, 0, col_detect)
+        # Main mode of operation
+        tuple = w.getKS(ip, 0)
 
     # send on the kickstart
     req.write(tuple[1])
@@ -65,3 +67,4 @@ def handler(req):
     if tuple[0] == 42: apache.log_error(tuple[1], apache.APLOG_ERR)
 
     return apache.OK
+
