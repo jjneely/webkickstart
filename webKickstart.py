@@ -147,9 +147,9 @@ class webKickstart:
 
         
     def __collisionMessage(self, scList):
-        s = '# Error: Multiple Web-Kickstart config files found:<br>\n'
-        for line in scList:
-            s += '#\t' + line + '\n'
+        s = 'Multiple Web-Kickstart config files found:\n'
+        for sc in scList:
+            s += '\t%s\n' % str(sc)
             
         return (1, s)
 
