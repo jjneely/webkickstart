@@ -32,6 +32,10 @@ disable_version_case_sensitivity = 1
 #defaultkey = XXX
 # A Blowfish encryption key used in the security module.
 
+jumpstarts=./configs
+# The location where your config files are found.  Should be an absoulte
+# path.
+
 [db]
 # Configuration for the MySQL database
 

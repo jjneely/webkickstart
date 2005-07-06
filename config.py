@@ -47,6 +47,7 @@ class webksconf(ConfigParser.ConfigParser):
         self.enable_generic_ks = 0
         self.enable_config_collision_detection = 0
         self.disable_version_case_sensitivity = 0
+        self.jumpstarts = "./configs"
 
         self.defaultkey = None
 
@@ -58,6 +59,8 @@ class webksconf(ConfigParser.ConfigParser):
 
         self.versionMap = {}
 
+        if self._getoption('main','jumpstarts') != None:
+            self.jumpstarts = self._getoption('main','jumpstarts')
         if self._getoption('main','logfile') != None:
             self.logfile = self._getoption('main','logfile')
         if self._getoption('main','debug_level') != None:

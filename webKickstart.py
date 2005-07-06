@@ -61,7 +61,7 @@ class webKickstart:
         collision_detection = collision_detection and self.cfg.enable_config_collision_detection
 
         try:        
-            scList = self.findFile(filename)
+            scList = self.findFile(filename, self.cfg.jumpstarts)
 
             if len(scList) > 1:
                 s = '# Error: Multiple Web-Kickstart config files found:<br>\n'
@@ -137,9 +137,9 @@ class webKickstart:
         """
         Check for config files that don't resolve in dns any longer.
         """
-        list = self.__checkConfigHostnamesHelper(dir="./configs")
+        list = self.__checkConfigHostnamesHelper(self.cfg.jumpstarts)
         if len(list) == 0:
-            s = "No configs found that don't resolve in dns."
+            s = "No config files found that don't resolve in dns."
         else:
             s = 'The following configs no longer resolve in dns:\n\n'
             for config in list:
@@ -147,22 +147,26 @@ class webKickstart:
         return (1, s)
 
     
-    def __checkConfigHostnamesHelper(self, dir, configs=[]):
-        list = os.listdir(dir)
-        for file in list:
+    def __checkConfigHostnamesHelper(self, dir):
+        configs = []
+        files, dirs = self.getFilesAndDirs(dir)
+        for file in files:
+            # We always get an absoulte file name
+            host = os.path.basename(file)
             # Make sure host is still in dns
-            try: socket.gethostbyname(file)
+            try: 
+                socket.gethostbyname(host)
             
             # Host that matches config no longer in dns
             except socket.gaierror:
                 # Make sure file looks like a hostname
                 # (don't want include files)
-                if len(file.split('.')) >= 3:
-                    configs.append('/'.join([dir, file]))
+                if len(host.split('.')) >= 3:
+                    configs.append(file)
 
         # iterate of the rest of the subdirectories
-        for d in self.getDirs(list, dir):
-            self.__checkConfigHostnamesHelper(d, configs)
+        for d in dirs:
+            configs.extend(self.__checkConfigHostnamesHelper(d))
             
         return configs                    
 
@@ -171,7 +175,11 @@ class webKickstart:
         # Split up a directory listing of files and directories
         dirs = []
         files = []
-        dir = os.listdir(os.path.abspath(path))
+
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+
+        dir = os.listdir(path)
         for node in dir:
             apath = os.path.join(path, node)
             if os.path.isdir(apath):
