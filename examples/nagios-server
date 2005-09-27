@@ -1,0 +1,122 @@
+package @ NCSU Realm Kit Server
+package @ Development Tools
+package @ Development Libraries
+package @ Kernel Development
+package @ Legacy Software Development
+package net-snmp
+package net-snmp-utils
+package libpcap
+package libjpeg-devel
+package libpng-devel
+package libungif-devel
+package libungif-progs
+package gd-devel
+package gd-progs
+package httpd-devel
+package openafs-devel
+enable safepartition
+enable keepmbr
+
+
+dept unity
+part / --size 2500
+part swap --recommended
+part /boot --size 50
+part /tmp --size 512 
+part /var --size 256
+part /var/cache --size 256
+part /local --size 1000 --grow
+enable nox
+enable consolelogin
+enable localcluster
+enable remotecluster
+
+% post
+/bin/mv /etc/inittab /etc/inittab.orig
+/bin/grep -v "^ca:" /etc/inittab.orig > /etc/inittab
+/bin/chmod 644 /etc/inittab
+/bin/chown root:other /etc/inittab
+
+
+#fix ssh port
+mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+/bin/cat /etc/ssh/sshd_config.orig | /bin/grep -v "^#" | /bin/grep -v "^Port"| /bin/grep "[a-zA-Z0-9]" |  (echo "Port 24" ; cat - ) > /etc/ssh/sshd_config
+
+
+#install sybase pieces
+rpm -hiv --relocate /opt/sybase-12.5=/local/sybase \
+http://www.ncsu.edu/it/systems/RPMS/sybase-common-12.5.0.1DE-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/sybase-openclient-12.5.0.1ESD-1.i386.rpm
+
+
+#heartbeat install
+rpm -ivh \
+http://www.ncsu.edu/it/systems/RPMS/heartbeat-1.0.4-ncsu.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/heartbeat-pils-1.0.4-ncsu.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/heartbeat-stonith-1.0.4-ncsu.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/libnet-1.1.0-ncsu.i386.rpm
+
+
+#mysql install
+rpm -ivh \
+http://www.ncsu.edu/it/systems/RPMS/MySQL-client-4.0.17-0.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/MySQL-devel-4.0.17-0.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/MySQL-embedded-4.0.17-0.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/MySQL-server-4.0.17-0.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/MySQL-shared-4.0.17-0.i386.rpm
+
+
+#turn MySQL back off
+/etc/init.d/mysql stop
+
+
+#fix firewall
+/usr/sbin/lokkit -n -q --disabled
+
+
+#nagios and related pieces install
+rpm -ivh \
+http://www.ncsu.edu/it/systems/RPMS/apache2_auth_wrap-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/apan-0.2.1-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/dell-install-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/fping-2.4b2_to-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-1.2-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-admin-1.0-2.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-heartbeat-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-lablogs-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-mysql-conf-1.0-2.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-plugins-1.3.1-2.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-plugins-ncsu-1.0-2.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-plugins-radius-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nagios-temptrax-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nrpe-1.9-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/nsca-2.4-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-5.8.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-Crypt-DES-2.03-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-DBD-mysql-2.9002-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-DBI-1.38-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-Digest-HMAC-1.01-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-Digest-SHA1-2.04-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-Net-Daemon-0.37-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-Net-SNMP-4.1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-PlRPC-0.2017-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-SysTools-1.0-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/local-perl-Time-modules-2003.0211-1.i386.rpm \
+http://www.ncsu.edu/it/systems/RPMS/rrdtool-1.0.45-1.i386.rpm
+
+
+#make sure everything is added and appropriately enabled
+/sbin/chkconfig --add nrpe
+/sbin/chkconfig nrpe off
+
+/sbin/chkconfig --add nsca
+/sbin/chkconfig nsca off
+
+/sbin/chkconfig --add heartbeat
+/sbin/chkconfig heartbeat on
+
+/sbin/chkconfig --add httpd
+/sbin/chkconfig httpd on
+
+/sbin/chkconfig --add nagios
+/sbin/chkconfig nagios off

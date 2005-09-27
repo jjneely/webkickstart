@@ -1,0 +1,259 @@
+keywords.txt
+
+This file contains all the key words that can be within a config file
+and is used to generate a kickstart.  The file takes commands
+delimited by newlines of the type
+
+    <key> [option1] [option2] [option3] [...]
+
+where the 'enable' key is a special case of the above.  Any key, and
+its options/arguments, that is not known is ignored by the sys.  For
+example, if you use the 'mac' keyword and specify the machines mac
+address this key will be silently ignored.  (Having the MAC address
+does not give this system any advantages.)  Options may also be
+contained within double or single quotes so that an option may contain
+spaces.  Also, have comments that begin with a '#' are supported.
+
+
+Keys
+====
+
+    dept  <department>
+
+Optional.  Sets the department for the machine.  Default is PAMS.
+
+    root <id> <key>
+
+Optional.  This determines which group or id to look in for an 
+encrypted root MD5.  The key is the blowfish key needed to decrypt
+the root file.  This key is overrided by rootpw.  If not supplied
+in the config the 'default' group ID will be used.  Look in
+/afs/bp/system/common/update/root/ for details.
+
+    rootpw  <MD5 Crypt>
+
+Optional.  Sets the root password to the password represented by the
+MD5 Crypt.  The default root password is pulled from AFS use this to
+override.  Note that this does not stop the realm-cron from updating
+the password to the system default after the machine is installed.
+
+    users <id> <key>
+
+Optional.  This determines the gourp or id of the list of admin users
+for the machine.  (Those than can sudo, ssh in, and ksu.)  The key
+is the blowfish key needed to decrypt the file.  If not supplied in
+the config file the 'default' group will be used.  Look in
+/afs/bp/system/common/update/users/ for details.
+       
+    cluster <cell> <pts group>
+
+Optional.  This adds the users found the the specified PTS group within
+the specified AFS cell to /etc/users.local.  It does not give those 
+users access to the root account.  You may use this key multiple times.
+As the install process does not have AFS access you may have to wait
+up to 4 hours once the machine is on for this to take effect.
+
+    owner <owner>
+
+Optional.  Take one option which should be a valid email address.  All 
+of root's mail will be sent here.
+
+    printer <printername>
+
+Optional.  Defaults to lp.  To configure printing to a campus printer
+give the name of the printer to this key as its option.
+
+    package <packagename> 
+
+Optional.  Defaults to "@ Realm Kit Workstation".  Use this key to
+configure what packages and package groups get installed.  This key
+can be used multiple times.  Specify one package or package group for
+each use of the key.  (If you use this you really want to start out
+with "package @ Realm Kit Workstation" and then add further packages.
+Things can break hear pretty easily.)
+
+    use <filename> 
+
+Include another config file.  The filename must be a path to the
+included file that is relative to the directory containing the Python
+scripts for the system.  (Specifically, ks.py.)
+
+    lang <default lang>
+
+Optional.  Specify the default language.  The default is "en_US".
+
+    langs <list of langs to install>
+
+Optional.  Default is "en_US".  Use this key word to tell the
+installer what languages to install.  You can specify multiple
+languages by separating them with whitespace.
+
+    part <partition def>
+
+Optional.  Use this key to override the default and specify your own
+partitioning scheme.  See the "part" option in the Kickstart
+documentation in Red Hat's Customization guide at
+http://www.redhat.com/docs to see the options this can take.
+
+    volgroup <>
+    raid <>
+    logvol <>
+
+Optional.  Only used if you specify your own partitioning scheme.  Only
+implemented for version 9 kickstarts or higher.  These keywords and options
+define Logical Volume Management (LVM).  These are the same keywords that
+are used in a normal Red Hat kickstart and, in fact, are copied verbatim
+to the resultant kickstart file.  More documentation can be found in the 
+Red Hat documentation mentioned above.
+
+    src <from/how to install>
+
+Optional.  This key can specify how and where to install from.  There
+are three options "nfs", "http", and "ftp".  The default is "http" and
+will install the kit from install.linux.ncsu.edu.  The "nfs" and "ftp"
+options will install using that protocol from
+ftp.linux.ncsu.edu.  More options can be added in the future to
+support other install methods from other mirrors.
+ 
+    version <version string>
+
+REQUIRED.  This key specifies what version of the Linux Realm Kit to
+install.  Currently, the options are: 
+
+    9
+    default  
+    
+The "default" option should install the latest stable version (9)
+where the numeric option will install the Linux Realm Kit based off 
+of that version of Red Hat Linux.
+
+    grub  <MD5 Crypt>
+
+Optional.  Use this key to specify a password from grub, the
+bootloader.  You must use an MD5 Crypt here.  If left blank the root
+MD5 from AFS will be used.  See the root key.
+
+    firewall --enabled|--disabled [--trust=] <device> [--port=]
+
+Optional.  Use only if you need to change the default firewall rules.  Most
+people shouldn't need to do this.  Follows same format as kickstart firewall
+key. See Red Hat kickstart documentation for more information.
+
+    mouse [options] <mouse type>
+
+Optional.  This key will define the exact type of mouse connected to
+the system.  The default value is a generic 2 button mouse with 3
+button emulation.  This key behaves exactly the same way as the
+'mouse' keyword in a Red Hat Kickstart.  For complete documentation of
+this key please see the Kickstart Options page at the following URL. 
+
+http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html
+
+    enable <service> [option1] [option2] [...]
+
+Enable certain other services.  The services supported are described
+below. 
+
+
+Enable Style Services
+=====================
+
+    enable safepartition
+
+Optional.  Without this option the installer will remove all existing
+partitions on the system before creating new ones.  With this option
+the installer will only remove Linux partitions before adding new.  
+This requires pre-existing Linux partitions or unpartitioned space
+on the drive.
+
+    enable mailmasq [domain]
+
+Optional.  Configure the domain from which email sent from this
+machine should look like it is coming from.  The default is
+unity.ncsu.edu.  Leave the option out to disable mail masquerading.
+
+    enable receivemail
+
+Optional.  Enable being able to receive email locally on this machine.
+
+    enable consolelogin
+
+Optional.  Enable "local" users to be able to log into the machine at
+the text console.  Default only treats logins from GDM as "local."
+
+    enable localcluster [cluster]
+
+Optional.  Enable the use of clusters to control local logins.  The
+default is to allow local users in the "ncsu" cluster to login.  (Yes,
+that's everyone at NCSU.)  You can specify a cluster yourself, or
+leave the cluster out to use the cluster information in hesiod.
+
+    enable remotecluster [cluster]
+
+Optional.  Enable the use of clusters to control remote logins.  The
+default setting is to not use cluster from remote logins.  You can
+specify a cluster yourself or leave blank to get cluster out of
+hesiod. 
+
+    enable norealmcron
+
+Optional.  Disable the realmcron system.  The realmcron system updates
+root and user information from AFS.  Also runs cron jobs from AFS.
+This is required for support from the Realm Kit for Red Hat Linux
+Developers.
+
+    enable normalusers <user list>
+
+Optional.  Adds given users to /etc/users.local.  Does not give the
+users any administrative abilities.  Multiple user IDs can be
+separated via whitespace.
+ 
+    enable notmpclean
+
+Optional.  Disables tmpwatch.  Not recommend.
+
+    enable nox
+
+Optional.  Does not configure the X server.  It will be skipped by the
+installer and must be configure manually after installation.
+
+    enable noreinstall 
+
+Optional.  Disables the magic that lets you select Reinstall from Grub
+to reinstall the machine.  The default is to set this up.  It does
+require a URL of the web-kickstart server which is generated from the
+Apache request object when a request to generate a Kickstart is
+received.  There's a -u option to check.py to work with this as well.
+
+    enable keepmbr
+
+Optional.  Does not replaced the MBR with the bootloader.  Instead the
+bootloader is placed in the boot partition which is normally /boot.
+
+    enable adminusers <user list>
+
+Optional.  Replaces the functionality of the original 'users' key in this
+web-kickstart system.  This key takes a space delimited list of NCSU
+user IDs and adds them to the user lists pulled from AFS that are placed
+in /etc/users.local, /etc/sudoers, and /root/.klogin.
+
+    enable staticip <ip> <netmask> <gateway> <nameserver>
+
+Optional.  Will configure the client to use static network information
+rather than DHCP.  (Note that DHCP is still required for web-kickstart
+install.)  After the client DHCPs and gets its kickstart these are the
+network settings it will use during install.
+
+    enable activationkey <key>
+
+Optional.  For RHEL based versions of Realm Linux you can supply the
+activation key that the rhnreg_ks program will use to register the
+machine.  Keys are used instead of RHN username/password pairs.  The key
+will register your machine, assign it to one or more groups, and
+associate this machine with the Realm Linux RHN channels.
+
+    enable nofirewall
+
+Optional.  Disables default firewall that is provided by the installer. Will
+overide any use of the firewall keyword.
+
