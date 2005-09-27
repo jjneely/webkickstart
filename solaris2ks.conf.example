@@ -1,0 +1,85 @@
+[main]
+# global configurations
+
+debug_level = 0
+# The debug level.  This should do something useful but doesn't
+
+log_level = 0
+# Used for logging if this code logs.
+
+error_level = 3
+# Hey, Elliot, wtf does this do?
+
+enable_security = 0
+# There is a security module that has some checks and can log
+# installs in a MySQL database.  Do you want to use this?
+
+enable_generic_ks = 0
+# Set to 1 and if there is not a config file for the requesting client
+# a completely default one will be generated.  Set to 0 to only hand
+# out kickstarts to clients we have configs for.
+
+#defaultkey = XXX
+# A Blowfish encryption key used in the security module.
+
+[db]
+# Configuration for the MySQL database
+
+host = localhost.localdomain
+user = solaris2ks
+passwd = solaris2ks
+db = solaris2ks
+
+[default]
+# This sets up all the default values for installs
+
+version = 9
+# A string representing your version.  Used in some paths.
+
+install_method = ftp
+# Default install method.  http and nfs is also supported.
+
+nfs_server = ftp.linux.ncsu.edu
+nfs_path = /export/redhat-9
+ftp_server = ftp.linux.ncsu.edu
+ftp_path = /pub/redhat/linux/9/en/os/i386
+
+[9]
+# The rest of the sections are what happens when you say "version X"
+# in the config where X is the name of the section.
+
+version = 9
+nfs_path = /export/redhat-9
+ftp_path = /pub/redhat/linux/9/en/os/i386
+
+[fc1]
+version = 1
+nfs_path = /export/fedora-core-1
+ftp_path = /pub/fedora/linux/core/1/i386
+
+[RealmLinux9]
+# So this is when you say "version RealmLinux9" in your config
+
+version = 9
+install_method = http
+module = baseRealmLinuxKickstart
+# the python module to find the proper class in
+
+module_class = baseRealmLinuxKickstart
+# The python class to use.  Must be a subclass of baseKickstart.
+
+nfs_path = /export/realmkit-9
+ftp_path = /pub/realmkit/9/i386
+http_server = install.linux.ncsu.edu
+http_path = /pub/realmkit/9/i386
+
+[RealmLinuxFC1]
+version = FC1
+install_method = http
+module = baseRealmLinuxKickstart
+module_class = baseRealmLinuxKickstart
+nfs_path = /export/realmkit-FC1
+ftp_path = /pub/realmkit/realmkit-FC1/i386
+http_server = install.linux.ncsu.edu
+http_path = /pub/realmkit/realmkit-FC1/i386
+

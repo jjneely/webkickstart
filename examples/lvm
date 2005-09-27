@@ -1,0 +1,6 @@
+version 9
+
+part /boot --size 75
+part pv.01 --grow --size 10001
+volgroup myvg pv.01
+logvol / --vgname myvg --size 10000 --name rootvol

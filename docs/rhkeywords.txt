@@ -1,0 +1,150 @@
+rhkeywords.txt
+
+This file contains all the key words that can be within a config file
+and is used to generate a kickstart.  The file takes commands
+delimited by newlines of the type
+
+    <key> [option1] [option2] [option3] [...]
+
+where the 'enable' key is a special case of the above.  Any key, and
+its options/arguments, that is not known is ignored by the sys.  For
+example, if you use the 'mac' keyword and specify the machines mac
+address this key will be silently ignored.  (Having the MAC address
+does not give this system any advantages.)  Options may also be
+contained within double or single quotes so that an option may contain
+spaces.  Also, have comments that begin with a '#' are supported.
+
+
+Keys
+====
+
+    root  <MD5 Crypt>
+
+Optional.  Sets the root password to the password represented by the
+MD5 Crypt.
+
+    admusers <user list>
+
+Optional.  This is a list of admin users for the Red Hat Linux box.
+These user names are added to /etc/sudoers.  Only put people here if
+you want them to have root access.  User IDs are delimited with
+whitespace. You are also going to want to use the user key to add an
+account for these users.
+
+    user <username> <userpassword>
+
+Optional. If you would like to add users to the system during the
+kickstart, this is the key for you. All it does is run adduser in
+the post with the correct options.
+
+    owner <owner>
+
+Optional.  NOT IMPLEMENTED YET.  Take one option which should be a
+valid email address.  All of root's mail will be sent here.
+
+    package <packagename>
+
+Optional.  Defaults to "@ Red Hat Workstation".  Use this key to
+configure what packages and package groups get installed.  This key
+can be used multiple times.  Specify one package or package group for
+each use of the key.  (If you use this you really want to start out
+with "package @ Red Hat Workstation" and then add further packages.
+Things can break hear pretty easily.)
+
+    use <filename>
+
+Include another config file.  The filename must be a path to the
+included file that is relative to the directory containing the Python
+scripts for the system.  (Specifically, ks.py.)
+
+    lang <default lang>
+
+Optional.  Specify the default language.  The default is "en_US".
+
+    langs <list of langs to install>
+
+Optional.  Default is "en_US".  Use this key word to tell the
+installer what languages to install.  You can specify multiple
+languages by separating them with whitespace.
+
+    part <partition def>
+
+Optional.  Use this key to override the default and specify your own
+partitioning scheme.  See the "part" option in the Kickstart
+documentation in Red Hat's Customization guide at
+http://www.redhat.com/docs to see the options this can take.
+
+    src <from/how to install>
+
+Optional.  This key can specify how and where to install from.
+Currently, there are two options "nfs" and "ftp".  The default is
+"ftp" and will install the kit from kickstart.linux.ncsu.edu.  The
+"nfs" option installs via nfs from the same source.  More options can
+be added in the future to support other install methods from other
+mirrors.
+
+    version <version string>
+
+REQUIRED.  This key specifies what version of the Red Hat Linux to
+install.  Currently, the options are:
+
+    stock-7.3
+    stock-8.0
+    stock-9
+    stock-default
+
+The "stock-default" option should install the latest version Red Hat
+Linux 9.
+
+    grub  <MD5 Crypt>
+
+Optional.  Use this key to specify a password from grub, the
+bootloader.  You must use an MD5 Crypt here.
+
+    mouse [options] <mouse type>
+
+Optional.  This key will define the exact type of mouse connected to
+the system.  The default value is a generic 2 button mouse with 3
+button emulation.  This key behaves exactly the same way as the
+'mouse' keyword in a Red Hat Kickstart.  For complete documentation of
+this key please see the Kickstart Options page at the following URL.
+
+    service <service name> <on|off>
+
+Optional. This key will let you turn services off and on in the post.
+It just runs chkconfig for the service you specify.
+
+http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html
+
+    enable <service> [option1] [option2] [...]
+
+Enable certain other services.  The services supported are described
+below.
+
+
+Enable Style Services
+=====================
+
+    enable consolelogin
+
+Optional.  Enable "local" users to be able to log into the machine at
+the text console.  Default only treats logins from GDM as "local."
+
+    enable notmpclean
+
+Optional.  Disables tmpwatch.  Not recommend.
+
+    enable nox
+
+Optional.  Does not configure the X server.  It will be skipped by the
+installer and must be configure manually after installation.
+
+    enable noreinstall
+
+Optional.  Disables the magic that lets you select Reinstall from Grub
+to reinstall the machine.  The default is to set this up.  It does
+require a URL of the web-kickstart server which is generated from the
+Apache request object when a request to generate a Kickstart is
+received.  There's a -u option to check.py to work with this as well.
+
+
