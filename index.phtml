@@ -1,0 +1,165 @@
+<html>
+<head>
+<title>Jump Start for the Linux Realm Kit</title>
+</head>
+<body>
+
+<h1>Jump Start for the Linux Realm Kit</h1>
+
+<p>Red Hat Linux uses an automated install system known as Kickstart.
+Very basically, this is a detailed text file that the Red Hat Linux
+installer can retrieve and use to install the machine rather than
+asking the a human many questions.  One of the most powerful methods
+of delivering a kickstart file to the installer is by HTTP which
+allows complex scripting to generate the proper kickstart file.  This
+is what we are doing here.</p>
+
+<p>Sun Solaris uses a similar system called JumpStart to perform automated
+installs. An advantage of JumpStart is that its' format is already
+familiar to those that do Solaris installs, and JumpStart configuration
+files are often significantly simpler than Kickstart files. To leverage
+our Jumpstart knowledge, we decided to use the JumpStart file format and
+convert it to the equivalent Kickstart format, which would then be used
+to perform the install via HTTP.</p>
+
+<p>Maintained by <a href="mailto:linux@help.ncsu.edu">NCSU CLS</a>.</p>
+
+<h2>Documentation</h2>
+
+<p>Web-Kickstart is designed to install <a
+href="http://www.linux.ncsu.edu/realmkit">Realm Linux</a>
+from a simple config file.  This config file is used to
+dynamically create a Red Hat Kickstart to do the install.
+The filename of the config files must be the fully quantified domain
+name of the machine you want to install.  Files must be placed under the 
+following directory:</p>
+ 
+<tt>/afs/bp/system/config/linux-kickstart/configs</tt>.
+
+<p><b>Note:</b> In addition to the jump start config file, the computers' DNS
+entry must be  configured to use DHCP and the IP address received from
+DHCP must resolve to a domain name.</p>
+
+<p>A full description of all possible key words and what they do can be
+found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
+
+<p>Currently, the following products are supported:</p>
+
+<table align="center" border="1" cellspacing="0" cellpadding="3">
+<tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
+<tr><td>Realm Linux WS4 U1 (i386)</td><td>WS4</td><td>Production</td></tr>
+<tr><td>Realm Linux AS4 U1 (i386)</td><td>AS4</td><td>Production</td></tr>
+<tr><td>Realm Linux WS3 U4 (i386)</td><td>WS3</td><td>Production</td></tr>
+<tr><td>Realm Linux AS3 U4 (i386)</td><td>AS3</td><td>Production</td></tr>
+<tr><td>Realm Linux WS3 U4 (AMD64)</td><td>WS3.x86_64</td><td>Beta</td></tr>
+<!--<tr><td>Realm Linux AS3 (AMD64)</td><td>AS3.x86_64</td></tr>-->
+<!-- <tr><td>Realm Linux FC2</td><td>FC2</td><td>Developmental</td></tr>-->
+</table>
+
+<h3>Examples and More Documentation.</h3>
+<ul>
+<li><a href="docs/keywords.txt">keywords.txt</a> - Keywords and
+syntax for the Realm Linux JumpStart files.</li>
+<!--<li><a href="docs/design.txt">design.txt</a> - A rough design
+document.</li>-->
+<li><a href="examples/rk-test4.pams.ncsu.edu">rk-test4.pams.ncsu.edu</a>
+ - The simplest example.  This will install Realm Linux 9 with all the
+assumed defaults.</li>
+<li><a
+href="examples/rk-test3.pams.ncsu.edu">rk-test3.pams.ncsu.edu</a> - An
+example.</li>
+<li><a href="examples/script1">script1</a> - The config file "used" or
+included by rk-test3.pams.ncsu.edu</li>
+<li><a href="examples/lvm">LVM</a> - A short example on setting up Logical
+Volumes in a JumpStart.  See the Red Hat or Fedora documentation about
+using the Logical Volume Manager (LVM).</li>
+<li><a href="examples/uni04s.unity.ncsu.edu">uni04s.unity.ncsu.edu</a> - 
+A very complex example.  This config file is used to install the Nagios
+monitoring servers that ITD uses.  See the below file that is included.</li>
+<li><a href="examples/nagios-server">nagios-server</a> - This is the
+include file that is refferenced in uni04s.unity.ncsu.edu.</li>
+</ul>
+
+<h3>Disk Image</h3>
+<p>Here's a disk image that is set up to automatically do a
+kickstart install from web-kickstart.linux.ncsu.edu.  (This was done
+by modifying the syslinux.cfg file on the floppy.  After you setup
+your config file all you need to do is boot off of one of these
+disks to install the machine.  This boot disk you use must match
+the version of Realm Linux you have the config file set to install.</p>
+<ul>
+<li><a href="RHEL4-U1-x86-webks.iso">RHEL4-U1-x86-webks.iso</a> - Realm Linux AS/WS 4 (Production) Boot CD (Server and Workstation) for i386</li>
+<li><a href="RHELU4-x86-webks.iso">RHELU4-x86-webks.iso</a> - Realm Linux AS/WS 3 U4 (Production) Boot CD (Server and Workstation) for i386</li>
+<!--<li><a href="RHELU2-web-ks.iso">RHELU2-web-ks.iso</a> - Realm Linux AS/WS U2 (Retired) Boot CD (Server and Workstation) for i386</li>
+-->
+<li><a href="RHELU4-x86_64-webks.iso">RHELU4-x86_64-webks.iso</a> - Realm Linux AS3/WS3 Boot CD for AMD64</li>
+<!--<li><a href="9-web-ks.iso">9-web-ks.iso</a> - Realm Linux 9 Boot CD</li>
+<li><a href="9-web-ks-eth0.iso">9-web-ks-eth0.iso</a> - Realm Linux 9 Boot 
+CD For Systems with Multiple Ethernet Cards this Image Uses eth0</li>
+<li><a href="FC1-web-ks.iso">FC1-web-ks.iso</a> - Realm Linux FC1 Boot CD</li>-->
+<li><a href="FC2-web-ks.iso">FC2-web-ks.iso</a> - Realm Linux FC2 Boot CD</li>
+</ul>
+
+<h3>When Things Go Wrong</h3>
+
+<p>There are several common things that can keep We-Kickstart from installing
+your machine for you.  If the install process starts asking you questions,
+like what language to use, then the client didn't receive the kickstart 
+from the Web-Kickstart server and is defaulting to a manual install.
+Possible causes and solutions:</p>
+
+<ul>
+<li>Reboot the machine and try again.</li>
+<li>Is the IP of the machine configured for Manual DHCP in QIP?</li>
+<li>Does the IP reverse resolve to the domain name yet?</li>
+<li>Does the file name exactly match the string that the IP address
+reverse resolves too?  It is case sensitive.</li>
+</ul>
+
+<p>Another common trouble point is that the installer complains that it
+cannot download <tt>stage2.img</tt> at the beginning of the install.
+This means that you are using a boot disk for a different version of
+Realm Linux compared to what the <tt>version</tt> key says in the 
+config file.</p>
+
+<h3>Recent Changes</h3>
+
+<p>The following are some recent changes to the system there were made
+after I released it to public testing.  These changes are also
+documented in the <a href="docs/keywords.txt">keywords.txt</a> file or
+their relivant place.</p>
+
+<p>The <a href="changelog.phtml">Change Log</a> has grown quite a bit so 
+I've moved it to its own page.
+Please keep up with the systems as it grows and changes.</p>
+
+<h2>Debuging Tool</h2>
+<p>
+For security reasons the debuging tool has been moved to a WRAP protected
+directory.  Please email <a href="mailto:linux@help.ncsu.edu">
+linux@help.ncsu.edu</a> if you are not on the access list and think you
+should be.  Otherwise, 
+<a href="https://secure.linux.ncsu.edu/web-kickstart/WRAP/index.html">
+start debuging</a>.
+</p>
+
+<h2>References</h2>
+
+<p>The follow collection of links points to documentation and resources
+that you may find useful but are not directly related to setting up a
+JumpStart config file for Realm Linux.</p>
+
+<ul>
+<li><a href="http://www.redhat.com/docs/manuals/linux/RHL-9-Manual/custom-guide/ch-kickstart2.html">Red
+Hat Linux Kickstart Documentation</li>
+<li><a
+href="http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html">
+Red Hat Linux Kickstart Options (7.3)</li>
+<li><a
+href="http://www.redhat.com/docs/manuals/linux/RHL-9-Manual/custom-guide/s1-kickstart2-options.html">
+Red Hat Linux Kickstart Options (9)</li>
+
+</ul>
+
+</body>
+</html>
