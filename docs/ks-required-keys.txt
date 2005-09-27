@@ -1,0 +1,10 @@
+This is a list of required keywords in a Red Hat Kickstart
+
+auth
+bootloader or lilo
+keyboard
+lang
+mouse
+rootpw
+timezone
+

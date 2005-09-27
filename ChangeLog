@@ -1,0 +1,49 @@
+2003-06-20 Jack Neely <jjneely@pams.ncsu.edu>
+
+	* This is adding Elliot's GNU-ify patch.
+	* Today also got a new CD image for 9 that does the ksdevice=eth0
+    magic.
+    * Implemented "owner" key
+    * changed % handling so that the %blah --options is included in the ks.
+    This makes %pre, %post, etc useful when you want to run..say...python
+    * The Reinstall Workstation boot option used the URL of the server
+    that was build in such a way that everytime that was used it add an ./
+    to the URL.  I believe I've fixed that with building the URL in ks.py
+    a little more sanely.
+    * You can use the "use" key multiple times now and it even works.
+
+2003-06-20 Jack Neely <jjneely@pams.ncsu.edu>
+
+	* Argh I hate the changelogs.  I'm going to through in the change
+    log here from index.html.  Hopefully this version will be more 
+    detailed.
+
+    * Glaring bugs in the check.py script are fixed.
+    * The docs for the 'use' keyword have been cleared up a bit. Need to be
+    carefull about current directories and paths.
+    * Implemented including scripts in the config files after a '%post' key.
+    See the examples.
+    * Completely changed how mouse configuration is done. This now works with
+    all types of mice that the Red Hat Kickstart stuff knows of. See the
+    docs.
+    * Added support for the 8.0 RK. The version string is "8.0".
+    * 02/14/03 - Moved the Debug Tool to a WRAP'd directory that's served from
+    secure.linux.ncsu.edu to protect the information while you are debuging.
+    * 02/14/03 - We do not send a default kickstart anymore if there is no
+    config file. You must have a config file.
+    * 02/14/03 - Moved to permanent location in AFS.
+    * 04/14/03 - Added support for the NCSU Realm Kit for Red Hat Linux 9 AKA
+    Shreak. The version string is "9".
+    * 04/24/03 - Added RK 9 boot CD.
+    * 05/08/03 - Added "enable safepartition" key and changed the default size
+    of /var/cache to 512MB, /var to 390 and /boot to 75. I've also added a
+    new option to the src key and changed the default to that option of
+    "http" which installs from install.linux.ncsu.edu.
+    * 06/05/03 - Added "enable keepmbr" which doesn't overwrite the MBR with
+    the bootloader. The bootloader is placed in the boot partition (/boot).
+
+
+2003-05-27 Elliot Peele <elliot@bentlogic.net>
+
+    * intial GNUifying
+
