@@ -197,7 +197,7 @@ class webksconf(ConfigParser.ConfigParser):
 
 
     def get_obj(self, name, args):
-        if self.disable_version_case_sensitivity:
+        if self.disable_version_case_sensitivity and name != 'default':
             name = name.upper()
         if name not in self.versionMap.keys():
             raise errors.ConfigError("Version %s is not defined" % name)
