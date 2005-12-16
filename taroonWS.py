@@ -96,7 +96,7 @@ class taroonWS(realmLinux.baseRealmLinuxKickstart):
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
 . /etc/sysconfig/network
-/bin/hostname `python -c "import socket; print socket.getfqdn('$HOSTNAME')`
+/bin/hostname `python -c "import socket; print socket.getfqdn('$HOSTNAME')"`
 
 /usr/sbin/rhnreg_ks --activationkey %s --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
 
@@ -111,6 +111,7 @@ fi
 
 # Run Up2Date
 chvt 3
+/usr/sbin/up2date --nox -u up2date
 /usr/sbin/up2date --nox -u
 chvt 1
 """ % key
