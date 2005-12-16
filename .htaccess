@@ -6,7 +6,7 @@ PythonDebug On
     deny from all
 </Files>
 
-<Directory configs >
+<Files configs >
     deny from all
-</Directory>
+</Files>
 
