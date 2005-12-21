@@ -606,7 +606,7 @@ EOF
         if len(scriptlist) > 1:
             post = post + string.join(scriptlist[1:], "\n")
 
-        # Check if we have any posys at all
+        # Check if we have any posts at all
         if len(scriptlist) != 0:
             post = post + "\n" + scriptlist[0]
 

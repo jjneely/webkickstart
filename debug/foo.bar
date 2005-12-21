@@ -1,6 +1,7 @@
-version WS3
+version rpl0.99.2
 rootpw adsfasdfasdf
 grub aasdfasdfa
 #enable nox
 #xconfig --resolution fooxbar  --card foo
 
+%packages --nobase

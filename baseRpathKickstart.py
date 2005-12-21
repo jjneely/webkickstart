@@ -23,7 +23,9 @@ from baseKickstart import baseKickstart
 class baseRpathKickstart(baseKickstart):
 
     def packages(self):
-        if len(self.getKeys('package')) == 0:
+        if '%packages' in self.extraPost():
+            return ""
+        elif len(self.getKeys('package')) == 0:
             return '%packages'
         else:
             return baseKickstart.packages(self)
