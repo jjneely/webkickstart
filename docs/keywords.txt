@@ -65,7 +65,7 @@ give the name of the printer to this key as its option.
 
     package <packagename> 
 
-Optional.  Defaults to "@ Realm Kit Workstation".  Use this key to
+Optional.  Defaults to "@ NCSU Realm Kit Workstation".  Use this key to
 configure what packages and package groups get installed.  This key
 can be used multiple times.  Specify one package or package group for
 each use of the key.  (If you use this you really want to start out
