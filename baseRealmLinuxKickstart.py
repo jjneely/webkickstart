@@ -59,6 +59,7 @@ class baseRealmLinuxKickstart(baseKickstart):
                            self.department,
                            self.printer,
                            self.realmhooks,
+                           self.RHN,
                            self.extraPost ]
 
 
@@ -242,10 +243,10 @@ rm -rf /var/log/audit.d/*
                 users.append(id)
                 extrausers.append(id)
 
-        retval = "cat << EOF > /root/.klogin\n"
+        retval = "cat << EOF > /root/.k5login\n"
         for id in admin:
             retval = "%s%s.root@EOS.NCSU.EDU\n" % (retval, id)
-        retval = "%sEOF\nchmod 400 /root/.klogin\n" % retval
+        retval = "%sEOF\nchmod 400 /root/.k5login\n" % retval
         retval = "%s\ncat << EOF >> /etc/sudoers\n" % retval
         for id in admin:
             retval = "%s%s  ALL=(ALL) ALL\n" % (retval, id)
@@ -409,5 +410,37 @@ rm /etc/pam.d/login~\n
             return "realmconfig --kickstart support --enable-support\n"
         else:
             return "realmconfig --kickstart support --disable-support\n"
-    
+   
+   
+    def RHN(self):
+
+        key = self.checkKey(1, 1, "enable", "activationkey")
+        if key == None:
+            key = "6ed40e5c831bd8a8d706f0abe8f44f09"
+        else:
+            key = key[0]
+        
+        return """
+# The registration program's not smart enough to figure out the host name
+# with out this the profile reads "localhost.localdomain"
+. /etc/sysconfig/network
+/bin/hostname `python -c "import socket; print socket.getfqdn('$HOSTNAME')"`
+
+/usr/sbin/rhnreg_ks --activationkey %s --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+
+# Import the RPM GPG keys
+/bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
+/bin/rpm --import /usr/share/realmconfig/realmkit.gpg
+
+# Set Up2Date Configuration
+if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
+    /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
+fi
+
+# Run Up2Date
+chvt 3
+/usr/sbin/up2date --nox -u up2date
+/usr/sbin/up2date --nox -u
+chvt 1
+""" % key
 
