@@ -260,11 +260,16 @@ class baseKickstart:
     def partition(self):
         # Return partition information
         safepart = self.getKeys('enable', 'safepartition')
+        clearpart = self.checkKey(1, 1000, "clearpart")
 
-        if len(safepart) > 0:
-            retval = "zerombr yes\nclearpart --linux\n"
+        retval = "zerombr yes\n"
+
+        if clearpart is not None:
+            retval = "%s%s\n" % (retval, string.join(clearpart['options']))
+        elif len(safepart) > 0:
+            retval = "%sclearpart --linux\n" % retval
         else:
-            retval = "zerombr yes\nclearpart --all\n"
+            retval = "%sclearpart --all\n" % retval
 
         parttable = self.getKeys('part')
         # We are just going to take what's in the cfg file and go with it
