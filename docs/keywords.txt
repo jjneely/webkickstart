@@ -211,21 +211,24 @@ Optional.  Enable being able to receive email locally on this machine.
     enable consolelogin
 
 Optional.  Enable "local" users to be able to log into the machine at
-the text console.  Default only treats logins from GDM as "local."
+the text console.  Default is to use /etc/pam.d/remote-auth to control
+console logins where the default is to only allow folks in users.local
+unless you specify otherwise.
 
     enable localcluster [cluster]
 
 Optional.  Enable the use of clusters to control local logins.  The
 default is to allow local users in the "ncsu" cluster to login.  (Yes,
 that's everyone at NCSU.)  You can specify a cluster yourself, or
-leave the cluster out to use the cluster information in hesiod.
+leave the cluster out to use the cluster information in hesiod.  If
+cluster == "None" explicitly use no clusters.
 
     enable remotecluster [cluster]
 
 Optional.  Enable the use of clusters to control remote logins.  The
 default setting is to not use cluster from remote logins.  You can
 specify a cluster yourself or leave blank to get cluster out of
-hesiod. 
+hesiod.  If cluster == "None" explicitly use no clusters.
 
     enable norealmcron
 
