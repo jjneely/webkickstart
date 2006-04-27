@@ -1,9 +1,13 @@
 #!/usr/bin/python
 
+import os
 import sys
 sys.path.append('../')
+sys.path.append('./')
 import socket
 from webKickstart import webKickstart
+
+os.chdir('../')
 
 try:
     ip = socket.gethostbyname(sys.argv[1])

@@ -34,7 +34,7 @@ class webksconf(ConfigParser.ConfigParser):
         self.cfg_file = configfile
 
         self.read(self.cfg_file)
-        if self.sections() == 0:
+        if self.sections() == []:
             raise errors.AccessError("Can't access %s" % (self.cfg_file))
 
         #setup defualts
@@ -206,8 +206,10 @@ class webksconf(ConfigParser.ConfigParser):
         module_class = self.versionMap[name]['module_class']
         url = args['url']
         sc = args['sc']
-        cmd = ("import %s\nobj = %s.%s('%s', %s, sc)") % (module, module, module_class, url, self.versionMap[name])
-        exec(cmd)
-        return obj
 
+        # Suck in arbitrary module and class.  Instantiate and return
+        pmod = __import__(module)
+        pclass = getattr(pmod, module_class)
+        obj = pclass(url, self.versionMap[name], sc)
+        return obj
 
