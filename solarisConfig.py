@@ -173,11 +173,20 @@ class solarisConfig:
         
     def getVersion(self):
         """Returns the option ofter the 'version' key."""
-        return self.__parseOutVersion(self)
+        
+        if self.isKickstart():
+            return None
+        
+        version = self.__parseOutVersion(self)
+        if version is None:
+            raise errors.ParseError("'version' key is missing and required")
+        
+        return version
 
 
     def __parseOutVersion(self, sc):
         """Parse version out of included files"""
+
         for rec in sc.parseCommands():
             if rec['key'] == 'version':
                 if len(rec['options']) != 1:
@@ -185,22 +194,15 @@ class solarisConfig:
                 else:
                     return rec['options'][0]
 
+        for rec in sc.parseCommands():
             if rec['key'] == 'use':
                 if len(rec['options']) != 1:
                     raise errors.ParseError, "'use' key must have one argument."
-                try:
-                    v = self.__parseOutVersion(solarisConfig(rec['options'][0]))
-                except errors.ParseError, e:
-                    # if the included conf file doesn't have a version
-                    # we need to keep looking
-                    # Also, check which exception was thrown for completeness
-                    # XXX: This function needs to be fixed better.
-                    if e.value != "'version' key is required.":
-                        raise
+                    
+                v = self.__parseOutVersion(solarisConfig(rec['options'][0]))
+                if v is not None:
+                    return v
 
-        if not sc.isKickstart():
-            raise errors.ParseError, "'version' key is required."
-        else:
-            return None
+        return None
 
             
