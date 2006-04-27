@@ -22,9 +22,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from solarisConfig import solarisConfig
+from errors import *
 
 import config
-import errors
 import socket
 import traceback
 import sys
@@ -48,7 +48,7 @@ class webKickstart:
         security.cfg = self.cfg
 
 
-    def getKS(self, host, debug=0):
+    def __getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
@@ -60,51 +60,62 @@ class webKickstart:
         # Get the value for collision_detection
         collision_detection = self.cfg.enable_config_collision_detection
 
-        try:        
-            scList = self.findFile(filename, self.cfg.jumpstarts)
+        scList = self.findFile(filename, self.cfg.jumpstarts)
 
-            if len(scList) > 1 and collision_detection:
-                # if collision_detection is on then bitch
-                # otherwise we just want the first hit
-                return self.__collisionMessage(scList)
+        if len(scList) > 1 and collision_detection:
+            # if collision_detection is on then bitch
+            # otherwise we just want the first hit
+            return self.__collisionMessage(scList)
 
-            if len(scList) == 0:
-                sc = None
-            else:
-                sc = scList[0]
+        if len(scList) == 0:
+            sc = None
+        else:
+            sc = scList[0]
 
-            if not debug and sc != None:
-                # Security check
-                if ( self.cfg.enable_security and 
-                     not security.check(self.headers, filename) ):
-                    return (2, "# You do not appear to be Anaconda.")
+        if not debug and sc != None:
+            # Security check
+            if ( self.cfg.enable_security and 
+                 not security.check(self.headers, filename) ):
+                return (2, "# You do not appear to be Anaconda.")
                 
-            if sc != None:
-                if sc.isKickstart():
-                    return (0, sc.getFile())
+        if sc != None:
+            if sc.isKickstart():
+                return (0, sc.getFile())
             
-                version = sc.getVersion()
+            version = sc.getVersion()
+            args = {'url': self.url, 'sc': sc}
+            generator = self.cfg.get_obj(version, args)
+        else:
+            # disable the default, no-config file, generic kickstart
+            if self.cfg.enable_generic_ks:
                 args = {'url': self.url, 'sc': sc}
-                generator = self.cfg.get_obj(version, args)
+                generator = self.cfg.get_obj('default', args)
             else:
-                # disable the default, no-config file, generic kickstart
-                if self.cfg.enable_generic_ks:
-                    args = {'url': self.url, 'sc': sc}
-                    generator = self.cfg.get_obj('default', args)
-                else:
-                    return (1, "# No config file for host " + host)
+                return (1, "# No config file for host " + host)
                 
-            retval = generator.makeKS()
-            return (0, retval)
+        retval = generator.makeKS()
+        return (0, retval)
         
+
+    def getKS(self, host, debug=0):
+        # Wrapper for error checking/handling
+        try:
+            return self.__getKS(host, debug)
+    
+        except WebKickstartError, e:
+            s = "# An error occured while Web-Kickstart was running.\n"
+            s = "%s# The error is: %s" % (s, str(e))
+
+            return (42, s)
+            
         except:
             text = traceback.format_exception(sys.exc_type,
                                               sys.exc_value,
                                               sys.exc_traceback)
-            s = "A python exception occured while parsing the JumpStart file.\n"
-            s = "%sThe Exception was:\n\n" % s
+            s = "# An unhandled python exception occured in Web-Kickstart.\n"
+            s = "%s# The Exception was:\n\n" % s
             for line in text:
-                s = s + line
+                s = s + "# " + line
 
             return (42, s)
         
@@ -119,8 +130,7 @@ class webKickstart:
         try:
             files, dirs = self.getFilesAndDirs(cd)
         except OSError, e:
-            s = str(e) + "\nDir: " + cd
-            raise OSError(s)
+            raise AccessError(str(e))
 
         for f in files:
             if os.path.basename(f) == fn:

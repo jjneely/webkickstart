@@ -18,16 +18,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-class ParseError(StandardError):
+class WebKickstartError(StandardError): pass
+
+class ParseError(WebKickstartError):
     
-    def __init__(self, value="A parse error has occured."):
+    def __init__(self, value="A parsing error has occured."):
         self.value = value
         
     def __str__(self):
         return self.value
         
 
-class AccessError(StandardError):
+class AccessError(WebKickstartError):
 
     def __init__(self, value="An access error has occured."):
         self.value = value
@@ -36,7 +38,7 @@ class AccessError(StandardError):
         return self.value
 
 
-class ConfigError(StandardError):
+class ConfigError(WebKickstartError):
                                                                                 
     def __init__(self, value="A config error has occured."):
         self.value = value
