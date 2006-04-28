@@ -522,7 +522,11 @@ fi
 if [ ! -f initrd.img ] ; then
     wget %s://%s/%s/isolinux/initrd.img
 fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=eth0" --initrd=/boot/install/initrd.img
+KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2}'`
+if "$KSDEVICE" == ""; then 
+    KSDEVICE=eth0
+fi
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img\n
 """ % (self.cfg['install_method'], 
        self.cfg['%s_server' % self.cfg['install_method']], 
        self.cfg['%s_path' % self.cfg['install_method']], 
