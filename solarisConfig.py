@@ -24,23 +24,22 @@ import string
 import shlex
 import cStringIO
 import errors
+import config
+import os
 
-class solarisConfig:
+class solarisConfig(object):
     """This class has tools and functions for parsing a solaris config file.
        We can recognize if this is a normal kickstart instead.  This class is
        ment to be used by a factory class to produce a Red Hat Kickstart."""
     
-    filename = ""
-    filedata = ""
-    filecommands = []
-    fileposts = []
-    
-    parsings = None
-    
     def __init__(self, filename):
-        file = open(filename)
-        # Do we need to handle exception or let them propigate up?
         self.filename = filename
+        self.filedata = ""
+        self.filecommands = []
+        self.fileposts = []
+        self.parsings = None
+
+        file = open(self.getFileName())
         
         self.filedata = file.read()
         file.close()
@@ -49,8 +48,18 @@ class solarisConfig:
         
    
     def __str__(self):
-        return "Web-Kickstart Config: %s " % self.filename
+        return "Web-Kickstart Config: %s " % self.getFileName()
 
+
+    def __eq__(self, sc):
+        if sc is None: return False
+        return self.getFileName() == sc.getFileName()
+
+
+    def __ne__(self, sc):
+        if sc is None: return True
+        return self.getFileName() != sc.getFileName()
+    
 
     def __splitFile(self, lines):
         """Separates the file into the first part of commands and the second
@@ -139,6 +148,25 @@ class solarisConfig:
         
         return self.filedata
         
+    
+    def getFileName(self):
+        if os.path.isabs(self.filename):
+            if os.access(self.filename, os.R_OK):
+                return self.filename
+        else:
+            filename = os.path.join(config.config.jumpstarts, self.filename)
+            if os.access(filename, os.R_OK):
+                return filename
+
+            # XXX: Support legacy configs/ directory
+            if self.filename.startswith("configs/"):
+                filename = os.path.join(config.config.jumpstarts, 
+                                        self.filename[8:])
+                if os.access(filename, os.R_OK):
+                    return filename
+
+        raise errors.AccessError("Cannot read config file: %s" % self.filename)
+
         
     def getListOfKeys(self):
         """Return a list of all keywords used in config file."""
@@ -184,8 +212,13 @@ class solarisConfig:
         return version
 
 
-    def __parseOutVersion(self, sc):
+    def __parseOutVersion(self, sc, sclist=[]):
         """Parse version out of included files"""
+
+        # Gaurd against infinite recursion
+        if sc.filename in sclist:
+            return None
+        sclist.append(sc.filename)
 
         for rec in sc.parseCommands():
             if rec['key'] == 'version':
@@ -198,8 +231,9 @@ class solarisConfig:
             if rec['key'] == 'use':
                 if len(rec['options']) != 1:
                     raise errors.ParseError, "'use' key must have one argument."
-                    
-                v = self.__parseOutVersion(solarisConfig(rec['options'][0]))
+ 
+                newsc = solarisConfig(rec['options'][0])
+                v = self.__parseOutVersion(newsc, sclist)
                 if v is not None:
                     return v
 

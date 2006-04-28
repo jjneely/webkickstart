@@ -23,8 +23,8 @@
 
 from solarisConfig import solarisConfig
 from errors import *
+from config import config
 
-import config
 import socket
 import traceback
 import sys
@@ -43,7 +43,7 @@ class webKickstart:
         # client's headers
         self.headers = headers
 
-        self.cfg = config.webksconf()
+        self.cfg = config
         config.cfg = self.cfg
         security.cfg = self.cfg
 
@@ -91,7 +91,7 @@ class webKickstart:
                 args = {'url': self.url, 'sc': sc}
                 generator = self.cfg.get_obj('default', args)
             else:
-                return (1, "# No config file for host " + host)
+                return (1, "# No config file for host " + addr)
                 
         retval = generator.makeKS()
         return (0, retval)

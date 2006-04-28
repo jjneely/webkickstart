@@ -20,7 +20,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from solarisConfig import solarisConfig
 import ConfigParser
 import os
 import string
@@ -212,4 +211,8 @@ class webksconf(ConfigParser.ConfigParser):
         pclass = getattr(pmod, module_class)
         obj = pclass(url, self.versionMap[name], sc)
         return obj
+
+
+# Global copy for all modules
+config = webksconf()
 

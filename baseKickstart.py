@@ -25,7 +25,7 @@ import errors
 import string
 import os
 
-class baseKickstart:
+class baseKickstart(object):
     """Base class for generating a kickstart from a solarisConfig.  To be
        subclassed to handle multiple versions although this class should be 
        successful at generating a kickstart for Red Hat Linux 9."""
@@ -82,8 +82,6 @@ class baseKickstart:
             if rec['key'] == 'use':
                 if len(rec['options']) != 1:
                     raise errors.ParseError, "'use' key must have one argument."
-                elif rec['options'][0] in self.configs:
-                    raise errors.ParseError, "Recursive 'use' loop detected."
                 else:
                     tmp_sc = solarisConfig(rec['options'][0])
                     self.includeFile(tmp_sc)
@@ -93,6 +91,9 @@ class baseKickstart:
     def includeFile(self, sc):
         """Parse a solarisConfig object."""
         
+        if sc in self.configs:
+            raise errors.ParseError, "Recursive 'use' loop detected."
+
         self.mergeTable(sc.parseCommands())
         self.configs.append(sc)
         
