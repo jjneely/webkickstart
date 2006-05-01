@@ -21,7 +21,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import ConfigParser
+import sys
 import os
+import os.path
 import string
 import errors
 
@@ -30,11 +32,21 @@ class webksconf(ConfigParser.ConfigParser):
                                    './solaris2ks.conf']):
         ConfigParser.ConfigParser.__init__(self)
         
-        self.cfg_file = configfile
+        self.cfg_file = []
+
+        # resolve non-absoulte paths relative to the directory containing
+        # the web-kickstart code.  Fixes CWD dependancies.
+        if type(configfile) is not type([]):
+            configfile = [configfile]
+        for p in configfile:
+            if not os.path.isabs(p):
+                p = os.path.join(sys.path[0], p)
+            self.cfg_file.append(p)
 
         self.read(self.cfg_file)
         if self.sections() == []:
-            raise errors.AccessError("Can't access %s" % (self.cfg_file))
+            raise errors.AccessError("Can't access %s\nCWD: %s" % \
+                    (self.cfg_file, os.getcwd()))
 
         #setup defualts
         self.logfile = '/var/log/solaris2ks.log'

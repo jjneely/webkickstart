@@ -1,6 +1,6 @@
 # ks.py -- apache mod_python handler
 #
-# Copyright, 2002, 2005 Jack Neely <slack@quackmaster.net>
+# Copyright, 2002 - 2006 Jack Neely <jjneely@ncsu.edu>
 #
 # SDG
 #
@@ -18,12 +18,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import sys
+import os
+
 from mod_python import apache
 from mod_python import util
 
 from webKickstart import webKickstart
-
-import sys,os
 
 def handler(req):
     # Main apache request handler
@@ -33,9 +34,6 @@ def handler(req):
     # build requested URL
     url = "http://" + req.hostname + req.uri
     
-    # set current working dir to something sane
-    os.chdir(sys.path[0])
-
     # Get the IP of the requestor
     ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
 
