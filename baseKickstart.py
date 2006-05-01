@@ -453,7 +453,7 @@ part /var/cache --size 1024
         ret = "firewall --medium --ssh --dhcp\n"
 
         if firewallstatus != None:
-            ret = "firewall --diabled\n"
+            ret = "firewall --disabled\n"
         elif firewalltable != None:
             ret = "firewall %s\n" % string.join(firewalltable)
 
