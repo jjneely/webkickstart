@@ -522,7 +522,7 @@ fi
 if [ ! -f initrd.img ] ; then
     wget %s://%s/%s/isolinux/initrd.img
 fi
-KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2}'`
+KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
 if "$KSDEVICE" == ""; then 
     KSDEVICE=eth0
 fi
