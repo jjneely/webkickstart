@@ -202,13 +202,13 @@ realmconfig --kickstart updates --enable-updates
         elif len(audittable) == 1:
             retval = """
 # make sure audit is on
-chkconfig audit on
+chkconfig auditd on
 
 """
         else:
             retval = """
 # turn off audit and wax any logs
-chkconfig audit off
+chkconfig auditd off
 rm -rf /var/log/audit
 rm -rf /var/log/audit.d/*
 
