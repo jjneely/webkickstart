@@ -128,6 +128,17 @@ Add support to turn case sensitivity on/off for version strings</li>
 <li>07/06/05 -
 Made collision support actually work.  Lots of random updates, fixes,
 and web page updates.</li>
+<li>05/01/06 -
+Web-Kickstart will set the ksdevice for the re-install target in Grub
+to the same ksdevice used to do the inital install.  Various typos and
+small differences between RHEL 3 and 4 are corrected.  Remove the need
+for the configs/ symlink, all non-absoulte paths given to the 'use' key
+are now relative to the top level config directory and should no longer
+start with "config/".  Gard against infinite recursion.  Web-Kickstart
+errors no longer generate a traceback, just the error message.  Non-
+handled errors still produce a traceback.  The 'clearpart' key from
+the Kickstart documentation is now supported.</li>
+
 </ul>
 
 </body>

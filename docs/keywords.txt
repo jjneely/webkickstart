@@ -146,6 +146,12 @@ Optional.  Use this key to specify a password from grub, the
 bootloader.  You must use an MD5 Crypt here.  If left blank the root
 MD5 from AFS will be used.  See the root key.
 
+    clearpart <Options>
+
+Optional.  Controls how initial partitions, if any, are removed before the
+install.  Options for this key are passed directly to the kickstart.  See 
+Red Hat's kickstart documentation for the details of the clearpart command.
+
 	selinux --enforcing | --permissive | --disabled
 	
 Optional. Change SELinux configuration.
