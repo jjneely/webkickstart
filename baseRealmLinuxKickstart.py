@@ -424,9 +424,10 @@ rm /etc/pam.d/login~\n
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
 . /etc/sysconfig/network
-/bin/hostname `python -c "import socket; print socket.getfqdn('$HOSTNAME')"`
+FQDN=`python -c "import socket; print socket.getfqdn('$HOSTNAME')"`
+/bin/hostname $FQDN
 
-/usr/sbin/rhnreg_ks --activationkey %s --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+/usr/sbin/rhnreg_ks --activationkey %s --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
 
 # Import the RPM GPG keys
 /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
