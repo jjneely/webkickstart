@@ -592,11 +592,9 @@ EOF
 # is not always up. Originally by Lin Osborne (ITECS).
 
 # Figure out the relevant information about this system
-IP=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print
-$2}'`
+IP=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
 HOSTNAME=`/usr/bin/host $IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
-NETMASK=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, "");
-print $4}'`
+NETMASK=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
 NETWORK=`/bin/ipcalc $IP -n $NETMASK | /bin/cut -d\= -f2`
 GATEWAY=`echo $NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
 

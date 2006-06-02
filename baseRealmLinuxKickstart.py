@@ -423,8 +423,9 @@ rm /etc/pam.d/login~\n
         return """
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
-. /etc/sysconfig/network
-FQDN=`python -c "import socket; print socket.getfqdn('$HOSTNAME')"`
+KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
+IP=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
+FQDN=`python -c "import socket; print socket.getfqdn('$IP')"`
 /bin/hostname $FQDN
 
 /usr/sbin/rhnreg_ks --activationkey %s --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
