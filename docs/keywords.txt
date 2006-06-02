@@ -18,6 +18,23 @@ spaces.  Also, have comments that begin with a '#' are supported.
 Keys
 ====
 
+    version <version string>
+
+REQUIRED.  This key specifies what version of the Linux Realm Kit to
+install.  Currently, the options are: 
+
+    WS4
+    AS4
+    WS4.x86_64
+    AS4.x86_64
+    WS3
+    AS3
+    default  
+    
+The "default" option should install the latest stable version (9)
+where the numeric option will install the Linux Realm Kit based off 
+of that version of Red Hat Linux.
+
     dept  <department>
 
 Optional.  Sets the department for the machine.  Default is PAMS.
@@ -125,21 +142,6 @@ options will install using that protocol from
 ftp.linux.ncsu.edu.  More options can be added in the future to
 support other install methods from other mirrors.
  
-    version <version string>
-
-REQUIRED.  This key specifies what version of the Linux Realm Kit to
-install.  Currently, the options are: 
-
-    WS3
-    AS3
-    FC2
-    FC1
-    default  
-    
-The "default" option should install the latest stable version (9)
-where the numeric option will install the Linux Realm Kit based off 
-of that version of Red Hat Linux.
-
     grub  <MD5 Crypt>
 
 Optional.  Use this key to specify a password from grub, the
@@ -186,6 +188,11 @@ button emulation.  This key behaves exactly the same way as the
 this key please see the Kickstart Options page at the following URL. 
 
 http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html
+
+    staticip
+
+Optional.  This key will convert the client to a static IP setup rather
+than the default DHCP.  Useful for servers.
 
     enable <service> [option1] [option2] [...]
 

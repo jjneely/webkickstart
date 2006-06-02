@@ -2,7 +2,7 @@
 #
 # baseKickstart.py -- class to generate a kickstart from a solarisConfig
 #
-# Copyright 2002-2005 NC State University
+# Copyright 2002-2006 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu> and
 #            Elliot Peele <elliot@bentlogic.net>
 #
@@ -578,6 +578,45 @@ root:       %s
 EOF
 /usr/bin/newaliases
 """ % owner[0]
+
+
+    def staticIP(self):
+        # Web-Kickstart uses DHCP and will configure the client as such
+        # Covert the client to a static IP setup
+        key = self.checkKey(1, 1, 'staticip')
+        if key == None:
+            return ""
+        else:
+            return """
+# M-DHCP to Static IP conversion hack because the Comtech[tm] DHCP server
+# is not always up. Originally by Lin Osborne (ITECS).
+
+# Figure out the relevant information about this system
+IP=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print
+$2}'`
+HOSTNAME=`/usr/bin/host $IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
+NETMASK=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, "");
+print $4}'`
+NETWORK=`/bin/ipcalc $IP -n $NETMASK | /bin/cut -d\= -f2`
+GATEWAY=`echo $NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+
+# Overwrite the appropriate files (/etc/sysconfig/network and
+# /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
+# upon DHCP
+cat << EOF > /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=$HOSTNAME
+GATEWAY=$GATEWAY
+EOF
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+BOOTPROTO=static
+IPADDR=$IP
+NETMASK=$NETMASK
+ONBOOT=yes
+EOF
+"""
 
 
     def notempclean(self):
