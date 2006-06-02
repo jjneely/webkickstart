@@ -72,6 +72,7 @@ class baseKickstart(object):
                            self.owner,
                            self.notempclean,
                            self.printer,
+                           self.staticIP,
                            self.extraPost ]
         
 
@@ -583,7 +584,7 @@ EOF
     def staticIP(self):
         # Web-Kickstart uses DHCP and will configure the client as such
         # Covert the client to a static IP setup
-        key = self.checkKey(1, 1, 'staticip')
+        key = self.checkKey(0, 0, 'staticip')
         if key == None:
             return ""
         else:
