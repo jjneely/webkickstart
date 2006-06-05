@@ -2,7 +2,7 @@
 #
 # config.py -- Configuration class for webKickstrart
 #
-# Copyright 2003-2005 NC State University
+# Copyright 2003-2006 NC State University
 # Written by Elliot Peele <elliot@bentlogic.net>
 #            Jack Neely <jjneely@pams.ncsu.edu>
 #
@@ -59,6 +59,7 @@ class webksconf(ConfigParser.ConfigParser):
         self.enable_config_collision_detection = 0
         self.disable_version_case_sensitivity = 0
         self.jumpstarts = "./configs"
+        self.rhnkey = "No key set in configuration"
 
         self.defaultkey = None
 
@@ -89,6 +90,8 @@ class webksconf(ConfigParser.ConfigParser):
             self.enable_config_collision_detection = int(self._getoption('main','enable_config_collision_detection'))
         if self._getoption('main','disable_version_case_sensitivity') != None:
             self.disable_version_case_sensitivity = int(self._getoption('main','disable_version_case_sensitivity'))
+        if self._getoption('main','rhnkey') != None:
+            self.rhnkey = self._getoption('main','rhnkey')
 
         if self._getoption('main','defaultkey') != None:
             self.defaultkey = self._getoption('main','defaultkey')

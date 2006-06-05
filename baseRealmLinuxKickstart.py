@@ -23,6 +23,7 @@
 
 from solarisConfig import solarisConfig
 from baseKickstart import baseKickstart
+from config import config
 import errors
 import string
 import os
@@ -417,7 +418,7 @@ rm /etc/pam.d/login~\n
 
         key = self.checkKey(1, 1, "enable", "activationkey")
         if key == None:
-            key = "6ed40e5c831bd8a8d706f0abe8f44f09"
+            key = config.rhnkey
         else:
             key = key[0]
         

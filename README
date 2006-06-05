@@ -3,9 +3,9 @@ Web-Kickstart
 
 Also known as Solaris2ks.
 
-Version 2.0.
+Version 2.1.
 
-Copyright 2002-2005 NC State University
+Copyright 2002-2006 NC State University
 Written by
    Jack Neely   <jjneely@pams.ncsu.edu>
    Elliot Peele <ebpeele2@pams.ncsu.edu>
@@ -37,17 +37,17 @@ your environment.
 
 With Red Hat Linux or Fedora Core this is where Kickstart comes into
 play.  You simply have a custom boot disk that grabs the kickstart file
-off a server and automates the complete install.  However, your
-kickstarts are mostly the same except for small bits, like a printer,
-and there's not an overly good way to have server based kickstart that
-can include one another.  Also, other folks in your IT team(s) may not
-know how a kickstart works enough to create them.  Kickstart are long
-and tedious.
+off a server and automates the complete install or just with the ks
+boot option.  However, your kickstarts are mostly the same except for 
+small bits, like a printer, and there's not an overly good way to have 
+server based kickstart that can include other kickstarts.  Also, other 
+folks in your IT team(s) may not know how a kickstart works enough to 
+create them.  Kickstarts are long and tedious.
 
 Here is where Web-Kickstart comes in.  Web-Kickstart reads small
 config files from a central location, such as your distributed file
 system or a server.  These files follow in a similar style to
-Solaris's Jumpstart.  With two to four lines you can have a highly
+<key> [value ...].  With two to four lines you can have a highly
 customized and configure linux install.  Config files can include
 other files, and you can even attach multiple %post's and %pre's.
 Web-Kickstart takes this config file, loads it into a Python class
@@ -69,7 +69,10 @@ defaults in the class.
 Included is a class and documentation for installing stock Red Hat Linux
 or Fedora Core.  I also include the working classes that we use at NC
 State University to install Realm Linux as an example for how you can
-customize the software.
+customize the software.  Classes for install rPath Linux are also
+included but not tested by myself.
+
+Feedback and patches welcome!
 
 
 Installing
@@ -91,9 +94,9 @@ served out on the virtual domain.  You want to be able to do a
 
     http://web-kickstart.linux.ncsu.edu/ks.py
 
-among other things.  The "configs/" directory should be either where
-you keep your configs or a symlink to where they live in your distributed
-file system. 
+
+The directory that contains your configuration files can be anywhere on
+your system.  However, Apache must be able to read them.
 
 Lastly, make sure that the Apache overrides are set properly to let 
 mod_python code run.  With this version you will also want to edit the
@@ -108,6 +111,8 @@ The next part of the install is setting up the config file called
 solaris2ks.conf.  There is an example included that is fairly well
 documented.  Start from there.  This is where you map the version keys,
 like '9' in the above example, to a class and supply some base URLs.
+Also, the path to where you store the configuration files must be
+included here.
 
 At this point you should have a semi-working system.  Make a few config
 files and start testing and customizing.
