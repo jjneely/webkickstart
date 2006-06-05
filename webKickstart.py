@@ -91,7 +91,7 @@ class webKickstart:
                 args = {'url': self.url, 'sc': sc}
                 generator = self.cfg.get_obj('default', args)
             else:
-                return (1, "# No config file for host " + addr)
+                return (1, "# No config file for host " + filename)
                 
         retval = generator.makeKS()
         return (0, retval)
@@ -125,11 +125,13 @@ class webKickstart:
         
 
     def findFile(self, fn, cd="./configs"):
-        """Return a list of absolute paths that match the givein
-           filename.  Ie, /foo/bar and /baz/bar when fn="bar"
+        """Return a list of solarisConfigs that match the givein
+           filename.  Ie, /foo/bar and /baz/bar when fn="bar".  This
+           is case insensitive as is DNS.
         """
 
         ret = []
+        fn = fn.lower()
 
         try:
             files, dirs = self.getFilesAndDirs(cd)
@@ -137,7 +139,7 @@ class webKickstart:
             raise AccessError(str(e))
 
         for f in files:
-            if os.path.basename(f) == fn:
+            if os.path.basename(f).lower() == fn:
                 ret.append(solarisConfig(f))
 
         for d in dirs:
