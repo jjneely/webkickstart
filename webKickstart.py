@@ -114,8 +114,12 @@ class webKickstart:
                                               sys.exc_traceback)
             s = "# An unhandled python exception occured in Web-Kickstart.\n"
             s = "%s# The Exception was:\n\n" % s
-            for line in text:
-                s = s + "# " + line
+
+            # We need to comment everything out.  text is a list and each
+            # element may contain more than one line of traceback.
+            text = '\n'.join(text)
+            for line in text.split('\n'):
+                s = "%s# %s\n" % (s, line)
 
             return (42, s)
         

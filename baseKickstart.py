@@ -267,7 +267,7 @@ class baseKickstart(object):
         retval = "zerombr yes\n"
 
         if clearpart is not None:
-            retval = "%s%s\n" % (retval, string.join(clearpart['options']))
+            retval = "%sclearpart %s\n" % (retval, string.join(clearpart))
         elif len(safepart) > 0:
             retval = "%sclearpart --linux\n" % retval
         else:
