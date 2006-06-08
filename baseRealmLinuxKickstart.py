@@ -247,7 +247,7 @@ rm -rf /var/log/audit.d/*
 
         retval = "cat << EOF > /root/.k5login\n"
         for id in admin:
-            retval = "%s%s.root@EOS.NCSU.EDU\n" % (retval, id)
+            retval = "%s%s/root@EOS.NCSU.EDU\n" % (retval, id)
         retval = "%sEOF\nchmod 400 /root/.k5login\n" % retval
         retval = "%s\ncat << EOF >> /etc/sudoers\n" % retval
         for id in admin:
