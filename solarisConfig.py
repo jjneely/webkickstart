@@ -2,7 +2,7 @@
 #
 # solarisConfig.py -- tools for parsing solaris config files
 #
-# Copyright 2002-2005 NC State University
+# Copyright 2002-2006 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu> and
 #            Elliot Peele <elliot@bentlogic.net>
 #
@@ -78,7 +78,8 @@ class solarisConfig(object):
     def isKickstart(self):
         """Return true if this config file appears to be a kickstart"""
         
-        ksReqs = ['auth', 'keyboard', 'lang', 'mouse', 'rootpw', 'timezone']
+        ksReqs = ['auth', 'keyboard', 'lang', 'bootloader', 
+                  'rootpw', 'timezone']
         coms = self.getListOfKeys()
         
         for key in ksReqs:
