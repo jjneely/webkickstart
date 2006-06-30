@@ -20,12 +20,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import logging
 import string
 import shlex
 import cStringIO
 import errors
 import config
 import os
+
+log = logging.getLogger()
 
 class solarisConfig(object):
     """This class has tools and functions for parsing a solaris config file.
@@ -213,15 +216,27 @@ class solarisConfig(object):
         return version
 
 
-    def __parseOutVersion(self, sc, sclist=[]):
+    def __parseOutVersion(self, sc, sclist=None):
         """Parse version out of included files"""
 
+        # Gah...default argument values are only evaluated once so if I
+        # use a list (mutable) and then do things to it...i will always
+        # get the modified list passed in to the initial function call.
+        
+        if sclist == None:
+            sclist = []
+
+        log.debug("In __parseOutVersion()")
+        log.debug("  sclist = %s" % str(sclist))
+        
         # Gaurd against infinite recursion
         if sc.filename in sclist:
+            log.warning("Infinite recursion detected: %s" % sc.filename)
             return None
         sclist.append(sc.filename)
 
         for rec in sc.parseCommands():
+            log.debug("Parsing for version: key: %s" % rec['key'])
             if rec['key'] == 'version':
                 if len(rec['options']) != 1:
                     raise errors.ParseError, "'version' key must have one argument."

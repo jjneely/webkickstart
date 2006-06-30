@@ -20,6 +20,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import logging
 import ConfigParser
 import sys
 import os
@@ -28,6 +29,9 @@ import string
 import errors
 
 class webksconf(ConfigParser.ConfigParser):
+
+    init_logging = True
+    
     def __init__(self, configfile=['/etc/solaris2ks.conf',
                                    './solaris2ks.conf']):
         ConfigParser.ConfigParser.__init__(self)
@@ -71,14 +75,17 @@ class webksconf(ConfigParser.ConfigParser):
 
         self.versionMap = {}
 
-        if self._getoption('main','jumpstarts') != None:
-            self.jumpstarts = self._getoption('main','jumpstarts')
         if self._getoption('main','logfile') != None:
             self.logfile = self._getoption('main','logfile')
+        if self._getoption('main','log_level') != None:
+            self.log_level = int(self._getoption('main','log_level'))
+        if self.init_logging:
+            self.initLogging()
+            
+        if self._getoption('main','jumpstarts') != None:
+            self.jumpstarts = self._getoption('main','jumpstarts')
         if self._getoption('main','debug_level') != None:
             self.debug_level = self._getoption('main','debug_level')
-        if self._getoption('main','log_level') != None:
-            self.log_level = self._getoption('main','log_level')
         if self._getoption('main','error_log') != None:
             self.error_log = self._getoption('main','error_log')
 
@@ -227,6 +234,22 @@ class webksconf(ConfigParser.ConfigParser):
         obj = pclass(url, self.versionMap[name], sc)
         return obj
 
+
+    def initLogging(self):
+        logger = logging.getLogger()
+        
+        handler = logging.FileHandler(self.logfile)
+        # Time format: Jun 24 10:16:54
+        formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
+                                      '%b %2d %H:%M:%S')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(self.log_level)
+
+        logger.info("Logging initialized.")
+
+        self.init_logging = False
+                                
 
 # Global copy for all modules
 config = webksconf()
