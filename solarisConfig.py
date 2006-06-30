@@ -213,9 +213,16 @@ class solarisConfig(object):
         return version
 
 
-    def __parseOutVersion(self, sc, sclist=[]):
+    def __parseOutVersion(self, sc, sclist=None):
         """Parse version out of included files"""
+        
+        # Gah...default argument values are only evaluated once so if I
+        # use a list (mutable) and then do things to it...i will always
+        # get the modified list passed in to the initial function call.
 
+        if sclist == None:
+            sclist = []
+                                        
         # Gaurd against infinite recursion
         if sc.filename in sclist:
             return None
@@ -240,4 +247,4 @@ class solarisConfig(object):
 
         return None
 
-            
+
