@@ -29,12 +29,7 @@ class baseKickstart(object):
     """Base class for generating a kickstart from a solarisConfig.  To be
        subclassed to handle multiple versions although this class should be 
        successful at generating a kickstart for Red Hat Linux 9."""
-       
-    table = []
-    configs = []
-    buildOrder = []
-    url = ""
-
+    
     def __init__(self, url, cfg, sc=None):
         # rebind important vars to initially empty objects
         # otherwise if this class is instantiated again in the same
@@ -104,8 +99,6 @@ class baseKickstart(object):
            This does a streight merge without spacial cases for part,
            package, and use."""
         
-        flag = 0
-
         exceptions = ['part',
                       'raid',
                       'volgroup',
@@ -115,6 +108,8 @@ class baseKickstart(object):
                       'cluster']
         
         for rec in t:
+            flag = 0
+
             # For part, use and package we just append as we allow
             # multiple entries for both keys
             if rec['key'] in exceptions:
