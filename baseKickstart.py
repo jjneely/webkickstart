@@ -481,6 +481,12 @@ nameserver 152.1.1.206
 nameserver 152.1.1.161
 EOF
 
+# Make available the ethernet interface we are using
+KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
+if [ "$KSDEVICE" == "" ]; then 
+    KSDEVICE=eth0
+fi
+
 # Want a /.version file.
 echo "Kickstarted `/bin/date +%D`" > /.version
 rpm -qa | sort >> /.version
@@ -517,10 +523,6 @@ if [ ! -f vmlinuz ] ; then
 fi
 if [ ! -f initrd.img ] ; then
     wget %s://%s/%s/isolinux/initrd.img
-fi
-KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
-if [ "$KSDEVICE" == "" ]; then 
-    KSDEVICE=eth0
 fi
 /sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img\n
 """ % (self.cfg['install_method'], 
@@ -588,9 +590,9 @@ EOF
 # is not always up. Originally by Lin Osborne (ITECS).
 
 # Figure out the relevant information about this system
-IP=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
+IP=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
 HOSTNAME=`/usr/bin/host $IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
-NETMASK=`/sbin/ifconfig eth0 | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
+NETMASK=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
 NETWORK=`/bin/ipcalc $IP -n $NETMASK | /bin/cut -d\= -f2`
 GATEWAY=`echo $NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
 
@@ -603,8 +605,8 @@ HOSTNAME=$HOSTNAME
 GATEWAY=$GATEWAY
 EOF
 
-cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
-DEVICE=eth0
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$KSDEVICE
+DEVICE=$KSDEVICE
 BOOTPROTO=static
 IPADDR=$IP
 NETMASK=$NETMASK
