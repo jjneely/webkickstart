@@ -425,11 +425,6 @@ rm /etc/pam.d/login~\n
         return """
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
-KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
-if [ "$KSDEVICE" == "" ]; then
-    KSDEVICE=eth0
-fi
-
 IP=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
 FQDN=`python -c "import socket; print socket.getfqdn('$IP')"`
 
