@@ -66,6 +66,15 @@ def loghost(fqdn):
     conn = MySQLdb.connect(host=host, user=user, passwd=passwd, db=db)
     cursor = conn.cursor()
 
+    # Setup the deptid
+    q = """select dept_id from dept where name = 'unknown'"""
+    cursor.execute(q)
+    if cursor.rowcount > 0:
+        deptid = cursor.fetchone()[0]
+    else:
+        # Fake it
+        deptid = 0
+
     cursor.execute("select hostname from realmlinux where hostname=%s", 
                    (fqdn,))
     if cursor.rowcount > 0:
@@ -74,17 +83,17 @@ def loghost(fqdn):
                installdate = %s, 
                recvdkey = 0,
                publickey = NULL,
-               dept = '',
+               dept_id = %s,
                version = '',
                support = 1
                where hostname = %s"""
-        t = (date, fqdn)
+        t = (date, deptid, fqdn)
     else:
         q = """insert into realmlinux 
-               (hostname, installdate, recvdkey, publickey, dept, version,
+               (hostname, installdate, recvdkey, publickey, dept_id, version,
                 support) values
-               (%s, %s, 0, NULL, '', '', 1)"""
-        t = (fqdn, date)
+               (%s, %s, 0, NULL, %s, '', 1)"""
+        t = (fqdn, date, deptid)
 
     # Set the host, date, and received_key status.
     # Other values get set at host registration
