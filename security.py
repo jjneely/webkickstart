@@ -2,7 +2,7 @@
 #
 # security.py -- Security checks for webKickstart
 #
-# Copyright 2003 NC State University
+# Copyright 2003, 2006 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -59,25 +59,46 @@ def getDB():
 
 def loghost(fqdn):
     # Log this install in the DB
+    ts = time.localtime()
+    date = MySQLdb.Timestamp(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+
     host, user, passwd, db = getDB()
     conn = MySQLdb.connect(host=host, user=user, passwd=passwd, db=db)
     cursor = conn.cursor()
+
+    # Setup the deptid
+    q = """select dept_id from dept where name = 'unknown'"""
+    cursor.execute(q)
+    if cursor.rowcount > 0:
+        deptid = cursor.fetchone()[0]
+    else:
+        # Fake it
+        deptid = 0
 
     cursor.execute("select hostname from realmlinux where hostname=%s", 
                    (fqdn,))
     if cursor.rowcount > 0:
         # If the client exists in DB assume its getting reinstalled
-        cursor.execute("delete from realmlinux where hostname=%s", 
-                       (fqdn,))
+        q = """update realmlinux set 
+               installdate = %s, 
+               recvdkey = 0,
+               publickey = NULL,
+               dept_id = %s,
+               version = '',
+               support = 1
+               where hostname = %s"""
+        t = (date, deptid, fqdn)
+    else:
+        q = """insert into realmlinux 
+               (hostname, installdate, recvdkey, publickey, dept_id, version,
+                support) values
+               (%s, %s, 0, NULL, %s, '', 1)"""
+        t = (fqdn, date, deptid)
 
-    # log the install
-    ts = time.localtime()
-    date = MySQLdb.Timestamp(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
     # Set the host, date, and received_key status.
     # Other values get set at host registration
-    cursor.execute("""insert into realmlinux (hostname, installdate, recvdkey)
-                   values (%s, %s, %s)""", (fqdn, date, 0))
-     
+    cursor.execute(q, t)
+    
     cursor.close()
     conn.commit()
     conn.close()
