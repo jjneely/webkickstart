@@ -326,12 +326,19 @@ rm -rf /var/log/audit.d/*
 
         retval = """
 # disable login on the console for non-local users
-mv /etc/pam.d/login /etc/pam.d/login~
-sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
-rm /etc/pam.d/login~\n
+# RL4.4 and below don't have this code so we need to case that out
+if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
+    mv /etc/pam.d/login /etc/pam.d/login~
+    sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
+    rm /etc/pam.d/login~
+fi\n
 """
         if len(ctable) == 1:
-            return ""
+            return """
+# Enable console login by non-local users
+# RL4.4 and below don't have this code, however this is the default anyway
+realmconfig --kickstart pamconf --enable-console-login || true
+"""
         else:
             return retval
 

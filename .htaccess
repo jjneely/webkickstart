@@ -1,6 +1,7 @@
 AddHandler python-program .py
 PythonHandler ks
 PythonDebug On 
+PythonInterpPerDirectory On
 
 <Files solaris2ks.conf>
     deny from all
