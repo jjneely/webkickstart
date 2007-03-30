@@ -229,7 +229,7 @@ class webksconf(ConfigParser.ConfigParser):
         sc = args['sc']
 
         # Suck in arbitrary module and class.  Instantiate and return
-        pmod = __import__(module)
+        pmod = __import__(module, globals(), locals(), [])
         pclass = getattr(pmod, module_class)
         obj = pclass(url, self.versionMap[name], sc)
         return obj

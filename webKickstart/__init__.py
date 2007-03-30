@@ -24,13 +24,13 @@
 from solarisConfig import solarisConfig
 from errors import *
 from config import config
+import security
 
 import socket
 import traceback
 import sys
 import os
 import os.path
-import security
 
 
 class webKickstart:
