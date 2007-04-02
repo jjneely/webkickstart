@@ -1,0 +1,127 @@
+#!/usr/bin/python
+#
+# nahant.py - Kickstart module to add backwards compatibilty for RHEL 4
+#
+# Copyright 2007 NC State University
+# Written by Jack Neely <jjneely@pams.ncsu.edu>
+#
+# SDG
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+from baseRealmLinuxKickstart import baseRealmLinuxKickstart
+
+class Kickstart(baseRealmLinuxKickstart):
+
+    def language(self):
+        baselang = baseRealmLinuxKickstart.language(self)
+        langstable = self.getKeys('langs')
+        
+        if len(langstable) > 1:
+            raise errors.ParseError("langs key found multiple times")
+        if len(langstable) > 0 and not len(langstable[0]['options']) > 0:
+            raise errors.ParseError("langs key found with improper number of options")
+
+        if len(langstable) > 0:
+            tmp = string.join(langstable[0]['options'])
+            langs = "--default %s %s" % (lang, tmp)
+        else:
+            langs = "--default %s %s" % (lang, lang)
+
+        retval = "%slangsupport %s\n\n" % (baselang, langs)
+        return retval
+        
+    def firewall(self):
+        firewalltable = self.checkKey(1, 1000, 'firewall')
+        firewallstatus = self.checkKey(0, 0, 'enable', 'nofirewall')
+
+        ret = "firewall --medium --ssh --dhcp --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp\n"
+
+        if firewallstatus != None:
+            ret = "firewall --disabled\n"
+        elif firewalltable != None:
+            ret = "firewall %s\n" % " ".join(firewalltable)
+
+        return ret
+
+    def inputdevs(self):
+        baseInput = baseRealmLinuxKickstart.inputdevs(self)
+        mouseargs = self.checkKey(1, 4, 'mouse')
+
+        if mouseargs != None:
+            retval = "mouse " + " ".join(mouseargs) + "\n"
+        else:
+            retval = "mouse --emulthree genericps/2\n"
+
+        retval = "%s%s\n" % (baseInput, retval)
+
+        return retval
+        
+    def xconfig(self):
+        # Define the xconf line
+        noXTable = self.getKeys('enable', 'nox')
+
+        if len(noXTable) > 0:
+            retval = "skipx\n"
+        else:
+            xTable = self.getKeys('xconfig')
+
+            # The default settings
+            xDefaults = {'--hsync':      '31.5-80.0',
+                         '--vsync':      '50-90',
+                         '--resolution': '"1280x1024"',
+                         '--depth':      '24'}
+
+            # Keys that don't have values
+            other = ['--startxonboot']
+
+            if len(xTable) > 1:
+                raise errors.ParseError("xconfig key found multiple times")
+            elif len(xTable) == 1:
+                # Keys that are valid for xconfig
+                validXKeys = ['--noprobe',
+                              '--card',
+                              '--videoram',
+                              '--monitor',
+                              '--hsync',
+                              '--vsync',
+                              '--defaultdesktop',
+                              '--startxonboot',
+                              '--resolution',
+                              '--depth']
+
+                # Parse out the options
+                if len(xTable[0]['options']) >= 2:
+                    key = None
+                    for item in xTable[0]['options']:
+                        if item[0:2] == '--':
+                            if key != None:
+                                other.append(key)
+                                key = None
+                            else:
+                                key = item
+                        elif key in validXKeys:
+                            xDefaults[key] = item
+                            key = None
+                        else:
+                            raise errors.ParseError('invalid key in xconfig: %s' % (key))
+
+            # Make a string from the dictionary and list
+            retval = 'xconfig'
+            for key in xDefaults.keys():
+                retval += ' %s %s' % (key, xDefaults[key])
+            retval += ' ' + ' '.join(other) + '\n'
+
+        return retval

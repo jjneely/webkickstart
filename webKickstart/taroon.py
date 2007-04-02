@@ -1,6 +1,6 @@
-from baseRealmLinuxKickstart import baseRealmLinuxKickstart
+import nahant
 
-class taroon(baseRealmLinuxKickstart):
+class Kickstart(nahant.Kickstart):
 
     def audit(self):
         # kill auditd with a big hammer unless anyone really wants to use it

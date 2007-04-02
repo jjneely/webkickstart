@@ -186,29 +186,18 @@ class baseKickstart(object):
     def language(self):
         # Return stirng that defines the language parts of ks
         langtable = self.getKeys('lang')
-        langstable = self.getKeys('langs')
         
         if len(langtable) > 1:
             raise errors.ParseError("lang key found multiple times")
         if len(langtable) > 0 and len(langtable[0]['options']) != 1:
             raise errors.ParseError("lang key found with improper number of options")
-        if len(langstable) > 1:
-            raise errors.ParseError("langs key found multiple times")
-        if len(langstable) > 0 and not len(langstable[0]['options']) > 0:
-            raise errors.ParseError("langs key found with improper number of options")
 
         if len(langtable) > 0:
             lang = langtable[0]['options'][0]
         else:
             lang = "en_US"
 
-        if len(langstable) > 0:
-            tmp = string.join(langstable[0]['options'])
-            langs = "--default %s %s" % (lang, tmp)
-        else:
-            langs = "--default %s %s" % (lang, lang)
-
-        retval = "lang %s\nlangsupport %s\n\n" % (lang, langs)
+        retval = "lang %s\n\n" % lang
         return retval
 
 
@@ -322,21 +311,15 @@ part /var/cache --size 1024
 
     def inputdevs(self):
         # Mostly stuff here we don't modify
-        mouseargs = self.checkKey(1, 4, 'mouse')
 
-        if mouseargs != None:
-            retval = "mouse " + string.join(mouseargs) + "\n"
-        else:
-            retval = "mouse --emulthree genericps/2\n"
-
-        retval = "timezone US/Eastern\nkeyboard us\nreboot\n%s" % retval
-
-        return retval
+        return "timezone US/Eastern\nkeyboard us\nreboot\n"
 
 
     def xconfig(self):
         # Define the xconf line
+        # Elliot, you made this way too complex
         noXTable = self.getKeys('enable', 'nox')
+        monitorTable = self.checkKey(1, 4, 'monitor')
 
         if len(noXTable) > 0:
             retval = "skipx\n"
@@ -344,10 +327,9 @@ part /var/cache --size 1024
             xTable = self.getKeys('xconfig')
 
             # The default settings
-            xDefaults = {'--hsync':      '31.5-80.0',
-                         '--vsync':      '50-90',
-                         '--resolution': '"1280x1024"',
-                         '--depth':      '24'}
+            xDefaults = {'--resolution': '"1280x1024"',
+                         '--depth':      '24'
+                         '--defaultdesktop': 'GNOME'}
 
             # Keys that don't have values
             other = ['--startxonboot']
@@ -356,12 +338,8 @@ part /var/cache --size 1024
                 raise errors.ParseError("xconfig key found multiple times")
             elif len(xTable) == 1:
                 # Keys that are valid for xconfig
-                validXKeys = ['--noprobe',
-                              '--card',
-                              '--videoram',
-                              '--monitor',
-                              '--hsync',
-                              '--vsync',
+                validXKeys = ['--videoram',
+                              '--driver',
                               '--defaultdesktop',
                               '--startxonboot',
                               '--resolution',
@@ -388,6 +366,9 @@ part /var/cache --size 1024
             for key in xDefaults.keys():
                 retval += ' %s %s' % (key, xDefaults[key])
             retval += ' ' + ' '.join(other) + '\n'
+            
+            if monitorTable != None:
+                retval = "%smonitor %s\n" % (retval, " ".join(monitorTable))
 
         return retval
 
@@ -446,12 +427,12 @@ part /var/cache --size 1024
         firewalltable = self.checkKey(1, 1000, 'firewall')
         firewallstatus = self.checkKey(0, 0, 'enable', 'nofirewall')
 
-        ret = "firewall --medium --ssh --dhcp\n"
+        ret = "firewall --enabled --ssh\n"
 
         if firewallstatus != None:
             ret = "firewall --disabled\n"
         elif firewalltable != None:
-            ret = "firewall %s\n" % string.join(firewalltable)
+            ret = "firewall %s\n" % " ".join(firewalltable)
 
         return ret
 
