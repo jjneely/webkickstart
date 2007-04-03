@@ -23,6 +23,7 @@
 from solarisConfig import solarisConfig
 import errors
 import os
+import StringIO
 
 class baseKickstart(object):
     """Base class for generating a kickstart from a solarisConfig.  To be
@@ -54,6 +55,7 @@ class baseKickstart(object):
         self.buildOrder = [self.language,
                            self.install,
                            self.installationNumber,
+                           self.rhel5Features,
                            self.partition,
                            self.selinux,
                            self.inputdevs,
@@ -209,7 +211,11 @@ class baseKickstart(object):
 
     def install(self):
         # network, install, and method parts of KS
-        retval = "install\n"
+        cmdline = self.checkKey(0, 0, 'cmdline')
+        if cmdline != None:
+            retval = "cmdline\ninstall\n"
+        else:
+            retval = "install\n"
 
         network = self.checkKey(4, 4, 'enable', 'staticip')
         if network == None:
@@ -247,6 +253,22 @@ class baseKickstart(object):
         retval = "%s%s\n\n" %(retval, url)
         return retval
 
+
+    def rhel5Features(self):
+        # These are rhel 5 specific
+        vnc = self.checkKey(0, 6, 'vnc')
+        ignoredisk = self.checkKey(1, 1000, 'ignoredisk')
+        multipath = self.checkKey(0, 1000, 'multipath')
+
+        buf = StringIO.StringIO()
+        if vnc != None:
+            buf.write('vnc %s\n' % ' '.join(vnc))
+        if ignoredisk != None:
+            buf.write('ignoredisk %s\n' % ' '.join(ignoredisk))
+        if multipath != None:
+            buf.write('multipath %s\n' % ' '.join(multipath))
+            
+        return buf.getvalue()
 
 
     def partition(self):

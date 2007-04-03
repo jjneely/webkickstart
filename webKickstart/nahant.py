@@ -25,8 +25,11 @@ from baseRealmLinuxKickstart import baseRealmLinuxKickstart
 
 class Kickstart(baseRealmLinuxKickstart):
 
-    def installationNumber(self):
-        return ""
+    def __init__(self, url, cfg, sc=None):
+        baseRealmLinuxKickstart.__init__(self, url, cfg, sc)
+
+        self.buildOrder.remove(self.installationNumber)
+        self.buildOrder.remove(self.rhel5Features)
     
     def language(self):
         langtable = self.getKeys('lang')
@@ -163,4 +166,9 @@ class Kickstart(baseRealmLinuxKickstart):
                 retval = "%s%s\n" % (retval, tmp)
 
             return retval
+
+    def authConfig(self):
+        return """
+auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
+"""
 
