@@ -25,8 +25,24 @@ from baseRealmLinuxKickstart import baseRealmLinuxKickstart
 
 class Kickstart(baseRealmLinuxKickstart):
 
+    def installationNumber(self):
+        return ""
+    
     def language(self):
-        baselang = baseRealmLinuxKickstart.language(self)
+        langtable = self.getKeys('lang')
+        
+        if len(langtable) > 1:
+            raise errors.ParseError("lang key found multiple times")
+        if len(langtable) > 0 and len(langtable[0]['options']) != 1:
+            raise errors.ParseError("lang key found with improper number of options")
+
+        if len(langtable) > 0:
+            lang = langtable[0]['options'][0]
+        else:
+            lang = "en_US"
+
+        retval = "lang %s\n" % lang
+
         langstable = self.getKeys('langs')
         
         if len(langstable) > 1:
@@ -35,12 +51,12 @@ class Kickstart(baseRealmLinuxKickstart):
             raise errors.ParseError("langs key found with improper number of options")
 
         if len(langstable) > 0:
-            tmp = string.join(langstable[0]['options'])
+            tmp = ' '.join(langstable[0]['options'])
             langs = "--default %s %s" % (lang, tmp)
         else:
             langs = "--default %s %s" % (lang, lang)
 
-        retval = "%slangsupport %s\n\n" % (baselang, langs)
+        retval = "%slangsupport %s\n\n" % (retval, langs)
         return retval
         
     def firewall(self):
@@ -125,3 +141,26 @@ class Kickstart(baseRealmLinuxKickstart):
             retval += ' ' + ' '.join(other) + '\n'
 
         return retval
+
+    def selinux(self):
+        # We revert the SELinux default for 4
+        seloptions = self.checkKey(1, 1, 'selinux')
+        if seloptions == None: 
+            return ''
+        else: 
+            return "selinux %s\n" % seloptions[0]
+
+    def packages(self):
+        # Do the packages section of the KS
+        packagetable = self.getKeys('package')
+
+        if len(packagetable) == 0:
+            return "%packages\n@ NCSU Realm Kit Workstation\n"
+        else:
+            retval = "%packages\n"
+            for package in packagetable:
+                tmp = string.join(package['options'])
+                retval = "%s%s\n" % (retval, tmp)
+
+            return retval
+

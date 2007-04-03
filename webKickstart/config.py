@@ -2,7 +2,7 @@
 #
 # config.py -- Configuration class for webKickstrart
 #
-# Copyright 2003-2006 NC State University
+# Copyright 2003-2007 NC State University
 # Written by Elliot Peele <elliot@bentlogic.net>
 #            Jack Neely <jjneely@pams.ncsu.edu>
 #
@@ -185,6 +185,9 @@ class webksconf(ConfigParser.ConfigParser):
                         module = self._getdefault('module')
                         module_class = self._getdefault('module_class')
 
+                # If this is None then that's what we want.  IN's are optional.
+                rhIN = self._getoption(section, 'rhin')
+
                 self.versionMap[name] = {}
                 self.versionMap[name]['version'] = version
                 self.versionMap[name]['nfs_server'] = nfs_server
@@ -196,6 +199,7 @@ class webksconf(ConfigParser.ConfigParser):
                 self.versionMap[name]['install_method'] = install_method
                 self.versionMap[name]['module'] = module
                 self.versionMap[name]['module_class'] = module_class
+                self.versionMap[name]['rhin'] = rhIN
 
 
     def _getoption(self, section, option):

@@ -25,8 +25,8 @@ from solarisConfig import solarisConfig
 from baseKickstart import baseKickstart
 from config import config
 import errors
-import string
 import os
+import re
 import security
 
 class baseRealmLinuxKickstart(baseKickstart):
@@ -39,6 +39,7 @@ class baseRealmLinuxKickstart(baseKickstart):
         # re-init buildOrder list
         self.buildOrder = [self.language,
                            self.install,
+                           self.installationNumber,
                            self.partition,
                            self.selinux,
                            self.inputdevs,
@@ -133,7 +134,7 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
             retval = "bootloader --location %s\n" % loc
         else:
             retval = "bootloader --location %s --md5pass %s\n" % (loc, grubmd5)
-        retval = "%srootpw --iscrypted %s\n" %(retval, rootmd5)
+        retval = "%srootpw --iscrypted %s\n\n" %(retval, rootmd5)
         del rootmd5
         del grubmd5
 
@@ -172,17 +173,93 @@ auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCS
         return ret
 
 
+    def _magicGroup(self, groups, exclusions=[], selected=[]):
+        """Return an expansion of our workstation or server groups."""
+        buf = ""
+        for group in groups:
+            buf = "%s@ %s\n" % (buf, group)
+
+        for pkg in exclusions:
+            if pkg not in selected:
+                buf = "%s-%s\n" % (buf, pkg)
+
+        return buf
+
+
     def packages(self):
-        # Do the packages section of the KS
+        # What are the magic groups?
+        serverGroup = re.compile("@.*[Rr]ealm.*[Ss]erver$")
+        workstationGroup = re.compile("@.*[Rr]ealm.*[Ww]orkstation$")
+
+        # What packages do we need to exclude (packages)
+        exclusions  = ['logwatch',    # We don't need these emails by default
+                       'yum-updatesd', # Turn off new package notification
+                      ]
+
+        # Define a server (by comps groups)
+        server      = ['realmlinux-base',
+                       'editors',
+                       'base',
+                       'text-internet',
+                       'legacy-software-support',
+                       'system-tools',
+                       'admin-tools',
+                       'base-x',
+                       'java',
+                      ]
+
+        # Define a Workstation (by comps groups)
+        workstation = ['realmlinux-base',
+                       'realmlinux-devel',
+                       'authoring-and-publishing',
+                       'eclipse',
+                       'editors',
+                       'engineering-and-scientific',
+                       'games',
+                       'graphical-internet',
+                       'graphics',
+                       'office',
+                       'sound-and-video',
+                       'text-internet',
+                       'gnome-desktop',
+                       'kde-desktop',
+                       'development-libs',
+                       'development-tools',
+                       'gnome-software-development',
+                       'java-development',
+                       'kde-software-development',
+                       'legacy-software-development',
+                       'ruby',
+                       'x-software-development',
+                       'admin-tools',
+                       'java',
+                       'legacy-software-support',
+                       'system-tools',
+                       'workstation',
+                       'base-x',
+                      ]
+        
         packagetable = self.getKeys('package')
 
         if len(packagetable) == 0:
-            return "%packages\n@ NCSU Realm Kit Workstation\n"
+            return "%packages\n" + self._magicGroup(workstation, 
+                                                    exclusions) + "\n"
         else:
             retval = "%packages\n"
+            selected = []
             for package in packagetable:
-                tmp = string.join(package['options'])
-                retval = "%s%s\n" % (retval, tmp)
+                tmp = ' '.join(package['options']).strip()
+                selected.append(tmp)
+
+            for selection in selected:
+                if serverGroup.match(selection) != None:
+                    buf = self._magicGroup(server, exclusions, selected)
+                elif workstationGroup.match(selection) != None:
+                    buf = self._magicGroup(workstation, exclusions, selected)
+                else:
+                    buf = selection + '\n'
+
+                retval = "%s%s" % (retval, buf)
 
             return retval
 
@@ -256,7 +333,7 @@ rm -rf /var/log/audit.d/*
 
         retval = "%srealmconfig --kickstart auth --users " % retval
         users.extend(admin)
-        retval = retval + string.join(users, ',') + "\n"
+        retval = retval + ','.join(users) + "\n"
 
         # adminusers and normalusers may get wiped out if not specially saved
         for id in extrausers:

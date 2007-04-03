@@ -22,7 +22,6 @@
 
 from solarisConfig import solarisConfig
 import errors
-import string
 import os
 
 class baseKickstart(object):
@@ -54,6 +53,7 @@ class baseKickstart(object):
         # init buildOrder list
         self.buildOrder = [self.language,
                            self.install,
+                           self.installationNumber,
                            self.partition,
                            self.selinux,
                            self.inputdevs,
@@ -200,6 +200,12 @@ class baseKickstart(object):
         retval = "lang %s\n\n" % lang
         return retval
 
+    def installationNumber(self):
+        if self.cfg['rhin']:
+            return "key %s\n" % self.cfg['rhin']
+        else:
+            return ""
+
 
     def install(self):
         # network, install, and method parts of KS
@@ -251,7 +257,7 @@ class baseKickstart(object):
         retval = "zerombr yes\n"
 
         if clearpart is not None:
-            retval = "%sclearpart %s\n" % (retval, string.join(clearpart))
+            retval = "%sclearpart %s\n" % (retval, ' '.join(clearpart))
         elif len(safepart) > 0:
             retval = "%sclearpart --linux\n" % retval
         else:
@@ -271,7 +277,7 @@ part /var/cache --size 1024
         else:
             parts = ""
             for row in parttable:
-                tmp = "part " + string.join(row['options'])
+                tmp = "part " + ' '.join(row['options'])
                 parts = "%s%s\n" % (parts, tmp)
 
             #Note: The raid and lvm stuff assumes that the user understands
@@ -280,24 +286,24 @@ part /var/cache --size 1024
             raidtable = self.getKeys('raid')
             raids = ""
             for row in raidtable:
-                tmp = "raid " + string.join(row['options'])
+                tmp = "raid " + ' '.join(row['options'])
                 raids = "%s%s\n" % (raids, tmp)
                                                                                 
             volgrouptable = self.getKeys('volgroup')
             volgroups = ""
             for row in volgrouptable:
-                tmp = "volgroup " + string.join(row['options'])
+                tmp = "volgroup " + ' '.join(row['options'])
                 volgroups = "%s%s\n" % (volgroups, tmp)
                                                                                 
             logvoltable = self.getKeys('logvol')
             logvols = ""
             for row in logvoltable:
-                tmp = "logvol " + string.join(row['options'])
+                tmp = "logvol " + ' '.join(row['options'])
                 logvols = "%s%s\n" % (logvols, tmp)
                                                                                 
             parts = "%s%s%s%s" % (parts, raids, volgroups, logvols)
 
-        retval = "%s%s" % (retval, parts)
+        retval = "%s%s\n" % (retval, parts)
         return retval
 
 
@@ -305,7 +311,7 @@ part /var/cache --size 1024
         # Handle selinux keys (in selinux enabled versions of anaconda we use 
         # the default)
         seloptions = self.checkKey(1, 1, 'selinux')
-        if seloptions == None: return ''
+        if seloptions == None: return 'selinux --disabled\n'
         else: return "selinux %s\n" % seloptions[0]
 
 
@@ -328,7 +334,7 @@ part /var/cache --size 1024
 
             # The default settings
             xDefaults = {'--resolution': '"1280x1024"',
-                         '--depth':      '24'
+                         '--depth':      '24',
                          '--defaultdesktop': 'GNOME'}
 
             # Keys that don't have values
@@ -446,7 +452,7 @@ part /var/cache --size 1024
         else:
             retval = "%packages\n"
             for package in packagetable:
-                tmp = string.join(package['options'])
+                tmp = ' '.join(package['options'])
                 retval = "%s%s\n" % (retval, tmp)
 
             return retval
@@ -630,7 +636,7 @@ EOF
 
         # Make sure %post from the top level config is last
         if len(scriptlist) > 1:
-            post = post + string.join(scriptlist[1:], "\n")
+            post = post + "\n".join(scriptlist[1:])
 
         # Check if we have any posts at all
         if len(scriptlist) != 0:
