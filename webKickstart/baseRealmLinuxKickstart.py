@@ -39,6 +39,7 @@ class baseRealmLinuxKickstart(baseKickstart):
         # re-init buildOrder list
         self.buildOrder = [self.language,
                            self.install,
+                           self.yumRepos,
                            self.installationNumber,
                            self.rhel5Features,
                            self.partition,
@@ -64,6 +65,7 @@ class baseRealmLinuxKickstart(baseKickstart):
                            self.realmhooks,
                            self.staticIP,
                            self.RHN,
+                           self.runUpdates,
                            self.extraPost ]
 
 
@@ -523,11 +525,14 @@ FQDN=`python -c "import socket; print socket.getfqdn('$IP')"`
 if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
     /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
 fi
-
-# Run Up2Date
-chvt 3
-/usr/sbin/up2date --nox -u up2date
-/usr/sbin/up2date --nox -u
-chvt 1
 """ % key
+
+    def runUpdates(self):
+        return """
+# Run Yum update
+chvt 3
+/usr/bin/yum update yum
+/usr/bin/yum update
+chvt 1
+""" 
 

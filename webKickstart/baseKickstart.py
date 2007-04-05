@@ -54,6 +54,7 @@ class baseKickstart(object):
         # init buildOrder list
         self.buildOrder = [self.language,
                            self.install,
+                           self.yumRepos,
                            self.installationNumber,
                            self.rhel5Features,
                            self.partition,
@@ -253,6 +254,21 @@ class baseKickstart(object):
         retval = "%s%s\n\n" %(retval, url)
         return retval
 
+    def yumRepos(self):
+        buf = StringIO.StringIO()
+        repoTable = self.getKeys('repo')
+
+        c = 0
+        for r in self.cfg['repos']:
+            buf.write("repo --name=WebKickstartRepo%s --baseurl=%s\n" % (c, r))
+            c += 1
+
+        for r in repoTable:
+            buf.write("repo %s\n" % ' '.join(r['options']))
+
+        buf.write('\n')
+
+        return buf.getvalue()
 
     def rhel5Features(self):
         # These are rhel 5 specific

@@ -32,6 +32,12 @@ disable_version_case_sensitivity = 1
 #defaultkey = XXX
 # A Blowfish encryption key used in the security module.
 
+# URL for the XMLRPC APIs that Web-Kickstart uses
+xmlrpc = URL
+
+# A secret that other applications can use to query/update the XMLRPC APIs
+secret = "Random text"
+
 jumpstarts=./configs
 # The location where your config files are found.  Should be an absoulte
 # path.
@@ -66,10 +72,18 @@ version = 9
 nfs_path = /export/redhat-9
 ftp_path = /pub/redhat/linux/9/en/os/i386
 
-[fc1]
-version = 1
-nfs_path = /export/fedora-core-1
-ftp_path = /pub/fedora/linux/core/1/i386
+[RHEL5]
+version = 5
+http_path = /pub/rhel/5Client/i386
+http_server = install.linux.ncsu.edu
+
+# RHN Installation Number
+rhin = foo-bar-baz
+
+# Additional Yum repos (delimited by space)
+repos = URL URL URL ...
+
+
 
 [RealmLinux9]
 # So this is when you say "version RealmLinux9" in your config
@@ -86,14 +100,4 @@ nfs_path = /export/realmkit-9
 ftp_path = /pub/realmkit/9/i386
 http_server = install.linux.ncsu.edu
 http_path = /pub/realmkit/9/i386
-
-[RealmLinuxFC1]
-version = FC1
-install_method = http
-module = baseRealmLinuxKickstart
-module_class = baseRealmLinuxKickstart
-nfs_path = /export/realmkit-FC1
-ftp_path = /pub/realmkit/realmkit-FC1/i386
-http_server = install.linux.ncsu.edu
-http_path = /pub/realmkit/realmkit-FC1/i386
 

@@ -30,6 +30,7 @@ class Kickstart(baseRealmLinuxKickstart):
 
         self.buildOrder.remove(self.installationNumber)
         self.buildOrder.remove(self.rhel5Features)
+        self.buildOrder.remove(self.yumRepos)
     
     def language(self):
         langtable = self.getKeys('lang')
@@ -171,4 +172,13 @@ class Kickstart(baseRealmLinuxKickstart):
         return """
 auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
 """
+
+    def runUpdates(self):
+        return """
+# Run Up2Date
+chvt 3
+/usr/sbin/up2date --nox -u up2date
+/usr/sbin/up2date --nox -u
+chvt 1
+""" 
 

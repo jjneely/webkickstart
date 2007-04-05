@@ -187,6 +187,19 @@ class webksconf(ConfigParser.ConfigParser):
 
                 # If this is None then that's what we want.  IN's are optional.
                 rhIN = self._getoption(section, 'rhin')
+                if rhIN == None:
+                    if section == 'default':
+                        rhIN = None
+                    else:
+                        rhIN = self._getdefault('rhin')
+
+                if self._getoption(section, 'repos') == None:
+                    if section == 'default':
+                        repos = []
+                    else:
+                        repos = self._getdefault('repos')
+                else:
+                    repos = self._getoption(section, 'repos').split()
 
                 self.versionMap[name] = {}
                 self.versionMap[name]['version'] = version
@@ -200,6 +213,7 @@ class webksconf(ConfigParser.ConfigParser):
                 self.versionMap[name]['module'] = module
                 self.versionMap[name]['module_class'] = module_class
                 self.versionMap[name]['rhin'] = rhIN
+                self.versionMap[name]['repos'] = repos
 
 
     def _getoption(self, section, option):
