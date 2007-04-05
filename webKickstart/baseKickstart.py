@@ -108,7 +108,8 @@ class baseKickstart(object):
                       'logvol',
                       'package',
                       'use',
-                      'cluster']
+                      'cluster',
+                      'repo']
         
         for rec in t:
             flag = 0
