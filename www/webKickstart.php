@@ -47,17 +47,17 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 
 <table align="center" border="1" cellspacing="0" cellpadding="3">
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
-<tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4.4</td><td>Beta</td></tr>
-<tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4.4</td><td>Beta</td></tr>
-<tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.4.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux AS4 U4 (AMD64/EM64T)</td><td>WS4.4.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux WS4 U2 (i386)</td><td>WS4</td><td>Production</td></tr>
-<tr><td>Realm Linux AS4 U2 (i386)</td><td>AS4</td><td>Production</td></tr>
-<tr><td>Realm Linux WS4 U2 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux AS4 U2 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux WS3 U4 (i386)</td><td>WS3</td><td>Production - to be retired</td></tr>
-<tr><td>Realm Linux AS3 U4 (i386)</td><td>AS3</td><td>Production - to be retired</td></tr>
-<tr><td>Realm Linux WS3 U4 (AMD64)</td><td>WS3.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4</td><td>Production</td></tr>
+<tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4</td><td>Production</td></tr>
+<tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux AS4 U4 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux WS4 U2 (i386)</td><td>WS4.2</td><td>Retired</td></tr>
+<tr><td>Realm Linux AS4 U2 (i386)</td><td>AS4.2</td><td>Retired</td></tr>
+<tr><td>Realm Linux WS4 U2 (AMD64/EM64T)</td><td>WS4.2.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux AS4 U2 (AMD64/EM64T)</td><td>AS4.2.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
+<tr><td>Realm Linux WS3 U4 (i386)</td><td>WS3</td><td>Production - EOL 1/1/2007</td></tr>
+<tr><td>Realm Linux AS3 U4 (i386)</td><td>AS3</td><td>Production - EOL 1/1/2007</td></tr>
 </table>
 
 <h3>Examples and More Documentation.</h3>
@@ -92,12 +92,14 @@ your config file all you need to do is boot off of one of these
 disks to install the machine.  This boot disk you use must match
 the version of Realm Linux you have the config file set to install.</p>
 <ul>
-<li><a href="RHEL4-U4-x86-webks.iso">RHEL4-U4-x86-webks.iso</a> - Realm Linux AS/WS 4 U4 (Beta) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHEL4-U4-x86_64-webks.iso">RHEL4-U4-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U4 (Beta) Boot CD (Server and Workstation) for x86_64/EM64T</li>
-<li><a href="RHEL4-U2-x86-webks.iso">RHEL4-U2-x86-webks.iso</a> - Realm Linux AS/WS 4 U2 (Production) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHEL4-U2-x86_64-webks.iso">RHEL4-U2-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U2 (Production) Boot CD (Server and Workstation) for x86_64/EM64T</li>
-<li><a href="RHELU4-x86-webks.iso">RHELU4-x86-webks.iso</a> - Realm Linux AS/WS 3 U4 (Production) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHELU4-x86_64-webks.iso">RHELU4-x86_64-webks.iso</a> - Realm Linux AS3/WS3 Boot CD for AMD64</li>
+<li><a href="RHEL4-U4-x86-webks.iso">RHEL4-U4-x86-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for i386</li>
+<li><a href="RHEL4-U4-x86_64-webks.iso">RHEL4-U4-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for x86_64/EM64T</li>
+
+<li><a href="RHEL4-U2-x86-webks.iso">RHEL4-U2-x86-webks.iso</a> - Realm Linux AS/WS 4 U2 (Retired) Boot CD (Server and Workstation) for i386</li>
+<li><a href="RHEL4-U2-x86_64-webks.iso">RHEL4-U2-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U2 (Retired) Boot CD (Server and Workstation) for x86_64/EM64T</li>
+
+<li><a href="RHEL3-U8-x86-webks.iso">RHEL3-U8-x86-webks.iso</a> - Realm Linux AS 3 U8 () Boot CD (Server Only) for i386</li>
+<li><a href="RHELU4-x86-webks.iso">RHEL3-U4-x86-webks.iso</a> - Realm Linux AS/WS 3 U4 (Production) Boot CD (Server and Workstation) for i386</li>
 </ul>
 
 <h3>Web-Kickstart Tools</h3>
@@ -151,18 +153,13 @@ that you may find useful but are not directly related to setting up a
 JumpStart config file for Realm Linux.</p>
 
 <ul>
+<li><a href="http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Installation_Guide-en-US/ch-kickstart2.html">Red Hat Enterprise Linux 5 Kickstart Documentation</a></li>
+<li><a href="http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Installation_Guide-en-US/s1-kickstart2-options.html">Red Hat Enterprise Linux 5 Kickstart Options</a></li>
 <li><a href="http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/sysadmin-guide/ch-kickstart2.html">Red
-Hat Linux Kickstart Documentation</li>
+Hat Enterprise Linux 4 Kickstart Documentation</li>
 <li><a
 href="http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/sysadmin-guide/s1-kickstart2-options.html">
 Red Hat Enterprise Linux 4 Kickstart Options</li>
-<li><a
-href="http://www.redhat.com/docs/manuals/linux/RHL-9-Manual/custom-guide/s1-kickstart2-options.html">
-Red Hat Linux Kickstart Options (9)</li>
-<li><a
-href="http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html">
-Red Hat Linux Kickstart Options (7.3)</li>
-
 </ul>
 
 </body>
