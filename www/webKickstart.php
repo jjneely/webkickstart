@@ -142,7 +142,7 @@ after I released it to public testing.  These changes are also
 documented in the <a href="docs/keywords.txt">keywords.txt</a> file or
 their relivant place.</p>
 
-<p>The <a href="changelog.phtml">Change Log</a> has grown quite a bit so 
+<p>The <a href="changelog.php">Change Log</a> has grown quite a bit so 
 I've moved it to its own page.
 Please keep up with the systems as it grows and changes.</p>
 

@@ -20,7 +20,7 @@ Keys
 
     version <version string>
 
-REQUIRED.  This key specifies what version of the Linux Realm Kit to
+REQUIRED.  This key specifies what version of Realm Linux to
 install.  Currently, the options are: 
 
     WS4
@@ -31,8 +31,8 @@ install.  Currently, the options are:
     AS3
     default  
     
-The "default" option should install the latest stable version (9)
-where the numeric option will install the Linux Realm Kit based off 
+The "default" option should install the latest stable version
+where the numeric option will install Realm Linux based off 
 of that version of Red Hat Linux.
 
     dept  <department>
@@ -86,7 +86,7 @@ Optional.  Defaults to "@ NCSU Realm Kit Workstation".  Use this key to
 configure what packages and package groups get installed.  This key
 can be used multiple times.  Specify one package or package group for
 each use of the key.  (If you use this you really want to start out
-with "package @ Realm Kit Workstation" and then add further packages.
+with "package @ NCSU Realm Kit Workstation" and then add further packages.
 Things can break hear pretty easily.)
 
     use <filename> 
@@ -133,6 +133,18 @@ are used in a normal Red Hat kickstart and, in fact, are copied verbatim
 to the resultant kickstart file.  More documentation can be found in the 
 Red Hat documentation mentioned above.
 
+    repo --name=<name> --baseurl=<URL of Yum repo>
+
+Optional.  EL5 and higher.  Configures the installer to access additional
+Yum repositores.  Packages and groups defined in these additional 
+repositories may be selected with the package keyword.  This key may
+be used multiple times.
+
+    key <Red Hat Installation Number>
+
+Optional.  EL5 and higher.  Provide a specific Installation Number to
+override the default defined in the Web-Kickstart configuration.
+
     src <from/how to install>
 
 Optional.  This key can specify how and where to install from.  There
@@ -161,7 +173,8 @@ Optional. Change SELinux configuration.
 				 enforced.
 	permissive - Outputs warnings only based on the SELinux policy, but does 
 				 not actually enforce the policy.
-	disabled   - Disables SELinux completely on the system.
+	disabled   - Disables SELinux completely on the system.  (Default in EL5.)
+
 
     firewall --enabled|--disabled [--trust=] <device> [--port=]
 
@@ -175,9 +188,15 @@ Optional.  This key will define the X options that your system will be
 configured with. You only need to specify the options that you want to change.
 The default options are:
 
-    --hsync 31.5-80.0 --vsync 50-90 --resolution "1280x1024" --depth 24
+     --resolution "1280x1024" --depth 24
 
 All available options are listed in the Red Hat kickstart documentation.
+
+    monitor [options]
+
+Optional.  For EL5 and higher this controls configuration of the monitor.  In
+EL4 and lower this key is not recongized and similar functionality is part
+of the xconfig keyword.  See the Kickstart documentation for details.
 
     mouse [options] <mouse type>
 
@@ -193,6 +212,20 @@ http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstar
 
 Optional.  This key will convert the client to a static IP setup rather
 than the default DHCP.  Useful for servers.
+
+    vnc [options]
+
+Optional.  Enables the VNC server in the installer to monitor the installtion
+remotely.  See the Kickstart documentation for details.
+
+    multipath [options]
+
+Optional.  Configures multipathing via the installer.  See the Kickstart 
+documentation for details.
+
+    ignoredisk --drives=sdX,sdY,sdZ,...
+
+Optional.  Instruct the installer to ignore the specified disks.
 
     enable <service> [option1] [option2] [...]
 
@@ -247,8 +280,8 @@ hesiod.  If cluster == "None" explicitly use no clusters.
 
 Optional.  Disable the realmcron system.  The realmcron system updates
 root and user information from AFS.  Also runs cron jobs from AFS.
-This is required for support from the Realm Kit for Red Hat Linux
-Developers.
+You must have the realmcron system enabled to receive support from
+Campus Linux Services.
 
     enable normalusers <user list>
 

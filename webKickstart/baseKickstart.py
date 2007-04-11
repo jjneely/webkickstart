@@ -205,7 +205,10 @@ class baseKickstart(object):
         return retval
 
     def installationNumber(self):
-        if self.cfg['rhin']:
+        keykey = self.checkKey(1, 1, 'key')
+        if keykey != None:
+            return "key %s\n" % keykey[0]
+        elif self.cfg['rhin']:
             return "key %s\n" % self.cfg['rhin']
         else:
             return ""
