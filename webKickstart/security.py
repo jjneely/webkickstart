@@ -20,10 +20,13 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import config
-import MySQLdb
-import time
+import errors
 import os
 import os.path 
+import xmlrpclib
+import logging
+
+log = logging.getLogger()
 
 def check(headers, fqdn):
     # check for anaconda
@@ -46,62 +49,23 @@ def check(headers, fqdn):
     return 1
 
 
-def getDB():
-    # Return information about DB
-    # returns (host, user, passwd, db)
-    host = cfg.db['host']
-    user = cfg.db['user']
-    passwd = cfg.db['passwd']
-    db = cfg.db['db']
-
-    return (host, user, passwd, db)
-
-
 def loghost(fqdn):
     # Log this install in the DB
-    ts = time.localtime()
-    date = MySQLdb.Timestamp(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    log.debug("Using XMLRPC API: %s" % config.config.xmlrpc)
+    api = xmlrpclib.ServerProxy(config.config.xmlrpc)
+    apiSecret = config.config.secret
 
-    host, user, passwd, db = getDB()
-    conn = MySQLdb.connect(host=host, user=user, passwd=passwd, db=db)
-    cursor = conn.cursor()
+    try:
+        code = api.initHost(apiSecret, fqdn)
+    except Exception, e:
+        raise errors.WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nError: %s" % (fqdn, str(e)))
 
-    # Setup the deptid
-    q = """select dept_id from dept where name = 'unknown'"""
-    cursor.execute(q)
-    if cursor.rowcount > 0:
-        deptid = cursor.fetchone()[0]
+    if code == 0:
+        return
+    elif code == 1:
+        raise errors.WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nBad authentication.")
     else:
-        # Fake it
-        deptid = 0
-
-    cursor.execute("select hostname from realmlinux where hostname=%s", 
-                   (fqdn,))
-    if cursor.rowcount > 0:
-        # If the client exists in DB assume its getting reinstalled
-        q = """update realmlinux set 
-               installdate = %s, 
-               recvdkey = 0,
-               publickey = NULL,
-               dept_id = %s,
-               version = '',
-               support = 1
-               where hostname = %s"""
-        t = (date, deptid, fqdn)
-    else:
-        q = """insert into realmlinux 
-               (hostname, installdate, recvdkey, publickey, dept_id, version,
-                support) values
-               (%s, %s, 0, NULL, %s, '', 1)"""
-        t = (fqdn, date, deptid)
-
-    # Set the host, date, and received_key status.
-    # Other values get set at host registration
-    cursor.execute(q, t)
-    
-    cursor.close()
-    conn.commit()
-    conn.close()
+        raise errors.WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nUnknown error code: %s." % code)
 
 
 def rootMD5(group, key=None):

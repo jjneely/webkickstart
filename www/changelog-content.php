@@ -179,6 +179,7 @@ top of the post so that other bits could use the variable as well.</li>
     <li>Other misc kickstart syntax changes</li>
     <li>Reworked software so that Web-Kickstart acts as a python package</li>
 </ul>
+<li>04/17/07 - Use RLM Tools XMLRPC interface to log installs.</li>
 
 </ul>
 

@@ -28,10 +28,12 @@ import security
 
 import socket
 import traceback
+import logging
 import sys
 import os
 import os.path
 
+log = logging.getLogger()
 
 class webKickstart:
 
@@ -80,6 +82,7 @@ class webKickstart:
                 
         if sc != None:
             if sc.isKickstart():
+                log.info("Returning pre-defined kickstart for %s." % filename)
                 return (0, sc.getFile())
             
             version = sc.getVersion()
@@ -91,8 +94,10 @@ class webKickstart:
                 args = {'url': self.url, 'sc': sc}
                 generator = self.cfg.get_obj('default', args)
             else:
+                log.info("No config file for host " + filename)
                 return (1, "# No config file for host " + filename)
                 
+        log.info("Generating kickstart for %s." % filename)    
         retval = generator.makeKS()
         return (0, retval)
         
@@ -105,6 +110,8 @@ class webKickstart:
         except WebKickstartError, e:
             s = "# An error occured while Web-Kickstart was running.\n"
             s = "%s# The error is: %s" % (s, str(e))
+
+            log.warning(s)
 
             return (42, s)
             
@@ -120,6 +127,8 @@ class webKickstart:
             text = '\n'.join(text)
             for line in text.split('\n'):
                 s = "%s# %s\n" % (s, line)
+
+            log.error(s)
 
             return (42, s)
         

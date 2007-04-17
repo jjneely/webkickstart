@@ -67,6 +67,16 @@ class webksconf(ConfigParser.ConfigParser):
 
         self.defaultkey = None
 
+        self.xmlrpc = None
+        self.secret = None
+
+        # paths to key files (for RLMTools)
+        self.privatekey = self._getoption('main', 'privatekey')
+        self.publickey = self._getoption('main', 'publickey')
+
+        # directory trusted admins can leave keys for importing into RLMTools
+        self.key_directory = self._getoption('main', 'key_directory')
+
         self.db = {}
         self.db['host'] = 'localhost.localdomain'
         self.db['user'] = 'solaris2ks'
@@ -102,6 +112,15 @@ class webksconf(ConfigParser.ConfigParser):
 
         if self._getoption('main','defaultkey') != None:
             self.defaultkey = self._getoption('main','defaultkey')
+
+        if self._getoption('main','xmlrpc') != None:
+            self.xmlrpc = self._getoption('main','xmlrpc')
+        else:
+            raise errors.ConfigError('Missing required "xmlrpc" location.')
+        if self._getoption('main','secret') != None:
+            self.secret = self._getoption('main','secret')
+        else:
+            raise errors.ConfigError('Missing required "secret" for XMLRPC API.')
 
         self.db = {}
         if self.has_section('db'):
