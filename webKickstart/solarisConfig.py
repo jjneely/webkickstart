@@ -104,7 +104,7 @@ class solarisConfig(object):
         
         s = cStringIO.StringIO(self.filecommands[num])
         lex = shlex.shlex(s)
-        lex.wordchars = lex.wordchars + "-./=$:@,"
+        lex.wordchars = lex.wordchars + "-./=$:@,+"
         dict = {}
         ops = []
         
