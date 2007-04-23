@@ -512,7 +512,7 @@ EOF
 
 # Make available the ethernet interface we are using
 KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
-if [ "$KSDEVICE" == "" ]; then 
+if [ "$KSDEVICE" = "" ]; then 
     KSDEVICE=eth0
 fi
 
