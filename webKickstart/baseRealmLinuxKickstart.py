@@ -518,8 +518,15 @@ FQDN=`python -c "import socket; print socket.getfqdn('$IP')"`
 /usr/sbin/rhnreg_ks --activationkey %s --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
 
 # Import the RPM GPG keys
-/bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
-/bin/rpm --import /usr/share/realmconfig/realmkit.gpg
+if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
+    /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
+fi
+if [ -f /usr/share/realmconfig/realmkit.gpg ] ; then
+    /bin/rpm --import /usr/share/realmconfig/realmkit.gpg
+fi
+if [ -f /usr/share/realmconfig/data/realmkit.gpg ] ; then
+    /bin/rpm --import /usr/share/realmconfig/data/realmkit.gpg
+fi
 
 # Set Up2Date Configuration
 if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then

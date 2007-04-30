@@ -180,6 +180,8 @@ top of the post so that other bits could use the variable as well.</li>
     <li>Reworked software so that Web-Kickstart acts as a python package</li>
 </ul>
 <li>04/17/07 - Use RLM Tools XMLRPC interface to log installs.</li>
+<li>04/30/07 - Use if statements while importing the RPM keys as they
+    live in a different place in RL5.</li>
 
 </ul>
 
