@@ -163,7 +163,7 @@ class Kickstart(baseRealmLinuxKickstart):
         else:
             retval = "%packages\n"
             for package in packagetable:
-                tmp = string.join(package['options'])
+                tmp = ' '.join(package['options'])
                 retval = "%s%s\n" % (retval, tmp)
 
             return retval
