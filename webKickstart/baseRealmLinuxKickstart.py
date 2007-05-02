@@ -521,6 +521,9 @@ FQDN=`python -c "import socket; print socket.getfqdn('$IP')"`
 if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
     /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
 fi
+if [ -f /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release ] ; then
+    /bin/rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+fi
 if [ -f /usr/share/realmconfig/realmkit.gpg ] ; then
     /bin/rpm --import /usr/share/realmconfig/realmkit.gpg
 fi
