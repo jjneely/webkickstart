@@ -47,14 +47,12 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 
 <table align="center" border="1" cellspacing="0" cellpadding="3">
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
+<tr><td>Realm Linux 5 Server (i386)</td><td>server5</td><td>Beta</td></tr>
+<tr><td>Realm Linux 5 Client (i386)</td><td>client5</td><td>Beta</td></tr>
 <tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4</td><td>Production</td></tr>
 <tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U4 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux WS4 U2 (i386)</td><td>WS4.2</td><td>Retired</td></tr>
-<tr><td>Realm Linux AS4 U2 (i386)</td><td>AS4.2</td><td>Retired</td></tr>
-<tr><td>Realm Linux WS4 U2 (AMD64/EM64T)</td><td>WS4.2.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux AS4 U2 (AMD64/EM64T)</td><td>AS4.2.x86_64</td><td>Retired</td></tr>
 <tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
 <tr><td>Realm Linux WS3 U4 (i386)</td><td>WS3</td><td>Production - EOL 1/1/2007</td></tr>
 <tr><td>Realm Linux AS3 U4 (i386)</td><td>AS3</td><td>Production - EOL 1/1/2007</td></tr>
@@ -92,6 +90,9 @@ your config file all you need to do is boot off of one of these
 disks to install the machine.  This boot disk you use must match
 the version of Realm Linux you have the config file set to install.</p>
 <ul>
+<li><a href="server5-U0-x86-webks.iso">server5-U0-x86-webks.iso</a> - Realm Linux 5 Server Update 0 for i386 (Beta)</li>
+<li><a href="client5-U0-x86-webks.iso">client5-U0-x86-webks.iso</a> - Realm Linux 5 Client Update 0 for i386 (Beta)</li>
+
 <li><a href="RHEL4-U4-x86-webks.iso">RHEL4-U4-x86-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for i386</li>
 <li><a href="RHEL4-U4-x86_64-webks.iso">RHEL4-U4-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for x86_64/EM64T</li>
 
