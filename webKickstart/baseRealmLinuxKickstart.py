@@ -547,7 +547,7 @@ chvt 3
 chvt 1
 """ 
 
-    def extraFixes():
+    def extraFixes(self):
         return """# Final Fixes for RHEL 5
 # Fix for Red Hat Bug #236669
 mv /etc/nsswitch.conf /etc/nsswitch.conf~
