@@ -182,7 +182,8 @@ top of the post so that other bits could use the variable as well.</li>
 <li>04/17/07 - Use RLM Tools XMLRPC interface to log installs.</li>
 <li>04/30/07 - Use if statements while importing the RPM keys as they
     live in a different place in RL5.</li>
-
+<li>05/02/07 - Added a bit of extra code to work around Red Hat bug
+    #236669.</li>
 </ul>
 
 </body>
