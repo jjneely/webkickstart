@@ -66,6 +66,7 @@ class baseRealmLinuxKickstart(baseKickstart):
                            self.staticIP,
                            self.RHN,
                            self.runUpdates,
+                           self.extraFixes,
                            self.extraPost ]
 
 
@@ -541,8 +542,17 @@ fi
         return """
 # Run Yum update
 chvt 3
-/usr/bin/yum update yum
-/usr/bin/yum update
+/usr/bin/yum -y update yum
+/usr/bin/yum -y update
 chvt 1
 """ 
+
+    def extraFixes():
+        return """# Final Fixes for RHEL 5
+# Fix for Red Hat Bug #236669
+mv /etc/nsswitch.conf /etc/nsswitch.conf~
+cat /etc/nsswitch.conf~ | sed 's/^protocols.*files ldap/protocols:  files/' \
+        > /etc/nsswitch.conf
+rm -f /etc/nsswitch.conf~
+"""
 

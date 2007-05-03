@@ -182,3 +182,6 @@ chvt 3
 chvt 1
 """ 
 
+    def extraFixes(self):
+        return ""
+
