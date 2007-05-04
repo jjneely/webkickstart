@@ -23,6 +23,8 @@
 
 from baseRealmLinuxKickstart import baseRealmLinuxKickstart
 
+import re
+
 class Kickstart(baseRealmLinuxKickstart):
 
     def __init__(self, url, cfg, sc=None):
