@@ -220,6 +220,11 @@ Optional.  Instruct the installer to ignore the specified disks.
 Optional.  Removes all partitioning commands from the resulting kickstart.
 Can be used with other dark kickstart magic to do interesting things.
 
+    logging --level=<log level>
+
+Optional.  Configure the installers logging functionality.  See the
+RHEL Kickstart documentation for details.
+
     enable <service> [option1] [option2] [...]
 
 Enable certain other services.  The services supported are described

@@ -190,6 +190,8 @@ top of the post so that other bits could use the variable as well.</li>
         related keys</li>
     <li>Made the zerombr kickstart keyword work in RHEL 5 and previous as the
         syntax changed for RHEL 5</li>
+    <li>Add a 'logging' key by request that is passed directly to the 
+        kickstart.  This modifies Anaconda's logging.</li>
   </ul></li>
 </ul>
 

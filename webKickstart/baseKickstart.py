@@ -279,6 +279,7 @@ class baseKickstart(object):
         vnc = self.checkKey(0, 6, 'vnc')
         ignoredisk = self.checkKey(1, 1000, 'ignoredisk')
         multipath = self.checkKey(0, 1000, 'multipath')
+        logkey = self.checkKey(1, 1000, 'logging')
 
         buf = StringIO.StringIO()
         if vnc != None:
@@ -287,6 +288,8 @@ class baseKickstart(object):
             buf.write('ignoredisk %s\n' % ' '.join(ignoredisk))
         if multipath != None:
             buf.write('multipath %s\n' % ' '.join(multipath))
+        if logkey != None:
+            buf.write('logging %s\n' % ' '.join(logkey))
             
         return buf.getvalue()
 
