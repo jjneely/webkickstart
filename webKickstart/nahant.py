@@ -63,6 +63,68 @@ class Kickstart(baseRealmLinuxKickstart):
         retval = "%slangsupport %s\n\n" % (retval, langs)
         return retval
         
+    def partition(self):
+        # Return partition information
+        safepart = self.getKeys('enable', 'safepartition')
+        clearpart = self.checkKey(1, 1000, "clearpart")
+
+        # Allow user to do strange things with partitioning
+        skippart = self.checkKey(0, 0, 'skippartition')
+        if skippart != None:
+            return ""
+
+        retval = "zerombr yes\n"
+
+        if clearpart is not None:
+            retval = "%sclearpart %s\n" % (retval, ' '.join(clearpart))
+        elif len(safepart) > 0:
+            retval = "%sclearpart --linux\n" % retval
+        else:
+            retval = "%sclearpart --all\n" % retval
+
+        parttable = self.getKeys('part')
+        # We are just going to take what's in the cfg file and go with it
+        if len(parttable) == 0:
+            parts = """
+part / --size 8192
+part swap --recommended
+part /boot --size 128
+part /tmp --size 256 --grow 
+part /var --size 1024
+part /var/cache --size 1024
+"""
+        else:
+            parts = ""
+            for row in parttable:
+                tmp = "part " + ' '.join(row['options'])
+                parts = "%s%s\n" % (parts, tmp)
+
+            #Note: The raid and lvm stuff assumes that the user understands
+            #      the syntax for raid and lvm in kickstarts.
+                                                                                
+            raidtable = self.getKeys('raid')
+            raids = ""
+            for row in raidtable:
+                tmp = "raid " + ' '.join(row['options'])
+                raids = "%s%s\n" % (raids, tmp)
+                                                                                
+            volgrouptable = self.getKeys('volgroup')
+            volgroups = ""
+            for row in volgrouptable:
+                tmp = "volgroup " + ' '.join(row['options'])
+                volgroups = "%s%s\n" % (volgroups, tmp)
+                                                                                
+            logvoltable = self.getKeys('logvol')
+            logvols = ""
+            for row in logvoltable:
+                tmp = "logvol " + ' '.join(row['options'])
+                logvols = "%s%s\n" % (logvols, tmp)
+                                                                                
+            parts = "%s%s%s%s" % (parts, raids, volgroups, logvols)
+
+        retval = "%s%s\n" % (retval, parts)
+        return retval
+
     def firewall(self):
         firewalltable = self.checkKey(1, 1000, 'firewall')
         firewallstatus = self.checkKey(0, 0, 'enable', 'nofirewall')

@@ -296,7 +296,12 @@ class baseKickstart(object):
         safepart = self.getKeys('enable', 'safepartition')
         clearpart = self.checkKey(1, 1000, "clearpart")
 
-        retval = "zerombr yes\n"
+        # Allow user to do strange things with partitioning
+        skippart = self.checkKey(0, 0, 'skippartition')
+        if skippart != None:
+            return ""
+
+        retval = "zerombr\n"
 
         if clearpart is not None:
             retval = "%sclearpart %s\n" % (retval, ' '.join(clearpart))
