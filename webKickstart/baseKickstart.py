@@ -63,6 +63,7 @@ class baseKickstart(object):
                            self.firewall,
                            self.xconfig,
                            self.rootwords,
+                           self.kickstartIncludes,
                            self.packages,
                            self.startPost,
                            self.reinstall,
@@ -491,6 +492,22 @@ part /var/cache --size 1024
             ret = "firewall %s\n" % " ".join(firewalltable)
 
         return ret
+
+    
+    def kickstartIncludes(self):
+        """Handle kickstart includes (not solarisConfig includes).  We do this
+           because of the limitation where any %directive ends the 
+           solarisConfig command section and some includes need to be 
+           in a specific place."""
+
+        # We support multiple instances
+        options = [ ' '.join(d['options']) for d in self.getKeys('include') ]
+        buf = StringIO.StringIO()
+
+        for string in options:
+            buf.write('%include ' + string + '\n')
+
+        return buf.getvalue()
 
 
     def packages(self):

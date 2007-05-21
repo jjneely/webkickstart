@@ -49,6 +49,9 @@ class baseRealmLinuxKickstart(baseKickstart):
                            self.authConfig,
                            self.xconfig,
                            self.rootwords,
+
+                           # End of command section
+                           self.kickstartIncludes,
                            self.packages,
                            self.startPost,
                            self.enableUpdates,

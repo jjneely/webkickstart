@@ -193,6 +193,9 @@ top of the post so that other bits could use the variable as well.</li>
     <li>Add a 'logging' key by request that is passed directly to the 
         kickstart.  This modifies Anaconda's logging.</li>
   </ul></li>
+<li>05/21/07 -
+    Added an 'include' keyword which allows a config file to make use of
+    the kickstart %include directive.</li>
 </ul>
 
 </body>

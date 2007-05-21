@@ -220,6 +220,12 @@ Optional.  Instruct the installer to ignore the specified disks.
 Optional.  Removes all partitioning commands from the resulting kickstart.
 Can be used with other dark kickstart magic to do interesting things.
 
+    include <path>
+
+Optional.  Will create a propper kickstart %include <path> directive
+in the generated kickstart.  Mostly useful for black magic kickstart
+hacking.
+
     logging --level=<log level>
 
 Optional.  Configure the installers logging functionality.  See the
