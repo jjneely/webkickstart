@@ -25,6 +25,10 @@ import nahant
 
 class Kickstart(nahant.Kickstart):
 
+    def __init__(self, url, cfg, sc=None):
+        nahant.Kickstart.__init__(self, url, cfg, sc)
+        self.buildOrder.remove(self.selinux)
+
     def audit(self):
         # kill auditd with a big hammer unless anyone really wants to use it
         # The auditd deamon in RHEL 3 is called "audit" in RHEL 4 "auditd"
