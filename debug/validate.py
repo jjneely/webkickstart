@@ -16,14 +16,21 @@ except ImportError:
 url = "http://web-kickstart.linux.ncsu.edu/ks.py"
 
 def main():
-    uri = "%s?debugtool=%s" % (url, sys.argv[1])
-    ksfd = urllib2.urlopen(uri)
-    data = ksfd.read()
+    if len(sys.argv) == 2:
+        # Try to pull from web-kickstart
+        uri = "%s?debugtool=%s" % (url, sys.argv[1])
+        ksfd = urllib2.urlopen(uri)
+        data = ksfd.read()
 
-    fileno, filename = tempfile.mkstemp()
-    fd = open(filename, 'w')
-    fd.write(data)
-    fd.close()
+        fileno, filename = tempfile.mkstemp()
+        fd = open(filename, 'w')
+        fd.write(data)
+        fd.close()
+    else:
+        # or --filename foo
+        # I just don't care how bad I do arguments here
+        filename = sys.argv[2]
+        data = open(filename).read()
 
     ksdata = KickstartData()
     kshandler = KickstartHandlers(ksdata)
@@ -48,8 +55,9 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) is not 2:
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
         print "Usage: %s <hostname>" % sys.argv[0]
+        print "Usage: %s --filename <kickstart.cfg>" % sys.argv[0]
     else:
         main()
 

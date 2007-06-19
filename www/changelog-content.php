@@ -178,12 +178,24 @@ top of the post so that other bits could use the variable as well.</li>
         still use the same Realm Linux groups</li>
     <li>Other misc kickstart syntax changes</li>
     <li>Reworked software so that Web-Kickstart acts as a python package</li>
-</ul>
+</ul></li>
 <li>04/17/07 - Use RLM Tools XMLRPC interface to log installs.</li>
 <li>04/30/07 - Use if statements while importing the RPM keys as they
     live in a different place in RL5.</li>
 <li>05/02/07 - Added a bit of extra code to work around Red Hat bug
     #236669.</li>
+<li>05/16/07
+  <ul>
+    <li>Added the 'skippartition' option which removes all partitioning
+        related keys</li>
+    <li>Made the zerombr kickstart keyword work in RHEL 5 and previous as the
+        syntax changed for RHEL 5</li>
+    <li>Add a 'logging' key by request that is passed directly to the 
+        kickstart.  This modifies Anaconda's logging.</li>
+  </ul></li>
+<li>05/21/07 -
+    Added an 'include' keyword which allows a config file to make use of
+    the kickstart %include directive.</li>
 </ul>
 
 </body>

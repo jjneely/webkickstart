@@ -21,19 +21,7 @@ Keys
     version <version string>
 
 REQUIRED.  This key specifies what version of Realm Linux to
-install.  Currently, the options are: 
-
-    WS4
-    AS4
-    WS4.x86_64
-    AS4.x86_64
-    WS3
-    AS3
-    default  
-    
-The "default" option should install the latest stable version
-where the numeric option will install Realm Linux based off 
-of that version of Red Hat Linux.
+install. 
 
     dept  <department>
 
@@ -226,6 +214,22 @@ documentation for details.
     ignoredisk --drives=sdX,sdY,sdZ,...
 
 Optional.  Instruct the installer to ignore the specified disks.
+
+    skippartition
+
+Optional.  Removes all partitioning commands from the resulting kickstart.
+Can be used with other dark kickstart magic to do interesting things.
+
+    include <path>
+
+Optional.  Will create a propper kickstart %include <path> directive
+in the generated kickstart.  Mostly useful for black magic kickstart
+hacking.
+
+    logging --level=<log level>
+
+Optional.  Configure the installers logging functionality.  See the
+RHEL Kickstart documentation for details.
 
     enable <service> [option1] [option2] [...]
 

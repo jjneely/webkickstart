@@ -63,6 +63,7 @@ class baseKickstart(object):
                            self.firewall,
                            self.xconfig,
                            self.rootwords,
+                           self.kickstartIncludes,
                            self.packages,
                            self.startPost,
                            self.reinstall,
@@ -279,6 +280,7 @@ class baseKickstart(object):
         vnc = self.checkKey(0, 6, 'vnc')
         ignoredisk = self.checkKey(1, 1000, 'ignoredisk')
         multipath = self.checkKey(0, 1000, 'multipath')
+        logkey = self.checkKey(1, 1000, 'logging')
 
         buf = StringIO.StringIO()
         if vnc != None:
@@ -287,6 +289,8 @@ class baseKickstart(object):
             buf.write('ignoredisk %s\n' % ' '.join(ignoredisk))
         if multipath != None:
             buf.write('multipath %s\n' % ' '.join(multipath))
+        if logkey != None:
+            buf.write('logging %s\n' % ' '.join(logkey))
             
         return buf.getvalue()
 
@@ -296,7 +300,12 @@ class baseKickstart(object):
         safepart = self.getKeys('enable', 'safepartition')
         clearpart = self.checkKey(1, 1000, "clearpart")
 
-        retval = "zerombr yes\n"
+        # Allow user to do strange things with partitioning
+        skippart = self.checkKey(0, 0, 'skippartition')
+        if skippart != None:
+            return ""
+
+        retval = "zerombr\n"
 
         if clearpart is not None:
             retval = "%sclearpart %s\n" % (retval, ' '.join(clearpart))
@@ -484,6 +493,22 @@ part /var/cache --size 1024
 
         return ret
 
+    
+    def kickstartIncludes(self):
+        """Handle kickstart includes (not solarisConfig includes).  We do this
+           because of the limitation where any %directive ends the 
+           solarisConfig command section and some includes need to be 
+           in a specific place."""
+
+        # We support multiple instances
+        options = [ ' '.join(d['options']) for d in self.getKeys('include') ]
+        buf = StringIO.StringIO()
+
+        for string in options:
+            buf.write('%include ' + string + '\n')
+
+        return buf.getvalue()
+
 
     def packages(self):
         # Do the packages section of the KS
@@ -553,7 +578,7 @@ fi
 if [ ! -f initrd.img ] ; then
     wget %s://%s/%s/isolinux/initrd.img
 fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img\n
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=%s ramdisk_size=8192 noshell noipv6 ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img\n
 """ % (self.cfg['install_method'], 
        self.cfg['%s_server' % self.cfg['install_method']], 
        self.cfg['%s_path' % self.cfg['install_method']], 
