@@ -196,6 +196,11 @@ top of the post so that other bits could use the variable as well.</li>
 <li>05/21/07 -
     Added an 'include' keyword which allows a config file to make use of
     the kickstart %include directive.</li>
+<li>06/19/07 -
+    Always use the 'noipv6' flag.  Versions that do not understand the flag
+    will ignore it.  We don't have IPv6 stuff yet.  Rework the RHN bits
+    as we know what our host name is no reason to make the client
+    figure it out again.</li>
 </ul>
 
 </body>

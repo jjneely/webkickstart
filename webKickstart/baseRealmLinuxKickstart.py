@@ -24,8 +24,10 @@
 from solarisConfig import solarisConfig
 from baseKickstart import baseKickstart
 from config import config
+from StringIO import StringIO
 import errors
 import os
+import os.path
 import re
 import security
 
@@ -506,22 +508,32 @@ realmconfig --kickstart pamconf --enable-console-login || true
    
    
     def RHN(self):
-
+        buf = StringIO()
         key = self.checkKey(1, 1, "enable", "activationkey")
         if key == None:
             key = config.rhnkey
         else:
             key = key[0]
-        
-        return """
+
+        if self.sc != None:
+            fqdn = os.path.basename(self.sc.filename)
+            buf.write("""
+# The registration program's not smart enough to figure out the host name
+# with out this the profile reads "localhost.localdomain"
+FQDN="%s"
+""" % fqdn)
+        else:
+            buf.write("""
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
 IP=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
 FQDN=`python -c "import socket; print socket.getfqdn('$IP')"`
+""")
 
-/usr/sbin/rhnreg_ks --activationkey %s --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+        buf.write("""/usr/sbin/rhnreg_ks --activationkey %s --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+""" % key)
 
-# Import the RPM GPG keys
+        buf.write("""# Import the RPM GPG keys
 if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
     /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
 fi
@@ -539,7 +551,9 @@ fi
 if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
     /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
 fi
-""" % key
+""")
+
+        return buf.getvalue()
 
     def runUpdates(self):
         return """

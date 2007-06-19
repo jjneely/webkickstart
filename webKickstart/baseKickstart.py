@@ -43,7 +43,8 @@ class baseKickstart(object):
         self.url = url
 
         # suck in config file
-        if not sc == None:
+        self.sc = sc
+        if not self.sc == None:
             self.includeFile(sc)
 
         self.cfg = cfg
@@ -110,6 +111,7 @@ class baseKickstart(object):
                       'package',
                       'use',
                       'cluster',
+                      'include',
                       'repo']
         
         for rec in t:
