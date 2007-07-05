@@ -26,7 +26,7 @@ import os.path
 import xmlrpclib
 import logging
 
-log = logging.getLogger()
+log = logging.getLogger("webks")
 
 def check(headers, fqdn):
     # check for anaconda
