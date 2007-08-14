@@ -47,10 +47,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 
 <table align="center" border="1" cellspacing="0" cellpadding="3">
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
-<tr><td>Realm Linux 5.0 Server (x86_64)</td><td>server5.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 5.0 Server (i386)</td><td>server5</td><td>Beta</td></tr>
-<tr><td>Realm Linux 5.0 Client (x86_64)</td><td>client5.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 5.0 Client (i386)</td><td>client5</td><td>Beta</td></tr>
+<tr><td>Realm Linux 5.0 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.0 Server (i386)</td><td>server5</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.0 Client (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.0 Client (i386)</td><td>client5</td><td>Production</td></tr>
 <tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4</td><td>Production</td></tr>
 <tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
