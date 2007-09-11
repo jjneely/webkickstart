@@ -273,11 +273,11 @@ class webksconf(ConfigParser.ConfigParser):
 
 
     def initLogging(self):
-        logger = logging.getLogger()
+        logger = logging.getLogger("webks")
         
         handler = logging.FileHandler(self.logfile)
         # Time format: Jun 24 10:16:54
-        formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
+        formatter = logging.Formatter('%(asctime)s WK %(levelname)s: %(message)s',
                                       '%b %2d %H:%M:%S')
         handler.setFormatter(formatter)
         logger.addHandler(handler)

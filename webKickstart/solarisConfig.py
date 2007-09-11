@@ -28,7 +28,7 @@ import errors
 import config
 import os
 
-log = logging.getLogger()
+log = logging.getLogger("webks")
 
 class solarisConfig(object):
     """This class has tools and functions for parsing a solaris config file.

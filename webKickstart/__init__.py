@@ -33,7 +33,7 @@ import sys
 import os
 import os.path
 
-log = logging.getLogger()
+log = logging.getLogger("webks")
 
 class webKickstart:
 
