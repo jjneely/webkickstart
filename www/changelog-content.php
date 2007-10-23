@@ -201,6 +201,9 @@ top of the post so that other bits could use the variable as well.</li>
     will ignore it.  We don't have IPv6 stuff yet.  Rework the RHN bits
     as we know what our host name is no reason to make the client
     figure it out again.</li>
+<li>10/23/07 -
+    Access to the Web-Kickstart Tools Page is now controlled by
+    the installer:common PTS group in the BP cell.</li>
 </ul>
 
 </body>

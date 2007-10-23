@@ -6,17 +6,32 @@
 $url = "https://secure.linux.ncsu.edu/web-kickstart/ks.py";
 
 // Realm IDs of folks that have access to the Tools
-$accessList = array("jjneely", "dfallis", "mhfullme", "ngibson", "gsgarner",
-    "sfcallic", "pevans", "alan", "jsw", "hmn", "daniel", "glsheldo",
-    "ershanno", "wsetzer", "tkl", "ststewar", "brabec", "charles",
-    "jayoung", "libby", "michelle", "twk", "xli", "fapeeler", "gsgatlin",
-    "ptwillia", "ldosbor2", "tbyron", "mcgarrah", "kmdudley", "lagoodw2",
-    "rlgreen2", "bmadams3", "jacorley", "macolon", "ambrown4", "arkurth",
-    "tmfarwig", "tcwilson", "scjones", "sewillia", "bwbarbou",
-    "wjhicks", "nbmccork",  "jaklein", "dlcarraw", "jrwells", "ptwillia",
-    "arkurth", "jmernstb", "dmhodoro", "sjcurtis", "wjbrocke", "rkimsey",
-    "jlparks", "jim", "hkbaumei", "rdjohnso", "feeaker", "ajbarnes",
-    "dcwaterm");
+/*
+ Code in your population tools here
+$accessList = array("jjneely", "dfallis", ...);
+*/
+
+// Read IDs from an AFS PTS group
+$fd = popen("/usr/bin/pts membership installer:common -c bp", "r");
+
+if (!$fd) {
+    $accessList = array();
+
+} else {
+
+    $ret = fscanf($fd, "%s\n", $buff); // Chop the first line
+
+    while ($ret > 0) {
+        $ret = fscanf($fd, "%s\n", $buff);
+        if ($ret > 0) {
+            // Create the array or append values to it 
+            // Can this syntax suck more please?
+            $accessList[] = $buff;
+        }
+    }
+
+    pclose($fd);
+}
 
 ?>
 
