@@ -30,6 +30,13 @@ import os
 
 log = logging.getLogger("webks")
 
+# Constants for the config file FSM parser
+scriptTypes = ['%post', '%pre', '%traceback', '%include']
+
+STATE_COMMANDS = 0
+STATE_SCRIPT = 1
+STATE_INCLUDE = 2
+
 class solarisConfig(object):
     """This class has tools and functions for parsing a solaris config file.
        We can recognize if this is a normal kickstart instead.  This class is
@@ -47,7 +54,7 @@ class solarisConfig(object):
         self.filedata = file.read()
         file.close()
         lines = string.split(self.filedata, '\n')
-        self.filecommands, self.fileposts = self.__splitFile(lines)
+        self.filecommands, self.fileposts = self.__FSMParser(lines)
         
    
     def __str__(self):
@@ -64,20 +71,69 @@ class solarisConfig(object):
         return self.getFileName() != sc.getFileName()
     
 
-    def __splitFile(self, lines):
-        """Separates the file into the first part of commands and the second
-           part containing any %post, %pre, %packages, %anything."""
-        
-        breakpoint = 0
+    def __isScriptHeader(self, line):
+        """FSM helper.  Test line for a %-command."""
+
+        if not line.startswith('%'): 
+            return False
+
+        for section in scriptTypes:
+            if line.startswith(section):
+                return True
+
+        err = 'Config contains invalid "%" command on line:\n   %s' % line
+        raise errors.ParseError(err)
+
+
+    def __FSMParser(self, lines):
+        """Parse the config file into commands and a series of scripts."""
+
+        commands = []
+        scripts = []
+        tmp = []
+
+        state = STATE_COMMANDS
         for line in lines:
-            s = string.strip(line)
-            if len(s) > 0 and s[0] == "%":
-                break
-            breakpoint = breakpoint + 1
-        
-        return lines[0:breakpoint], lines[breakpoint:]
-        
-        
+            isHdr = self.__isScriptHeader(line)
+
+            if state == STATE_COMMANDS:
+                if isHdr and line.startswith('%include'):
+                    scripts.append([line])
+                    state = STATE_INCLUDE
+                elif isHdr:
+                    tmp = [line]
+                    state = STATE_SCRIPT
+                else:
+                    stripped = line.strip()
+                    if stripped != "":
+                        commands.append(stripped)
+
+            if state == STATE_SCRIPT:
+                if isHdr and line.startswith('%include'):
+                    scripts.append([line])
+                    state = STATE_INCLUDE
+                elif isHdr:
+                    scripts.append(tmp)
+                    tmp = [line]
+                else:
+                    tmp.append(line)
+
+            if state == STATE_INCLUDE:
+                if isHdr and line.startswith('%include'):
+                    scripts.append([line])
+                elif isHdr:
+                    tmp = [line]
+                    state = STATE_SCRIPT
+                else:
+                    # eat the empty space
+                    pass
+
+        if len(tmp) > 0:
+            scripts.append(tmp)
+
+        return commands, scripts
+
+
     def isKickstart(self):
         """Return true if this config file appears to be a kickstart"""
         
@@ -88,16 +144,14 @@ class solarisConfig(object):
         for key in ksReqs:
             if key not in coms:
                 # this is not a ks
-                return 0
+                return False
 
-        return 1
+        return True
         
         
     def getLine(self, num):
-        """Returns a dict containing 'key', 'enable', and 'options' found on this line number.
-           This assumes you are looking in the commands section.  Key will be '' if
-           line does not contain a key or options.  None will be returned if the
-           line number is out of range."""
+        """Returns a list of parsed tokens from line number num in the
+           commands section of the config file."""
         
         if num >= len(self.filecommands):
             return None
@@ -105,22 +159,14 @@ class solarisConfig(object):
         s = cStringIO.StringIO(self.filecommands[num])
         lex = shlex.shlex(s)
         lex.wordchars = lex.wordchars + "-./=$:@,+"
-        dict = {}
         ops = []
         
-        dict['key'] = self.__cleanToken(lex.get_token())
-        if dict['key'] == 'enable':
-            dict['enable'] = self.__cleanToken(lex.get_token())
-        else:
-            dict['enable'] = ''
-            
-        s2 = lex.get_token()
-        while not s2 == "":
-            ops.append(self.__cleanToken(s2))
-            s2 = lex.get_token()
-        dict['options'] = ops
+        t = lex.get_token()
+        while not t == "":
+            ops.append(self.__cleanToken(t))
+            t = lex.get_token()
         
-        return dict
+        return ops
         
         
     def __cleanToken(self, token):
@@ -138,13 +184,19 @@ class solarisConfig(object):
     def getCommands(self):
         """Returns a string of the commands section of the file."""
         
-        return string.join(self.filecommands, '\n')
+        return '\n'.join(self.filecommands)
         
         
-    def getPost(self):
-        """Returns a string of the rest of the file after the '%post'"""
-        
-        return string.join(self.fileposts, '\n')
+    def getPosts(self):
+        """Returns a list of a % sections in the config file."""
+        # This is an API change 11/9/2007
+        #    used to join together the lines into one string
+
+        scripts = []
+        for post in self.fileposts:
+            scripts.append('\n'.join(post))
+
+        return scripts
         
         
     def getFile(self):
@@ -175,17 +227,11 @@ class solarisConfig(object):
     def getListOfKeys(self):
         """Return a list of all keywords used in config file."""
 
-        coms = []
-        for i in range(len(self.filecommands)):
-            dict = self.getLine(i)
-            if dict != None and dict['key'] != '':
-                coms.append(dict['key'])    
-            
-        return coms
+        return [ l[0] for l in self.parseCommands() ]
     
     
     def parseCommands(self):
-        """Returns a list of dicts of all commands and their options."""
+        """Returns a list of lists of all parsed commands/options."""
         
         if self.parsings != None:
             return self.parsings
@@ -194,7 +240,7 @@ class solarisConfig(object):
         c = 0
         line = self.getLine(c)
         while line != None:
-            if line['key'] != "":
+            if line != []:
                 ret.append(line)
             c = c + 1
             line = self.getLine(c)
@@ -203,20 +249,20 @@ class solarisConfig(object):
         return ret
         
         
-    def getVersion(self):
+    def getVersion(self, versionKey='version', includeKey='use'):
         """Returns the option ofter the 'version' key."""
         
         if self.isKickstart():
             return None
         
-        version = self.__parseOutVersion(self)
+        version = self.__parseOutVersion(self, versionKey, includeKey)
         if version is None:
             raise errors.ParseError("'version' key is missing and required")
         
         return version
 
 
-    def __parseOutVersion(self, sc, sclist=None):
+    def __parseOutVersion(self, sc, versionKey, includeKey, sclist=None):
         """Parse version out of included files"""
 
         # Gah...default argument values are only evaluated once so if I
@@ -230,29 +276,31 @@ class solarisConfig(object):
         log.debug("  sclist = %s" % str(sclist))
         
         # Gaurd against infinite recursion
-        if sc.filename in sclist:
-            log.warning("Infinite recursion detected: %s" % sc.filename)
+        fn = sc.getFileName()
+        if fn in sclist:
+            log.warning("Infinite recursion detected: %s" % fn)
             return None
-        sclist.append(sc.filename)
+        sclist.append(fn)
 
         for rec in sc.parseCommands():
-            log.debug("Parsing for version: key: %s" % rec['key'])
-            if rec['key'] == 'version':
-                if len(rec['options']) != 1:
-                    raise errors.ParseError, "'version' key must have one argument."
+            log.debug("Parsing for version: key: %s" % rec[0])
+            if rec[0] == versionKey:
+                if len(rec) != 2:
+                    errmsg = "'%s' key must have one argument." % key
+                    raise errors.ParseError(errmsg)
                 else:
-                    return rec['options'][0]
+                    return rec[1]
 
         for rec in sc.parseCommands():
-            if rec['key'] == 'use':
-                if len(rec['options']) != 1:
-                    raise errors.ParseError, "'use' key must have one argument."
+            if rec[0] == includeKey:
+                if len(rec) != 2:
+                    errmsg = "'%s' key must have one argument." % includeKey
+                    raise errors.ParseError(errmsg)
  
-                newsc = solarisConfig(rec['options'][0])
+                newsc = solarisConfig(rec[1])
                 v = self.__parseOutVersion(newsc, sclist)
                 if v is not None:
                     return v
 
         return None
 
-            

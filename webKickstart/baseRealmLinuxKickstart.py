@@ -175,7 +175,7 @@ auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbased
         ret = "firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp\n"
 
         if firewallstatus != None:
-            ret = "firewall --diabled\n"
+            ret = "firewall --disabled\n"
         elif firewalltable != None:
             ret = "firewall %s\n" % " ".join(firewalltable)
 
