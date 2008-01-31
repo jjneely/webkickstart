@@ -28,6 +28,51 @@ import os.path
 import string
 import errors
 
+class Configuration(object):
+
+    # Global configuration defualts
+    logfile = '/var/log/webkickstart.log'
+    log_level = 1
+
+    enable_security = 0
+    enable_generic_ks = 0
+    enable_config_collision_detection = 0
+    disable_version_case_sensitivity = 0
+    jumpstarts = "./configs"
+    profiles = "./profiles"
+
+    include_key = 'use'
+    profile_key = 'version'  # Will select the profile/template used
+
+    # Global Flags
+    init_logging = True
+
+    def __init__(self):
+        # inital setup and load of config file
+        pass
+
+    def __getattr__(self, attr):
+        # Override the default getattr behavior to pull info from
+        # the [main] section of the master config.
+        pass
+
+    def pluginDict(self):
+        # Return a dict of keyword => function
+        # so the config line turns into a function call
+        # keyword arg1 arg2 arg3 => function("arg1", "arg2", "arg3")
+        pass
+
+    def getTemplate(self, profile):
+        # Return the template for the specified version/profile
+        pass
+
+    def reload(self):
+        # call to reload the config on file change
+        pass
+
+
+
+
 class webksconf(ConfigParser.ConfigParser):
 
     init_logging = True
