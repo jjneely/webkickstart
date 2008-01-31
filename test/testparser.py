@@ -65,9 +65,9 @@ class TestMetaParser(unittest.TestCase):
         self.assert_(self.p2.getPosts() == posts2)
 
     def testVersion(self):
-        self.assert_(self.p1.getVersion(versionKey='foo', includeKey='use') \
+        self.assert_(self.p1.getVersion(profileKey='foo', includeKey='use') \
                      == 'bar')
-        self.assert_(self.p2.getVersion(versionKey='foo', includeKey='use') \
+        self.assert_(self.p2.getVersion(profileKey='foo', includeKey='use') \
                      == 'sue')
 
 

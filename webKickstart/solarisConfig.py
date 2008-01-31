@@ -252,21 +252,21 @@ class solarisConfig(object):
         return ret
         
         
-    def getVersion(self, versionKey='version', includeKey='use'):
+    def getVersion(self, profileKey='version', includeKey='use'):
         """Returns the option ofter the 'version' key."""
         
         if self.isKickstart():
             return None
         
-        version = self.__parseOutVersion(self, versionKey, includeKey)
+        version = self.__parseOutVersion(self, profileKey, includeKey)
         if version is None:
             raise errors.ParseError("'%s' key is missing and required" \
-                                    % versionKey)
+                                    % profileKey)
         
         return version
 
 
-    def __parseOutVersion(self, sc, versionKey, includeKey, sclist=None):
+    def __parseOutVersion(self, sc, profileKey, includeKey, sclist=None):
         """Parse version out of included files"""
 
         # Gah...default argument values are only evaluated once so if I
@@ -288,7 +288,7 @@ class solarisConfig(object):
 
         for rec in sc.parseCommands():
             log.debug("Parsing for version: key: %s" % rec[0])
-            if rec[0] == versionKey:
+            if rec[0] == profileKey:
                 if len(rec) != 2:
                     errmsg = "'%s' key must have one argument." % key
                     raise errors.ParseError(errmsg)
@@ -302,7 +302,7 @@ class solarisConfig(object):
                     raise errors.ParseError(errmsg)
  
                 newsc = solarisConfig(rec[1])
-                v = self.__parseOutVersion(newsc, versionKey, includeKey,
+                v = self.__parseOutVersion(newsc, profileKey, includeKey,
                                            sclist)
                 if v is not None:
                     return v
