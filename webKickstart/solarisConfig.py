@@ -31,7 +31,7 @@ import os
 log = logging.getLogger("webks")
 
 # Constants for the config file FSM parser
-scriptTypes = ['%post', '%pre', '%traceback', '%include']
+scriptTypes = ['%packages', '%post', '%pre', '%traceback', '%include']
 
 STATE_COMMANDS = 0
 STATE_SCRIPT = 1
@@ -81,7 +81,7 @@ class solarisConfig(object):
             if line.startswith(section):
                 return True
 
-        err = 'Config contains invalid "%" command on line:\n   %s' % line
+        err = 'Config contains invalid %%-command on line:\n   %s' % line
         raise errors.ParseError(err)
 
 
@@ -108,7 +108,7 @@ class solarisConfig(object):
                     if stripped != "":
                         commands.append(stripped)
 
-            if state == STATE_SCRIPT:
+            elif state == STATE_SCRIPT:
                 if isHdr and line.startswith('%include'):
                     scripts.append([line])
                     state = STATE_INCLUDE
@@ -118,7 +118,7 @@ class solarisConfig(object):
                 else:
                     tmp.append(line)
 
-            if state == STATE_INCLUDE:
+            elif state == STATE_INCLUDE:
                 if isHdr and line.startswith('%include'):
                     scripts.append([line])
                 elif isHdr:
@@ -127,6 +127,9 @@ class solarisConfig(object):
                 else:
                     # eat the empty space
                     pass
+            else:
+                err = "Unknown state while parsing config file."
+                raise errors.ParseError(err)
 
         if len(tmp) > 0:
             scripts.append(tmp)
@@ -257,7 +260,8 @@ class solarisConfig(object):
         
         version = self.__parseOutVersion(self, versionKey, includeKey)
         if version is None:
-            raise errors.ParseError("'version' key is missing and required")
+            raise errors.ParseError("'%s' key is missing and required" \
+                                    % versionKey)
         
         return version
 
@@ -298,7 +302,8 @@ class solarisConfig(object):
                     raise errors.ParseError(errmsg)
  
                 newsc = solarisConfig(rec[1])
-                v = self.__parseOutVersion(newsc, sclist)
+                v = self.__parseOutVersion(newsc, versionKey, includeKey,
+                                           sclist)
                 if v is not None:
                     return v
 

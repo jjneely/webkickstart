@@ -30,14 +30,45 @@ from webKickstart.solarisConfig import solarisConfig as MetaParser
 
 class TestMetaParser(unittest.TestCase):
 
-    def setUp(self):
-        self.testfiles = 'testdata/'
-
     def getFile(self, test):
         return os.path.join(os.getcwd(), self.testfiles, test)
 
-    def testCreateObject(self):
+    def setUp(self):
+        self.testfiles = 'testdata/'
+        config.jumpstarts = os.path.join(os.getcwd())
+
         self.p1 = MetaParser(self.getFile('meta1'))
+        self.p2 = MetaParser(self.getFile('meta2'))
+        self.p3 = MetaParser(self.getFile('meta3'))
+
+    def testEquality(self):
+        self.assert_(self.p1 != self.p2)
+        self.assert_(self.p2 == self.p2)
+
+    def testIsKickstart(self):
+        self.assert_(not self.p1.isKickstart())
+        self.assert_(    self.p3.isKickstart())
+
+    def testGetCommands(self):
+        self.assert_(self.p1.filecommands == ['foo bar', 'bar baz'])
+        self.assert_(self.p2.filecommands == ['owner foobar@ncsu.edu',
+                                              'use testdata/meta2.5'])
+
+        cmd = '\n'.join(self.p1.filecommands)
+        self.assert_(self.p1.getCommands() == cmd)
+
+    def testPosts(self):
+        posts1 = ['%post\n\n# Post Script\n\n']
+        posts2 = ['%post\n\n# Post Script\n\n    date > /.install-date\n', '%post --interpreter /usr/bin/python\n\nprint "Hello World"\n\n']
+        
+        self.assert_(self.p1.getPosts() == posts1)
+        self.assert_(self.p2.getPosts() == posts2)
+
+    def testVersion(self):
+        self.assert_(self.p1.getVersion(versionKey='foo', includeKey='use') \
+                     == 'bar')
+        self.assert_(self.p2.getVersion(versionKey='foo', includeKey='use') \
+                     == 'sue')
 
 
 if __name__ == '__main__':
