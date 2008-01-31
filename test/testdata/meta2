@@ -1,0 +1,12 @@
+owner foobar@ncsu.edu
+use testdata/meta2.5
+%post
+
+# Post Script
+
+    date > /.install-date
+
+%post --interpreter /usr/bin/python
+
+print "Hello World"
+

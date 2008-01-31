@@ -1,0 +1,237 @@
+lang en_US
+langsupport --default en_US en_US
+
+install
+network --bootproto dhcp
+url --url http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.4/i386
+
+zerombr yes
+clearpart --all
+part raid.01 --size 256 --ondisk sda
+part raid.02 --size 256 --ondisk sdb
+part raid.03 --size 1024 --grow --ondisk sda
+part raid.04 --size 1024 --grow --ondisk sdb
+raid /boot --fstype ext3 --level=RAID1 raid.01 raid.02
+raid pv.01 --fstype LVM --level=RAID1 raid.03 raid.04
+volgroup Volume00 pv.01
+logvol / --fstype ext3 --name=LogVol00 --vgname=Volume00 --size=5120
+logvol /var --fstype ext3 --name=LogVol01 --vgname=Volume00 --size=1560 --grow
+logvol swap --fstype swap --name=LogVol02 --vgname=Volume00 --size=1024
+
+selinux --disabled
+timezone US/Eastern
+keyboard us
+reboot
+mouse --emulthree genericps/2
+
+firewall --medium --ssh --dhcp --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
+
+auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
+skipx
+bootloader --location mbr --md5pass xxxxxxxxxxxxxxxxxxxxx
+rootpw --iscrypted xxxxxxxxxxxxxxxxxxxxxxxxx
+
+%packages
+@ NCSU Realm Kit Server
+httpd
+-mod_ssl
+-squid
+vim-enhanced
+arptables_jf
+
+%post
+# Let's make DNS work
+cat << EOF > /etc/resolv.conf
+nameserver 152.1.1.206
+nameserver 152.1.1.161
+EOF
+
+# Make available the ethernet interface we are using
+KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
+if [ "$KSDEVICE" = "" ]; then 
+    KSDEVICE=eth0
+fi
+
+# Want a /.version file.
+echo "Kickstarted `/bin/date +%D`" > /.version
+rpm -qa | sort >> /.version
+
+# make startup non-interactive
+mv /etc/sysconfig/init /etc/sysconfig/init~
+sed 's/^PROMPT=yes$/PROMPT=no/' < /etc/sysconfig/init~ > /etc/sysconfig/init
+rm /etc/sysconfig/init~
+
+# fix /etc/hosts still
+(grep -v localhost /etc/hosts ; echo "127.0.0.1 localhost.localdomain   localhost") > /etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+#so apropos works
+/usr/sbin/makewhatis >/dev/null 2>&1 || :
+
+
+# updates
+realmconfig --kickstart updates --enable-updates
+
+
+# turn off audit and wax any logs
+chkconfig auditd off
+rm -rf /var/log/audit
+rm -rf /var/log/audit.d/*
+
+
+#set up a reinstall image
+mkdir -p /boot/install
+cd /boot/install
+if [ ! -f vmlinuz ] ; then
+    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.4/i386/isolinux/vmlinuz
+fi
+if [ ! -f initrd.img ] ; then
+    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.4/i386/isolinux/initrd.img
+fi
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=http://secure.linux.ncsu.edu/web-kickstart/ks.py ramdisk_size=8192 noshell noipv6 ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img
+
+cat << EOF > /root/.k5login
+jjneely/root@EOS.NCSU.EDU
+EOF
+chmod 400 /root/.k5login
+
+cat << EOF >> /etc/sudoers
+jjneely  ALL=(ALL) ALL
+EOF
+chmod 400 /etc/sudoers
+realmconfig --kickstart auth --users arkurth,brabec,dlcarraw,hmn,jaklein,jjneely,jrwells,jsw,nbmccork,ptwillia,ststewar,tkl,tpgrimes,tsgurgan,twk,wsetzer
+realmconfig --kickstart sendmail --disable-daemon --masquerade unity.ncsu.edu
+
+# Setup forwarding for root's mail
+cat << EOF >> /etc/aliases
+root:       linuxroot@lists.ncsu.edu
+EOF
+/usr/bin/newaliases
+
+# disable login on the console for non-local users
+# RL4.4 and below don't have this code so we need to case that out
+if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
+    mv /etc/pam.d/login /etc/pam.d/login~
+    sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
+    rm /etc/pam.d/login~
+fi
+
+realmconfig --kickstart tmpclean --enable-tmpclean
+realmconfig --kickstart clusters --local-disable
+realmconfig --kickstart clusters --remote-disable
+realmconfig --kickstart dept --set itd-cls
+realmconfig --kickstart printing --default lp
+realmconfig --kickstart support --enable-support
+
+# M-DHCP to Static IP conversion hack because the Comtech[tm] DHCP server
+# is not always up. Originally by Lin Osborne (ITECS).
+
+# Figure out the relevant information about this system
+IP=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
+HOSTNAME=`/usr/bin/host $IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
+NETMASK=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
+NETWORK=`/bin/ipcalc $IP -n $NETMASK | /bin/cut -d\= -f2`
+GATEWAY=`echo $NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+
+# Overwrite the appropriate files (/etc/sysconfig/network and
+# /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
+# upon DHCP
+cat << EOF > /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=$HOSTNAME
+GATEWAY=$GATEWAY
+EOF
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$KSDEVICE
+DEVICE=$KSDEVICE
+BOOTPROTO=static
+IPADDR=$IP
+NETMASK=$NETMASK
+ONBOOT=yes
+EOF
+
+# The registration program's not smart enough to figure out the host name
+# with out this the profile reads "localhost.localdomain"
+FQDN="anduril.unity.ncsu.edu"
+/usr/sbin/rhnreg_ks --activationkey c4d3c9f0655918192dda7e2f65ccbd94 --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+# Import the RPM GPG keys
+if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
+    /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
+fi
+if [ -f /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release ] ; then
+    /bin/rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+fi
+if [ -f /usr/share/realmconfig/realmkit.gpg ] ; then
+    /bin/rpm --import /usr/share/realmconfig/realmkit.gpg
+fi
+if [ -f /usr/share/realmconfig/data/realmkit.gpg ] ; then
+    /bin/rpm --import /usr/share/realmconfig/data/realmkit.gpg
+fi
+
+# Set Up2Date Configuration
+if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
+    /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
+fi
+
+# Run Up2Date
+chvt 3
+/usr/sbin/up2date --nox -u up2date
+/usr/sbin/up2date --nox -u
+chvt 1
+
+# The following scripts provided by the Jump Start confgs.
+%post
+
+# This doesn't do the apache SSL cert 
+# or the lvs configs
+
+chvt 3
+
+# Large OpenAFS cache
+echo "/afs:/var/cache/openafs:5000000" > /etc/openafs/cacheinfo
+
+# Change the OpenAFS options to use disk cache and more goodies.
+sed 's/^OPTIONS=.*$/OPTIONS="-stat 15000 -dcache 6000 -daemons 7 -volumes 128 -nosettime -fakestat-all -afsdb -dynroot -chunksize 19"/' < /etc/sysconfig/afs > /tmp/afs.conf
+mv -f /tmp/afs.conf /etc/sysconfig/afs
+
+# HTTP Config
+cat << EOF > /etc/httpd/conf.d/install.conf
+NameVirtualHost *:80
+
+<VirtualHost *:80>
+
+    DocumentRoot "/afs/bp/project/realmlinux/install-trees"
+    ServerAdmin linux@help.ncsu.edu
+    ServerName install.linux.ncsu.edu
+
+    <Directory "/afs/bp/project/realmlinux/install-trees">
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    <Directory "/afs/bp/project/realmlinux/install-trees/pub">
+        AllowOverride FileInfo AuthConfig Limit Options
+        Order deny,allow
+        Deny from all
+        Allow from 152.1 152.7 152.14 198.86.82 198.86.83
+    </Directory>
+
+</VirtualHost>
+EOF
+
+# Services
+/sbin/chkconfig httpd on
+
+/sbin/chkconfig squid off
+/sbin/chkconfig auditd off
+/sbin/chkconfig iptables off
+/sbin/chkconfig portmap off
+/sbin/chkconfig rpcidmapd off
+/sbin/chkconfig kudzu off
+/sbin/chkconfig rpcgssd off
+/sbin/chkconfig isdn off
+/sbin/chkconfig arptables_jf off
+/sbin/chkconfig pcmcia off
+/sbin/chkconfig nfslock off
+
