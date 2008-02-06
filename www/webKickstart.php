@@ -53,10 +53,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux 5.0 Client (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
 <tr><td>Realm Linux 5.0 Client (i386)</td><td>client5</td><td>Production</td></tr>
 
-<tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4</td><td>Production</td></tr>
-<tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4</td><td>Production</td></tr>
-<tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux AS4 U4 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux WS4 U6 (i386)</td><td>WS4</td><td>Production</td></tr>
+<tr><td>Realm Linux AS4 U6 (i386)</td><td>AS4</td><td>Production</td></tr>
+<tr><td>Realm Linux WS4 U6 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux AS4 U6 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
 
 <tr><th colspan="3">Non-Production and Testing Products</th></tr>
 <tr><td>Realm Linux 5.1 Server (x86_64)</td><td>server5.1.x86_64</td><td>Beta</td></tr>
@@ -64,10 +64,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux 5.1 Client (x86_64)</td><td>client5.1.x86_64</td><td>Beta</td></tr>
 <tr><td>Realm Linux 5.1 Client (i386)</td><td>client5.1</td><td>Beta</td></tr>
 
-<tr><td>Realm Linux WS4 U6 (i386)</td><td>WS4.6</td><td>Beta</td></tr>
-<tr><td>Realm Linux AS4 U6 (i386)</td><td>AS4.6</td><td>Beta</td></tr>
-<tr><td>Realm Linux WS4 U6 (AMD64/EM64T)</td><td>WS4.6.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux AS4 U6 (AMD64/EM64T)</td><td>AS4.6.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4.4</td><td>Retired</td></tr>
+<tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4.4</td><td>Retired</td></tr>
+<tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.4.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux AS4 U4 (AMD64/EM64T)</td><td>AS4.4.x86_64</td><td>Retired</td></tr>
 
 <tr><th colspan="3">End of Life Products</th></tr>
 <tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
@@ -75,7 +75,7 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux AS3 U4 (i386)</td><td>AS3</td><td>Production - EOL 1/1/2007</td></tr>
 </table>
 
-<h3>Examples and More Documentation.</h3>
+<h2>Examples and More Documentation.</h2>
 <ul>
 <li><a href="docs/keywords.txt">keywords.txt</a> - Keywords and
 syntax for the Realm Linux JumpStart files.</li>
@@ -99,13 +99,15 @@ monitoring servers that ITD uses.  See the below file that is included.</li>
 include file that is refferenced in uni04s.unity.ncsu.edu.</li>
 </ul>
 
-<h3>Disk Image</h3>
+<h2>Disk Image</h2>
 <p>Here's a disk image that is set up to automatically do a
 kickstart install from web-kickstart.linux.ncsu.edu.  (This was done
 by modifying the syslinux.cfg file on the floppy.  After you setup
 your config file all you need to do is boot off of one of these
 disks to install the machine.  This boot disk you use must match
 the version of Realm Linux you have the config file set to install.</p>
+
+<h3>Production Products</h3>
 
 <h4>Realm Linux 5.0</h4>
 <ul>
@@ -115,11 +117,13 @@ the version of Realm Linux you have the config file set to install.</p>
 <li><a href="client5-U0-x86-webks.iso">client5-U0-x86-webks.iso</a> - Realm Linux 5.0 Client for i386 (Production)</li>
 </ul>
 
-<h4>Realm Linux 4.4</h4>
+<h4>Realm Linux 4.6</h4>
 <ul>
-<li><a href="RHEL4-U4-x86-webks.iso">RHEL4-U4-x86-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHEL4-U4-x86_64-webks.iso">RHEL4-U4-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for x86_64/EM64T</li>
+<li><a href="RHEL4-U6-x86-webks.iso">RHEL4-U6-x86-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for i386</li>
+<li><a href="RHEL4-U6-x86_64-webks.iso">RHEL4-U6-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for x86_64/EM64T</li>
 </ul>
+
+<h3>Non-Production and Testing Products</h3>
 
 <h4>Realm Linux 5.1 - Beta - Production ETA: 2008/2/18</h4>
 <ul>
@@ -129,11 +133,13 @@ the version of Realm Linux you have the config file set to install.</p>
 <li><a href="client5-U1-x86-webks.iso">client5-U1-x86-webks.iso</a> - Realm Linux 5.1 Client for i386</li>
 </ul>
 
-<h4>Realm Linux 4.6 - Beta - Production ETA: 2008/2/4</h4>
+<h4>Realm Linux 4.4 - Retired</h4>
 <ul>
-<li><a href="RHEL4-U6-x86-webks.iso">RHEL4-U6-x86-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHEL4-U6-x86_64-webks.iso">RHEL4-U6-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for x86_64/EM64T</li>
+<li><a href="RHEL4-U4-x86-webks.iso">RHEL4-U4-x86-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for i386</li>
+<li><a href="RHEL4-U4-x86_64-webks.iso">RHEL4-U4-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for x86_64/EM64T</li>
 </ul>
+
+<h3>End of Life Products</h3>
 
 <h4>Realm Linux 3 (Retired)</h4>
 <ul>
