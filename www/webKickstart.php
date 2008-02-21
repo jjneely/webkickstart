@@ -48,10 +48,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <table align="center" border="1" cellspacing="0" cellpadding="3">
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
 <tr><th colspan="3">Production Products</th></tr>
-<tr><td>Realm Linux 5.0 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.0 Server (i386)</td><td>server5</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.0 Client (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.0 Client (i386)</td><td>client5</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.1 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.1 Server (i386)</td><td>server5</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.1 Client (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.1 Client (i386)</td><td>client5</td><td>Production</td></tr>
 
 <tr><td>Realm Linux WS4 U6 (i386)</td><td>WS4</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U6 (i386)</td><td>AS4</td><td>Production</td></tr>
@@ -59,10 +59,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux AS4 U6 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
 
 <tr><th colspan="3">Non-Production and Testing Products</th></tr>
-<tr><td>Realm Linux 5.1 Server (x86_64)</td><td>server5.1.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 5.1 Server (i386)</td><td>server5.1</td><td>Beta</td></tr>
-<tr><td>Realm Linux 5.1 Client (x86_64)</td><td>client5.1.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 5.1 Client (i386)</td><td>client5.1</td><td>Beta</td></tr>
+<tr><td>Realm Linux 5.0 Server (x86_64)</td><td>server5.0.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.0 Server (i386)</td><td>server5.0</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.0 Client (x86_64)</td><td>client5.0.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.0 Client (i386)</td><td>client5.0</td><td>Retired</td></tr>
 
 <tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4.4</td><td>Retired</td></tr>
 <tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4.4</td><td>Retired</td></tr>
@@ -109,12 +109,12 @@ the version of Realm Linux you have the config file set to install.</p>
 
 <h3>Production Products</h3>
 
-<h4>Realm Linux 5.0</h4>
+<h4>Realm Linux 5.1</h4>
 <ul>
-<li><a href="server5-U0-x86_64-webks.iso">server5-U0-x86_64-webks.iso</a> - Realm Linux 5.0 Server for x86_64 (Production)</li>
-<li><a href="server5-U0-x86-webks.iso">server5-U0-x86-webks.iso</a> - Realm Linux 5.0 Server for i386 (Production)</li>
-<li><a href="client5-U0-x86_64-webks.iso">client5-U0-x86_64-webks.iso</a> - Realm Linux 5.0 Client for x86_64 (Production)</li>
-<li><a href="client5-U0-x86-webks.iso">client5-U0-x86-webks.iso</a> - Realm Linux 5.0 Client for i386 (Production)</li>
+<li><a href="server5-U1-x86_64-webks.iso">server5-U1-x86_64-webks.iso</a> - Realm Linux 5.1 Server for x86_64</li>
+<li><a href="server5-U1-x86-webks.iso">server5-U1-x86-webks.iso</a> - Realm Linux 5.1 Server for i386</li>
+<li><a href="client5-U1-x86_64-webks.iso">client5-U1-x86_64-webks.iso</a> - Realm Linux 5.1 Client for x86_64</li>
+<li><a href="client5-U1-x86-webks.iso">client5-U1-x86-webks.iso</a> - Realm Linux 5.1 Client for i386</li>
 </ul>
 
 <h4>Realm Linux 4.6</h4>
@@ -125,12 +125,12 @@ the version of Realm Linux you have the config file set to install.</p>
 
 <h3>Non-Production and Testing Products</h3>
 
-<h4>Realm Linux 5.1 - Beta - Production ETA: 2008/2/18</h4>
+<h4>Realm Linux 5.0 - Retired</h4>
 <ul>
-<li><a href="server5-U1-x86_64-webks.iso">server5-U1-x86_64-webks.iso</a> - Realm Linux 5.1 Server for x86_64</li>
-<li><a href="server5-U1-x86-webks.iso">server5-U1-x86-webks.iso</a> - Realm Linux 5.1 Server for i386</li>
-<li><a href="client5-U1-x86_64-webks.iso">client5-U1-x86_64-webks.iso</a> - Realm Linux 5.1 Client for x86_64</li>
-<li><a href="client5-U1-x86-webks.iso">client5-U1-x86-webks.iso</a> - Realm Linux 5.1 Client for i386</li>
+<li><a href="server5-U0-x86_64-webks.iso">server5-U0-x86_64-webks.iso</a> - Realm Linux 5.0 Server for x86_64 (Production)</li>
+<li><a href="server5-U0-x86-webks.iso">server5-U0-x86-webks.iso</a> - Realm Linux 5.0 Server for i386 (Production)</li>
+<li><a href="client5-U0-x86_64-webks.iso">client5-U0-x86_64-webks.iso</a> - Realm Linux 5.0 Client for x86_64 (Production)</li>
+<li><a href="client5-U0-x86-webks.iso">client5-U0-x86-webks.iso</a> - Realm Linux 5.0 Client for i386 (Production)</li>
 </ul>
 
 <h4>Realm Linux 4.4 - Retired</h4>
