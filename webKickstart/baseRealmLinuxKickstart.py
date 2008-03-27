@@ -314,19 +314,19 @@ rm -rf /var/log/audit.d/*
         extrausers = []
 
         if len(userstable) > 1:
-            raise errors.ParseError("Multiple users keys found")
+            raise errors.ParseError("Multiple 'enable adminusers' keys found")
         if len(lusertable) > 1:
-            raise errors.ParseError("Multiple localuser keys found")
+            raise errors.ParseError("Multiple 'enable normalusers' keys found")
         admin = self.pullUsers()
         if len(userstable) != 0:
             if len(userstable[0]['options']) == 0:
-                raise errors.ParseError("users key requires arguments")
+                raise errors.ParseError("'enable adminusers' key requires arguments")
             admin.extend(userstable[0]['options'])
             extrausers.extend(userstable[0]['options'])
 
         if len(lusertable) == 1:
             if len(lusertable[0]['options']) == 0:
-                raise errors.ParseError("localuser key requires arguments")
+                raise errors.ParseError("'enable normalusers' key requires arguments")
             for id in lusertable[0]['options']:
                 users.append(id)
                 extrausers.append(id)
