@@ -352,8 +352,9 @@ rm -rf /var/log/audit.d/*
         for id in sort(users):
             buf.write("echo %s >> /etc/users.local.base\n" % id)
         for id in sort(admin):
-            buf.write("echo %s/root@EOS.NCSU.EDU >> /root/.k5login.base\n" % id)
-            buf.write("echo %s  ALL=(ALL) ALL >> /etc/sudoers.base\n" % id)
+            buf.write("echo \"%s/root@EOS.NCSU.EDU\" >> /root/.k5login.base\n" \
+                      % id)
+            buf.write("echo \"%s  ALL=(ALL) ALL\" >> /etc/sudoers.base\n" % id)
 
         if len(admin) > 0:
             buf.write("chmod 400 /root/.k5login.base\n")
