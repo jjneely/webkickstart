@@ -538,7 +538,8 @@ nameserver 152.1.1.161
 EOF
 
 # Make available the ethernet interface we are using
-KSDEVICE=`cat /proc/cmdline|awk -v RS=\  -v FS== '/ksdevice=.*/ {print $2; exit}'`
+# ksdevice may == 'link' so lets just grab the goods from the route table
+KSDEVICE=`/sbin/route -n | awk '/^0.0.0.0/ { print $8 }'`
 if [ "$KSDEVICE" = "" ]; then 
     KSDEVICE=eth0
 fi

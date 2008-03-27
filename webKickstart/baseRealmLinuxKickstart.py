@@ -305,52 +305,63 @@ rm -rf /var/log/audit.d/*
 
 
     def admins(self):
+        buf = StringIO()
         # admin users
         userstable = self.getKeys('enable', 'adminusers')
         lusertable = self.getKeys('enable', 'normalusers')
         dept = self.getDept()
         users = []
         admin = []
-        extrausers = []
+        realmadmin = self.pullUsers()
+
+        def sort(list):
+            # Crappy helper function to sort and return
+            ret = [ i for i in list ]
+            ret.sort()
+            return ret
 
         if len(userstable) > 1:
             raise errors.ParseError("Multiple 'enable adminusers' keys found")
         if len(lusertable) > 1:
             raise errors.ParseError("Multiple 'enable normalusers' keys found")
-        admin = self.pullUsers()
+
         if len(userstable) != 0:
             if len(userstable[0]['options']) == 0:
                 raise errors.ParseError("'enable adminusers' key requires arguments")
             admin.extend(userstable[0]['options'])
-            extrausers.extend(userstable[0]['options'])
 
         if len(lusertable) == 1:
             if len(lusertable[0]['options']) == 0:
                 raise errors.ParseError("'enable normalusers' key requires arguments")
-            for id in lusertable[0]['options']:
-                users.append(id)
-                extrausers.append(id)
+            users.extend(lusertable[0]['options'])
 
-        retval = "cat << EOF > /root/.k5login\n"
-        for id in admin:
-            retval = "%s%s/root@EOS.NCSU.EDU\n" % (retval, id)
-        retval = "%sEOF\nchmod 400 /root/.k5login\n" % retval
-        retval = "%s\ncat << EOF >> /etc/sudoers\n" % retval
-        for id in admin:
-            retval = "%s%s  ALL=(ALL) ALL\n" % (retval, id)
-        retval = "%sEOF\nchmod 400 /etc/sudoers\n" % retval
+        buf.write("cat << EOF > /root/.k5login\n")
+        for id in sort(admin + realmadmin):
+            buf.write("%s/root@EOS.NCSU.EDU\n" % id)
+        buf.write("EOF\nchmod 400 /root/.k5login\n")
 
-        retval = "%srealmconfig --kickstart auth --users " % retval
-        users.extend(admin)
-        retval = retval + ','.join(users) + "\n"
+        buf.write("\ncat << EOF >> /etc/sudoers\n")
+        for id in sort(admin + realmadmin):
+            buf.write("%s  ALL=(ALL) ALL\n" % id)
+        buf.write("EOF\nchmod 400 /etc/sudoers\n\n")
+
+        buf.write("realmconfig --kickstart auth --users ")
+        buf.write(','.join(sort(users + admin + realmadmin)) + "\n\n")
 
         # adminusers and normalusers may get wiped out if not specially saved
-        for id in extrausers:
-            retval = "%secho %s >> /etc/users.local.base\n" % (retval, id)
-            if id in admin:
-                retval = "%secho %s/root@EOS.NCSU.EDU >> /root/.k5login.base\n" % (retval, id)
+        for id in sort(users):
+            buf.write("echo %s >> /etc/users.local.base\n" % id)
+        for id in sort(admin):
+            buf.write("echo %s/root@EOS.NCSU.EDU >> /root/.k5login.base\n" % id)
+            buf.write("echo %s  ALL=(ALL) ALL >> /etc/sudoers.base\n" % id)
+
+        if len(admin) > 0:
+            buf.write("chmod 400 /root/.k5login.base\n")
+            buf.write("chmod 400 /etc/sudoers.base\n")
+
+        buf.write('\n')
                 
-        return retval
+        return buf.getvalue()
     
 
     def pullUsers(self):
