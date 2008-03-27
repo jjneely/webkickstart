@@ -31,7 +31,7 @@ from webKickstart.solarisConfig import solarisConfig as MetaParser
 class TestConfig(unittest.TestCase):
 
     def setUp(self):
-        self.cfg = config.Configuration()
+        self.cfg = config.Configuration('testconfig/')
     
     def test1(self):
         pass

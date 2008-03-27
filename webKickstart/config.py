@@ -25,10 +25,30 @@ import ConfigParser
 import sys
 import os
 import os.path
-import string
 import errors
 
+# New config file notes:
+# [main] section:
+# logfile, loglevel
+# generic_ks=profile -- when we don't know about the client
+# config_collision_detection
+# disable_version_case_sensitivity
+# configs=dir
+#
+# [default]
+# Sane defaults for profile sections
+# plugins=foo bar baz
+# required_keys = foo bar baz
+# optional_keys = joe sue jane
+# 
+# [<profile name>]
+#
+
 class Configuration(object):
+
+    # Default location of main config file
+    defaultDir = "/etc/webkickstart"
+    defaultConfig = "webkickstart.conf"
 
     # Global configuration defualts
     logfile = '/var/log/webkickstart.log'
@@ -47,31 +67,25 @@ class Configuration(object):
     # Global Flags
     init_logging = True
 
-    def __init__(self):
-        # Find the config file.  Search from the CWD up 
-        # or /etc/webkickstart.conf
-        search = os.getcwd()
-        file = None
-        while file == None and search != '/':
-            if search.endswith('/'):
-                search = search[:-1]
-            tmp = os.path.join(search, 'webkickstart.conf')
-            if os.path.exists(tmp):
-                file = tmp
-            else:
-                search = os.path.basename(tmp)
+    def __init__(self, configDir=None):
+        # Configfiles for all plugins and webkickstart are in configDir
+        # Default to /etc/webkickstart/webkickstart.conf
+        if configDir:
+            dir = configDir
+        else:
+            dir = self.defaultConfig
 
-        if file == None:
-            file = "/etc/webkickstart.conf"
+        file = os.path.join(dir, self.defaultConfig)
 
         if not os.path.exists(file):
-            msg = "Cannot locate config file. Missing /etc/webkickstart.conf?"
+            msg = "Missing config file: %s" % file
             raise errors.AccessError(msg)
 
         if not os.access(file, os.R_OK):
             msg = "Cannot read config file %s." % file
             raise errors.AccessError(msg)
 
+        self.__dir = dir
         self.__file = file
         self.__cfg = None     # ConfigParser object
         self.reload()
