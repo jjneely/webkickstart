@@ -99,10 +99,38 @@ class Configuration(object):
         self.__mtime = {}
         self.reload()
 
+        self.__initLogging()
+
     def __getattr__(self, attr):
         # Override the default getattr behavior to pull info from
         # the [main] section of the master config.
-        pass
+        if attr in self.defaultCfg.keys():
+            return self.__cfg[self.__file].get('main', attr, 
+                                               self.defaultCfg[attr])
+        else:
+            return object.__getattr__(self, attr)
+
+    def __initLogging(self, file=None, level=1):
+        logger = logging.getLogger("webks")
+        if len(logger.handlers) > 0:
+            # we've already set something up here
+            return
+        
+        if file == None or file == '-':
+            handler = logging.StreamHandler(sys.stdout)
+        else:
+            handler = logging.FileHandler(file)
+
+        # Time format: Jun 24 10:16:54
+        formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
+                                      '%b %2d %H:%M:%S')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(level)
+
+        logger.info("Logging initialized.")
+
+        self.init_logging = False
 
     def __checkConfig(self, file=None):
         # Test and see if we need to reload
