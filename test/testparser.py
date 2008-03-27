@@ -22,11 +22,14 @@ import os
 import sys
 import os.path
 import unittest
+import logging
 
 sys.path.insert(0, "../")
 
-from webKickstart import config
-from webKickstart.solarisConfig import solarisConfig as MetaParser
+from webKickstart import configtools
+from webKickstart.metaparser import MetaParser
+
+log = logging.getLogger('webks')
 
 class TestMetaParser(unittest.TestCase):
 
@@ -34,8 +37,18 @@ class TestMetaParser(unittest.TestCase):
         return os.path.join(os.getcwd(), self.testfiles, test)
 
     def setUp(self):
-        self.testfiles = 'testdata/'
-        config.jumpstarts = os.path.join(os.getcwd())
+        if configtools.config == None:
+            log.debug("Doing configuration bits...")
+            self.cfgdir = os.path.join(os.path.dirname(__file__),
+                                       'testconfig/')
+            configtools.config = configtools.Configuration(self.cfgdir)
+
+        self.cfg = configtools.config
+
+        self.testfiles = os.path.join(os.path.dirname(__file__), 'testdata/')
+        log.debug("self.testfiles = " + self.testfiles)
+        log.debug(__file__)
+        self.cfg.hosts = self.testfiles
 
         self.p1 = MetaParser(self.getFile('meta1'))
         self.p2 = MetaParser(self.getFile('meta2'))
@@ -52,7 +65,7 @@ class TestMetaParser(unittest.TestCase):
     def testGetCommands(self):
         self.assert_(self.p1.filecommands == ['foo bar', 'bar baz'])
         self.assert_(self.p2.filecommands == ['owner foobar@ncsu.edu',
-                                              'use testdata/meta2.5'])
+                                              'use meta2.5'])
 
         cmd = '\n'.join(self.p1.filecommands)
         self.assert_(self.p1.getCommands() == cmd)
@@ -65,6 +78,8 @@ class TestMetaParser(unittest.TestCase):
         self.assert_(self.p2.getPosts() == posts2)
 
     def testVersion(self):
+        self.assertNotEqual(configtools.config, None)
+        log.debug("hosts = " + configtools.config.hosts)
         self.assert_(self.p1.getVersion(profileKey='foo', includeKey='use') \
                      == 'bar')
         self.assert_(self.p2.getVersion(profileKey='foo', includeKey='use') \

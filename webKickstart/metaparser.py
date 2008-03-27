@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# solarisConfig.py -- tools for parsing solaris config files
+# metaparser.py -- tools for parsing the host config files
 #
 # Copyright 2002-2006 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu> and
@@ -24,9 +24,10 @@ import logging
 import string
 import shlex
 import cStringIO
-import errors
-import config
 import os
+
+import errors
+import configtools
 
 log = logging.getLogger("webks")
 
@@ -37,8 +38,8 @@ STATE_COMMANDS = 0
 STATE_SCRIPT = 1
 STATE_INCLUDE = 2
 
-class solarisConfig(object):
-    """This class has tools and functions for parsing a solaris config file.
+class MetaParser(object):
+    """This class has tools and functions for parsing a host config file.
        We can recognize if this is a normal kickstart instead.  This class is
        ment to be used by a factory class to produce a Red Hat Kickstart."""
     
@@ -213,13 +214,13 @@ class solarisConfig(object):
             if os.access(self.filename, os.R_OK):
                 return self.filename
         else:
-            filename = os.path.join(config.config.jumpstarts, self.filename)
+            filename = os.path.join(configtools.config.hosts, self.filename)
             if os.access(filename, os.R_OK):
                 return filename
 
             # XXX: Support legacy configs/ directory
             if self.filename.startswith("configs/"):
-                filename = os.path.join(config.config.jumpstarts, 
+                filename = os.path.join(configtools.config.hosts, 
                                         self.filename[8:])
                 if os.access(filename, os.R_OK):
                     return filename
@@ -301,7 +302,7 @@ class solarisConfig(object):
                     errmsg = "'%s' key must have one argument." % includeKey
                     raise errors.ParseError(errmsg)
  
-                newsc = solarisConfig(rec[1])
+                newsc = MetaParser(rec[1])
                 v = self.__parseOutVersion(newsc, profileKey, includeKey,
                                            sclist)
                 if v is not None:

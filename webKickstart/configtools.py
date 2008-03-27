@@ -36,13 +36,19 @@ import errors
 # configs=dir
 #
 # [default]
-# Sane defaults for profile sections
+#  * Sane defaults for profile sections
 # plugins=foo bar baz
-# required_keys = foo bar baz
-# optional_keys = joe sue jane
+# <template specific args>
 # 
 # [<profile name>]
-#
+# * Each template will define list of required/optional keys
+# * Plugins may add additional required/optional keys
+# * Templates must be smart enough to know what templateVars exported
+#   by the plugins to use
+
+# A global Configuration class instance.  
+# (Must be initialized via the WebKickstart main module.)
+config = None
 
 class Parser(ConfigParser.ConfigParser):
 
@@ -66,14 +72,11 @@ class Configuration(object):
                   'security':       1,
                   'collision':      1,
                   'profile_case_sensitivity':   0,
-                  'jumpstarts':     './configs',
+                  'hosts':          './configs',
                   'profiles':       './profiles',
                   'include_key':    'use',
                   'profile_key':    'version',
                  }
-
-    # Global Flags
-    init_logging = True
 
     def __init__(self, configDir=None):
         # Configfiles for all plugins and webkickstart are in configDir
@@ -105,10 +108,21 @@ class Configuration(object):
         # Override the default getattr behavior to pull info from
         # the [main] section of the master config.
         if attr in self.defaultCfg.keys():
+            self.__checkConfig()
             return self.__cfg[self.__file].get('main', attr, 
                                                self.defaultCfg[attr])
         else:
             return object.__getattr__(self, attr)
+
+    def __setattr__(self, attr, value):
+        # For testing and more advanced configuration bits we need to
+        # be able to progmatically set some config values
+        # Do we try to store the changes?  Next conf file update will
+        # nuke them.
+        if attr in self.defaultCfg.keys():
+            self.__cfg[self.__file].set('main', attr, value)
+        else:
+            return object.__setattr__(self, attr, value)
 
     def __initLogging(self, file=None, level=1):
         logger = logging.getLogger("webks")
@@ -130,13 +144,11 @@ class Configuration(object):
 
         logger.info("Logging initialized.")
 
-        self.init_logging = False
-
     def __checkConfig(self, file=None):
         # Test and see if we need to reload
         if file == None: file = self.__file
 
-        mtime = os.stat(file)
+        mtime = os.stat(file).st_mtime
         if mtime > self.__mtime[file]:
             self.reload(file)
 
@@ -155,7 +167,8 @@ class Configuration(object):
         if file == None: file = self.__file
 
         self.__mtime[file] = os.stat(file).st_mtime
-        self.__cfg[file] = Parser().read(file)
+        self.__cfg[file] = Parser()
+        self.__cfg[file].read(file)
 
 
 
@@ -420,6 +433,4 @@ class webksconf(ConfigParser.ConfigParser):
         self.init_logging = False
                                 
 
-# Global copy for all modules
-config = webksconf()
 

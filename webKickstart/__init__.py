@@ -21,9 +21,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from solarisConfig import solarisConfig
+from metaparser import MetaParser
 from errors import *
-import config
+import configtools
 import security
 
 import socket
@@ -45,7 +45,7 @@ class webKickstart:
         # client's headers
         self.headers = headers
 
-        self.cfg = config.config
+        self.cfg = configtools.config
         #config.cfg = self.cfg
         security.cfg = self.cfg
 
@@ -134,7 +134,7 @@ class webKickstart:
         
 
     def findFile(self, fn, cd="./configs"):
-        """Return a list of solarisConfigs that match the givein
+        """Return a list of MetaParserss that match the givein
            filename.  Ie, /foo/bar and /baz/bar when fn="bar".  This
            is case insensitive as is DNS.
         """
@@ -149,7 +149,7 @@ class webKickstart:
 
         for f in files:
             if os.path.basename(f).lower() == fn:
-                ret.append(solarisConfig(f))
+                ret.append(MetaParser(f))
 
         for d in dirs:
             ret.extend(self.findFile(fn, d))

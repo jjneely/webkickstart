@@ -22,20 +22,50 @@ import os
 import sys
 import os.path
 import unittest
+import logging
 
 sys.path.insert(0, "../")
 
-from webKickstart import config
-from webKickstart.solarisConfig import solarisConfig as MetaParser
+from webKickstart import configtools
+
+log = logging.getLogger('webks')
+print "__file__ = %s" % __file__
 
 class TestConfig(unittest.TestCase):
 
     def setUp(self):
-        self.cfg = config.Configuration('testconfig/')
+        self.cfgdir = os.path.join(os.path.dirname(__file__), 'testconfig/')
+        self.cfg = configtools.Configuration(self.cfgdir)
+        log.debug("Config dir: %s" % self.cfgdir)
     
     def test1(self):
-        pass
+        # In our test config file:
+        self.assertEqual(self.cfg.logfile, '-')
 
+        # Pulling from the built in defaults:
+        self.assertEqual(int(self.cfg.profile_case_sensitivity), 0)
+
+    def testReload(self):
+        self.cfg.reload()
+        self.test1()
+
+    def testFailures(self):
+        # Something Random
+        def callBadConfigVar():
+            baz = self.cfg.foobar
+
+        self.assertRaises(AttributeError, callBadConfigVar)
+
+    def testVariableAssignment(self):
+        foobar = "foobar"
+
+        self.cfg.log_level = foobar
+        self.assertEqual(self.cfg.log_level, foobar)
+        self.cfg.log_levelbob = foobar
+        self.assertEqual(self.cfg.log_levelbob, foobar)
+
+    def testDefaultConfig(self):
+        self.assertEqual(self.cfg.collision, 1)
 
 if __name__ == '__main__':
     unittest.main()

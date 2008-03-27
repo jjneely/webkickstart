@@ -1,5 +1,5 @@
 owner foobar@ncsu.edu
-use testdata/meta2.5
+use meta2.5
 %post
 
 # Post Script
