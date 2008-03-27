@@ -2,7 +2,7 @@
 #
 # config.py -- Configuration class for webKickstrart
 #
-# Copyright 2003-2007 NC State University
+# Copyright 2003-2008 NC State University
 # Written by Elliot Peele <elliot@bentlogic.net>
 #            Jack Neely <jjneely@pams.ncsu.edu>
 #
@@ -44,25 +44,33 @@ import errors
 # [<profile name>]
 #
 
+class Parser(ConfigParser.ConfigParser):
+
+    def get(self, section, option, default):
+        try:
+            return ConfigParser.ConfigParser.get(self, section, option)
+        except ConfigParser.NoOptionError:
+            return default
+
+
 class Configuration(object):
 
     # Default location of main config file
     defaultDir = "/etc/webkickstart"
-    defaultConfig = "webkickstart.conf"
+    defaultFile = "webkickstart.conf"
 
-    # Global configuration defualts
-    logfile = '/var/log/webkickstart.log'
-    log_level = 1
-
-    enable_security = 0
-    enable_generic_ks = 0
-    enable_config_collision_detection = 0
-    disable_version_case_sensitivity = 0
-    jumpstarts = "./configs"
-    profiles = "./profiles"
-
-    include_key = 'use'
-    profile_key = 'version'  # Will select the profile/template used
+    # [main] keys that we require and their defaults
+    defaultCfg = {'logfile':        '/var/log/webkickstart.log',
+                  'log_level':      1,
+                  'generic_ks':     0,
+                  'security':       1,
+                  'collision':      1,
+                  'profile_case_sensitivity':   0,
+                  'jumpstarts':     './configs',
+                  'profiles':       './profiles',
+                  'include_key':    'use',
+                  'profile_key':    'version',
+                 }
 
     # Global Flags
     init_logging = True
@@ -75,7 +83,7 @@ class Configuration(object):
         else:
             dir = self.defaultConfig
 
-        file = os.path.join(dir, self.defaultConfig)
+        file = os.path.join(dir, self.defaultFile)
 
         if not os.path.exists(file):
             msg = "Missing config file: %s" % file
@@ -87,7 +95,8 @@ class Configuration(object):
 
         self.__dir = dir
         self.__file = file
-        self.__cfg = None     # ConfigParser object
+        self.__cfg = {}     # ConfigParser objects
+        self.__mtime = {}
         self.reload()
 
     def __getattr__(self, attr):
@@ -95,9 +104,13 @@ class Configuration(object):
         # the [main] section of the master config.
         pass
 
-    def __checkConfig(self):
+    def __checkConfig(self, file=None):
         # Test and see if we need to reload
-        pass
+        if file == None: file = self.__file
+
+        mtime = os.stat(file)
+        if mtime > self.__mtime[file]:
+            self.reload(file)
 
     def pluginDict(self, profile):
         # Return a dict of keyword => function for a specific profile
@@ -109,9 +122,12 @@ class Configuration(object):
         # Return the template for the specified version/profile
         pass
 
-    def reload(self):
+    def reload(self, file=None):
         # call to reload the config on file change
-        pass
+        if file == None: file = self.__file
+
+        self.__mtime[file] = os.stat(file).st_mtime
+        self.__cfg[file] = Parser().read(file)
 
 
 
