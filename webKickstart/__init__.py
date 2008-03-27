@@ -23,7 +23,7 @@
 
 from solarisConfig import solarisConfig
 from errors import *
-from config import config
+import config
 import security
 
 import socket
@@ -45,8 +45,8 @@ class webKickstart:
         # client's headers
         self.headers = headers
 
-        self.cfg = config
-        config.cfg = self.cfg
+        self.cfg = config.config
+        #config.cfg = self.cfg
         security.cfg = self.cfg
 
 

@@ -48,16 +48,45 @@ class Configuration(object):
     init_logging = True
 
     def __init__(self):
-        # inital setup and load of config file
-        pass
+        # Find the config file.  Search from the CWD up 
+        # or /etc/webkickstart.conf
+        search = os.getcwd()
+        file = None
+        while file == None and search != '/':
+            if search.endswith('/'):
+                search = search[:-1]
+            tmp = os.path.join(search, 'webkickstart.conf')
+            if os.path.exists(tmp):
+                file = tmp
+            else:
+                search = os.path.basename(tmp)
+
+        if file == None:
+            file = "/etc/webkickstart.conf"
+
+        if not os.path.exists(file):
+            msg = "Cannot locate config file. Missing /etc/webkickstart.conf?"
+            raise errors.AccessError(msg)
+
+        if not os.access(file, os.R_OK):
+            msg = "Cannot read config file %s." % file
+            raise errors.AccessError(msg)
+
+        self.__file = file
+        self.__cfg = None     # ConfigParser object
+        self.reload()
 
     def __getattr__(self, attr):
         # Override the default getattr behavior to pull info from
         # the [main] section of the master config.
         pass
 
-    def pluginDict(self):
-        # Return a dict of keyword => function
+    def __checkConfig(self):
+        # Test and see if we need to reload
+        pass
+
+    def pluginDict(self, profile):
+        # Return a dict of keyword => function for a specific profile
         # so the config line turns into a function call
         # keyword arg1 arg2 arg3 => function("arg1", "arg2", "arg3")
         pass
