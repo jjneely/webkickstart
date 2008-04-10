@@ -652,6 +652,7 @@ HOSTNAME=`/usr/bin/host $IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
 NETMASK=`/sbin/ifconfig $KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
 NETWORK=`/bin/ipcalc $IP -n $NETMASK | /bin/cut -d\= -f2`
 GATEWAY=`echo $NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+HWADDR=`/sbin/ifconfig $KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
 
 # Overwrite the appropriate files (/etc/sysconfig/network and
 # /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
@@ -668,6 +669,7 @@ BOOTPROTO=static
 IPADDR=$IP
 NETMASK=$NETMASK
 ONBOOT=yes
+HWADDR=$HWADDR
 EOF
 """
 
