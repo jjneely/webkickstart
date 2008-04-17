@@ -315,8 +315,11 @@ rm -rf /var/log/audit.d/*
         realmadmin = self.pullUsers()
 
         def sort(list):
-            # Crappy helper function to sort and return
-            ret = [ i for i in list ]
+            # Crappy helper function to sort/unique and return
+            hash = {}
+            for i in list:
+                if not hash.has_key(i): hash[i] = None
+            ret = hash.keys()
             ret.sort()
             return ret
 
@@ -350,8 +353,9 @@ rm -rf /var/log/audit.d/*
 
         # adminusers and normalusers may get wiped out if not specially saved
         for id in sort(users):
-            buf.write("echo %s >> /etc/users.local.base\n" % id)
+            buf.write("echo \"%s\" >> /etc/users.local.base\n" % id)
         for id in sort(admin):
+            buf.write("echo \"%s\" >> /etc/users.local.base\n" % id)
             buf.write("echo \"%s/root@EOS.NCSU.EDU\" >> /root/.k5login.base\n" \
                       % id)
             buf.write("echo \"%s  ALL=(ALL) ALL\" >> /etc/sudoers.base\n" % id)
