@@ -212,7 +212,9 @@ top of the post so that other bits could use the variable as well.</li>
     configuration.</li>
 <li>04/17/08 -
     Additional admin users specified in the config that are not pulled
-    from AFS are now placed into /etc/users.local.base.</li>
+    from AFS are now placed into /etc/users.local.base.  User names lists
+    could contain duplicates and now have these duplicates removed before
+    added to the on disk files that control authorization.
 </ul>
 
 </body>
