@@ -320,12 +320,13 @@ class baseKickstart(object):
         # We are just going to take what's in the cfg file and go with it
         if len(parttable) == 0:
             parts = """
-part / --size 8192
-part swap --recommended
-part /boot --size 128
-part /tmp --size 256 --grow 
-part /var --size 1024
-part /var/cache --size 1024
+part /boot --size 512
+part pv.00 --fstype=LVM --size 18432 --grow
+volgroup Volume00 pv.00
+logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
+logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
+logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
+logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
 """
         else:
             parts = ""

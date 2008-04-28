@@ -215,6 +215,16 @@ top of the post so that other bits could use the variable as well.</li>
     from AFS are now placed into /etc/users.local.base.  User names lists
     could contain duplicates and now have these duplicates removed before
     added to the on disk files that control authorization.</li>
+<li>04/21/08 -
+    Update the default partitioning to use LVM:
+<pre>part /boot --size 512
+part pv.00 --fstype=LVM --size 18432 --grow
+volgroup Volume00 pv.00
+logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
+logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
+logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
+logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var</pre>
+</li>
 </ul>
 
 </body>
