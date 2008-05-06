@@ -227,6 +227,8 @@ class webKickstart:
 
         dir = os.listdir(path)
         for node in dir:
+            if node.startswith('.'):
+                continue
             apath = os.path.join(path, node)
             if os.path.isdir(apath):
                 # isdir() does the right thing if its passed a symlink
