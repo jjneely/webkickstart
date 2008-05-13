@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # testconfig.py
-# Copyright (C) 2007 NC State University
+# Copyright (C) 2007, 2008 NC State University
 # Written by Jack Neely <jjneely@ncsu.edu>
 #
 # This program is free software; you can redistribute it and/or modify
