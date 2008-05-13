@@ -3,7 +3,7 @@
 # webKickstart.py -- finds solaris config file or ks and builds string
 #                    to send out apache
 #
-# Copyright 2002-2005 NC State University
+# Copyright 2002-2008 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu> and
 #            Elliot Peele <elliot@bentlogic.net>
 #
@@ -35,9 +35,13 @@ import os.path
 
 log = logging.getLogger("webks")
 
-class webKickstart:
+# Setup the configuration bits
+if configtools.config == None: 
+    configtools.config = configtools.Configuration()
 
-    url = ""
+class webKickstart(object):
+
+    cfg = configtools.config
 
     def __init__(self, url, headers):
         # set up url from reinstalls
@@ -45,10 +49,9 @@ class webKickstart:
         # client's headers
         self.headers = headers
 
-        self.cfg = configtools.config
-        #config.cfg = self.cfg
-        security.cfg = self.cfg
-
+        if self.cfg == None:
+            self.cfg = configtools.Configuration()
+            configtools.config = self.cfg
 
     def __getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
@@ -59,46 +62,41 @@ class webKickstart:
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]
 
-        # Get the value for collision_detection
-        collision_detection = self.cfg.enable_config_collision_detection
+        mcList = self.findFile(filename, self.cfg.hosts)
 
-        scList = self.findFile(filename, self.cfg.jumpstarts)
-
-        if len(scList) > 1 and collision_detection:
+        if len(mcList) > 1 and self.cfg.collision:
             # if collision_detection is on then bitch
             # otherwise we just want the first hit
-            return self.__collisionMessage(scList)
+            return self.__collisionMessage(mcList)
 
-        if len(scList) == 0:
-            sc = None
+        if len(mcList) == 0:
+            mc = None
         else:
-            sc = scList[0]
+            mc = mcList[0]
 
-        if not debug and sc != None:
+        if not debug and mc != None:
             # Security check
-            if ( self.cfg.enable_security and 
+            if ( self.cfg.security and 
                  not security.check(self.headers, filename) ):
                 return (2, "# You do not appear to be Anaconda.")
                 
-        if sc != None:
-            if sc.isKickstart():
+        if mc != None:
+            if mc.isKickstart():
                 log.info("Returning pre-defined kickstart for %s." % filename)
-                return (0, sc.getFile())
+                return (0, mc.getFile())
             
-            version = sc.getVersion()
-            args = {'url': self.url, 'sc': sc}
-            generator = self.cfg.get_obj(version, args)
+            version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
+            genny = Generator(version, mc)
         else:
             # disable the default, no-config file, generic kickstart
-            if self.cfg.enable_generic_ks:
-                args = {'url': self.url, 'sc': sc}
-                generator = self.cfg.get_obj('default', args)
+            if self.cfg.generic_ks:
+                genny = Generator('default', mc)
             else:
                 log.info("No config file for host " + filename)
                 return (1, "# No config file for host " + filename)
                 
         log.info("Generating kickstart for %s." % filename)    
-        retval = generator.makeKS()
+        retval = genny.makeKS()
         return (0, retval)
         
 

@@ -156,6 +156,10 @@ class Configuration(object):
         # Return a list of plugins used for the given profile
         pass
 
+    def getPluginConf(self, plugin):
+        # Return a Parser() object with the config file for this plugin
+        pass
+
     def getTemplate(self, profile):
         # Return the template for the specified version/profile
         pass
