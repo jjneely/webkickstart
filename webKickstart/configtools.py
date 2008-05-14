@@ -161,8 +161,16 @@ class Configuration(object):
         pass
 
     def getTemplate(self, profile):
-        # Return the template for the specified version/profile
-        pass
+        # Return the template file for the specified version/profile
+        filename = os.path.join(self.profiles, '%s.tmpl' % profile)
+        if not os.path.isabs(filename):
+            filename = os.path.abspath(filename)
+
+        if os.access(filename, os.R_OK):
+            return filename
+        else:
+            log.warning("No template found for profile: %s" % profile)
+            return None
 
     def reload(self, file=None):
         # call to reload the config on file change
