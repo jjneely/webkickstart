@@ -57,8 +57,8 @@ class TestTemplateVar(unittest.TestCase):
         i = 0
         for element in var:
             log.debug(i)
-            self.assertEqual(var.key(), tokens[i][0])
-            self.assertEqual(var.verbatim(), ' '.join(tokens[i]))
+            self.assertEqual(element.key(), tokens[i][0])
+            self.assertEqual(element.verbatim(), ' '.join(tokens[i]))
             i = i + 1
 
 class TestGenerator(unittest.TestCase):
@@ -78,12 +78,28 @@ class TestGenerator(unittest.TestCase):
         self.testfiles = os.path.join(os.path.dirname(__file__), 'testdata/')
         self.cfg.hosts = self.testfiles
 
-        self.p1 = MetaParser(self.getFile('meta1'))
-        self.p2 = MetaParser(self.getFile('meta2'))
-        self.p3 = MetaParser(self.getFile('meta3'))
-
     def testCreate(self):
         gen = Generator('profile')
+
+    def testGenny(self):
+        mc = MetaParser(self.getFile('genny1'))
+        gen = Generator('profile', mc)
+
+        rows = ["enable nox",
+                "enable adminusers jjneely tkl bob"]
+        
+        self.assertTrue(gen.variables.has_key('enable'))
+
+        stuff = gen.variables['enable']
+        self.assertEqual(stuff.records(), 2)
+
+        print stuff
+        i = 0
+        for record in stuff:
+            print record
+            self.assertEqual(record.verbatim(), rows[i])
+            i = i + 1
+
 
 if __name__ == '__main__':
     unittest.main()

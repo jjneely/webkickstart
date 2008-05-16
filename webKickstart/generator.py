@@ -64,6 +64,8 @@ class TemplateVar(object):
             self.reset()
             raise StopIteration
 
+        return self
+
     def reset(self):
         self.row = 0
     
@@ -100,6 +102,8 @@ class TemplateVar(object):
 class Generator(object):
 
     def __init__(self, profile, mc=None):
+        assert configtools.config != None
+
         self.profile = profile
         self.configs = []
         self.variables = {}     # The dictionary that is presented to the
@@ -109,7 +113,7 @@ class Generator(object):
         if mc != None:
             self.includeFile(mc)
             self.configs.append(mc)
-            self.__handleIncludes(mc, configtools.include_key)
+            self.__handleIncludes(mc, configtools.config.include_key)
 
     def makeKS(self):
         # return a string of a Red Hat Kickstart
@@ -143,7 +147,7 @@ class Generator(object):
             msg = "Recursive '%s' loop detected." % configtools.include_key
             raise ParseError, msg
 
-        for row in t:
+        for row in mc.parseCommands():
             var = TemplateVar(row)
             if self.variables.has_key(var.key()):
                 # We've created a second TemplateVar so we use the same
