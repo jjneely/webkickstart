@@ -30,80 +30,59 @@ log = logging.getLogger("webks")
 class TemplateVar(object):
 
     def __init__(self, tokens):
-        if len(tokens) == 0:
-            msg = "Invalid row read from metaconfig file."
-            raise ParseError, msg
+        self.table = []
+        self.row = 0
+        self.append(tokens)
 
-        self.tokens = tokens
-
-    def verbatim(self):
-        return ' '.join(self.tokens)
-
+    def __iter__(self):
+    	return self
+    	
     def __str__(self):
         return self.verbatim()
 
     def __getitem__(self, idx):
-        return self.tokens[idx]
+        return self.tokens[self.row][idx]
 
     def __setitem__(self, idx, val):
-        pass
-
-    def key(self):
-        return self.tokens[0]
-
-    def options(self):
-        return self.tokens[1:]
-
-    def len(self):
-        return len(self.tokens[1:])
-
-
-class MetaTable(object):
-
-    """This is the object that the Cheetah template will have to
-       reference all the meta data from the metaconfig.  This needs to
-       be very easy to use and be realtively syntax clean so we don't
-       confuse folks with [[}(--): crap everywhere.
-
-       Even though we support multiple instances of the same key in a
-       metaconfig, we assume that for most cases the template author only
-       really wants the top level one.  (The primary config file overriding
-       the same key if found in include files lower down the include tree.)
-
-       So MetaTable['foo'] will always return a single TemplateVar.  Use
-       MetaTable.interate('foo') in a for loop to support multiple keys.
-    """
-
-    def __init__(self):
-        self.data = {}
-
-    def isDefined(self, key):
-        return self.data.has_key(key)
-
-    def getOptionLength(self, key):
-        if self.isDefined(key):
-            return len(self.data[key])
+        raise WebKickstartError, "Refusing to alter values from a metaconfig."
+        
+    def next(self):
+        if self.row >= len(self.table) - 1:
+            raise StopIteration
         else:
-            return None
+            self.row = self.row + 1
 
-    def interate(self, key):
-        if self.isDefined(key):
-            return self.data[key]
+    def reset(self):
+        self.row = 0
+    
+    def append(self, tokens):
+        if isinstance(tokens, []):
+            if len(tokens) == 0:
+                msg = "Refusing to add a list of 0 tokens."
+                raise ParseError, msg
+            self.table.append(tokens)
+
+        elif isinstance(tokens, ""):
+            self.table.append([tokens])
+
         else:
-            return []
-
-    def __getitem__(self, key):
-        return self.data[key][0]
-
-    def __setitem__(self, key, value):
-        if not isinstance(value, TemplateVar):
-            msg = "Non-TemplateVar class instance in MetaTable instance!"
+            msg = "Unsupported token type for TemplateVar class."
             raise WebKickstartError, msg
 
-        if self.data.has_key(key):
-            self.data[key].append(value)
-        else:
-            self.data[key] = [value]
+	def verbatim(self):
+        return ' '.join(self.tokens[self.row])
+
+    def key(self):
+        return self.tokens[self.row][0]
+
+    def options(self):
+        return self.tokens[self.row][1:]
+
+    def len(self):
+        return len(self.tokens[self.row][1:])
+
+    def records(self):
+        return len(self.tokens)
 
 
 class Generator(object):
@@ -111,8 +90,9 @@ class Generator(object):
     def __init__(self, profile, mc=None):
         self.profile = profile
         self.configs = []
-        self.variables = []          # an ordered list - the order we found
-                                     # the keys in
+        self.variables = {}     # The dictionary that is presented to the
+                                # cheetah template.  Order perserved in
+                                # the TemplateVar class.
 
         if mc != None:
             self.includeFile(mc)
@@ -149,10 +129,16 @@ class Generator(object):
         
         if mc in self.configs:
             msg = "Recursive '%s' loop detected." % configtools.include_key
-            raise errors.ParseError, msg
+            raise ParseError, msg
 
         for row in t:
-            self.variables.append(TemplateVar(row))
+            var = TemplateVar(row)
+            if self.variables.has_key(var.key()):
+                # We've created a second TemplateVar so we use the same
+                # code for figuring out what the key is.  Next, toss it.
+                self.variables[var.key()].append(row)
+            else:
+                self.variables[var.key()] = var
 
         self.configs.append(mc)
         
