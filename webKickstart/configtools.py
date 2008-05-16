@@ -84,7 +84,7 @@ class Configuration(object):
         if configDir:
             dir = configDir
         else:
-            dir = self.defaultConfig
+            dir = self.defaultDir
 
         file = os.path.join(dir, self.defaultFile)
 
@@ -112,7 +112,10 @@ class Configuration(object):
             return self.__cfg[self.__file].get('main', attr, 
                                                self.defaultCfg[attr])
         else:
-            return object.__getattr__(self, attr)
+            # __getattr__ is called after the normal ways of finding
+            # attrs.  So we know to end the whole mess here rather than
+            # munging self.__dict__
+            raise AttributeError, attr
 
     def __setattr__(self, attr, value):
         # For testing and more advanced configuration bits we need to
@@ -122,6 +125,8 @@ class Configuration(object):
         if attr in self.defaultCfg.keys():
             self.__cfg[self.__file].set('main', attr, value)
         else:
+            # __setattr__ is called on every attribute assignment.  Call the
+            # superclass method.
             return object.__setattr__(self, attr, value)
 
     def __initLogging(self, file=None, level=1):

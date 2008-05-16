@@ -20,8 +20,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 
-import configtools
+# Pythong imports
+import logging
+from types import *
 
+# WebKickstart imports
+import configtools
 from metaparser import MetaParser
 from errors import *
 
@@ -33,6 +37,10 @@ class TemplateVar(object):
         self.table = []
         self.row = 0
         self.append(tokens)
+
+        # For the iterator, we need to know if this is the inital
+        # creation/data row.  
+        self._flag = 1
 
     def __iter__(self):
     	return self
@@ -47,42 +55,46 @@ class TemplateVar(object):
         raise WebKickstartError, "Refusing to alter values from a metaconfig."
         
     def next(self):
-        if self.row >= len(self.table) - 1:
-            raise StopIteration
+        if self._flag == 1:
+            self._flag = 0
         else:
             self.row = self.row + 1
+
+        if self.row >= len(self.table):
+            self.reset()
+            raise StopIteration
 
     def reset(self):
         self.row = 0
     
     def append(self, tokens):
-        if isinstance(tokens, []):
+        if isinstance(tokens, ListType):
             if len(tokens) == 0:
                 msg = "Refusing to add a list of 0 tokens."
                 raise ParseError, msg
             self.table.append(tokens)
 
-        elif isinstance(tokens, ""):
+        elif isinstance(tokens, StringType):
             self.table.append([tokens])
 
         else:
             msg = "Unsupported token type for TemplateVar class."
             raise WebKickstartError, msg
 
-	def verbatim(self):
-        return ' '.join(self.tokens[self.row])
+    def verbatim(self):
+        return ' '.join(self.table[self.row])
 
     def key(self):
-        return self.tokens[self.row][0]
+        return self.table[self.row][0]
 
     def options(self):
-        return self.tokens[self.row][1:]
+        return self.table[self.row][1:]
 
     def len(self):
-        return len(self.tokens[self.row][1:])
+        return len(self.table[self.row][1:])
 
     def records(self):
-        return len(self.tokens)
+        return len(self.table)
 
 
 class Generator(object):

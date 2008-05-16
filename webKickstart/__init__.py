@@ -35,13 +35,7 @@ import os.path
 
 log = logging.getLogger("webks")
 
-# Setup the configuration bits
-if configtools.config == None: 
-    configtools.config = configtools.Configuration()
-
 class webKickstart(object):
-
-    cfg = configtools.config
 
     def __init__(self, url, headers):
         # set up url from reinstalls
@@ -49,9 +43,11 @@ class webKickstart(object):
         # client's headers
         self.headers = headers
 
-        if self.cfg == None:
+        if configtools.config == None:
             self.cfg = configtools.Configuration()
-            configtools.config = self.cfg
+            configtools.config == self.cfg
+        else:
+            self.cfg = configtools.config
 
     def __getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
