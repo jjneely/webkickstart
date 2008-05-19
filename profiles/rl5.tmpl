@@ -1,0 +1,235 @@
+lang en_US
+
+install
+network --bootproto dhcp
+url --url http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64
+
+repo --name=WebKickstartRepo0 --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/x86_64
+
+zerombr
+clearpart --all
+
+part /boot --size 512
+part pv.00 --fstype=LVM --size 18432 --grow
+volgroup Volume00 pv.00
+logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
+logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
+logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
+logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
+
+selinux --disabled
+timezone US/Eastern
+keyboard us
+reboot
+firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
+
+auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablecache --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
+xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
+bootloader --location mbr --md5pass xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+rootpw --iscrypted xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+%packages
+@ realmlinux-base
+@ realmlinux-devel
+@ authoring-and-publishing
+@ editors
+@ engineering-and-scientific
+@ games
+@ graphical-internet
+@ graphics
+@ office
+@ sound-and-video
+@ text-internet
+@ gnome-desktop
+@ kde-desktop
+@ development-libs
+@ development-tools
+@ gnome-software-development
+@ java-development
+@ kde-software-development
+@ legacy-software-development
+@ ruby
+@ x-software-development
+@ admin-tools
+@ java
+@ legacy-software-support
+@ system-tools
+@ base-x
+-logwatch
+-yum-updatesd
+
+
+%post
+# Let's make DNS work
+cat << EOF > /etc/resolv.conf
+nameserver 152.1.1.206
+nameserver 152.1.1.161
+EOF
+
+# Make available the ethernet interface we are using
+# ksdevice may == 'link' so lets just grab the goods from the route table
+KSDEVICE=`/sbin/route -n | awk '/^0.0.0.0/ { print $8 }'`
+if [ "$KSDEVICE" = "" ]; then 
+    KSDEVICE=eth0
+fi
+
+# Want a /.version file.
+echo "Kickstarted `/bin/date +%D`" > /.version
+rpm -qa | sort >> /.version
+
+# make startup non-interactive
+mv /etc/sysconfig/init /etc/sysconfig/init~
+sed 's/^PROMPT=yes$/PROMPT=no/' < /etc/sysconfig/init~ > /etc/sysconfig/init
+rm /etc/sysconfig/init~
+
+# fix /etc/hosts still
+(grep -v localhost /etc/hosts ; echo "127.0.0.1 localhost.localdomain   localhost") > /etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+#so apropos works
+/usr/sbin/makewhatis >/dev/null 2>&1 || :
+
+
+# updates
+realmconfig --kickstart updates --enable-updates
+
+
+# turn off audit and wax any logs
+chkconfig auditd off
+rm -rf /var/log/audit
+rm -rf /var/log/audit.d/*
+
+
+#set up a reinstall image
+mkdir -p /boot/install
+cd /boot/install
+if [ ! -f vmlinuz ] ; then
+    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64/isolinux/vmlinuz
+fi
+if [ ! -f initrd.img ] ; then
+    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64/isolinux/initrd.img
+fi
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=http://foo.bar ramdisk_size=8192 noshell noipv6 ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img
+
+cat << EOF > /root/.k5login
+alan/root@EOS.NCSU.EDU
+arkurth/root@EOS.NCSU.EDU
+brabec/root@EOS.NCSU.EDU
+charles/root@EOS.NCSU.EDU
+chking/root@EOS.NCSU.EDU
+darapple/root@EOS.NCSU.EDU
+djgreen/root@EOS.NCSU.EDU
+dlcarraw/root@EOS.NCSU.EDU
+fapeeler/root@EOS.NCSU.EDU
+gsgatlin/root@EOS.NCSU.EDU
+hmn/root@EOS.NCSU.EDU
+jaklein/root@EOS.NCSU.EDU
+jjneely/root@EOS.NCSU.EDU
+jrwells/root@EOS.NCSU.EDU
+ldosbor2/root@EOS.NCSU.EDU
+libby/root@EOS.NCSU.EDU
+macolon/root@EOS.NCSU.EDU
+nbmccork/root@EOS.NCSU.EDU
+pevans/root@EOS.NCSU.EDU
+ptwillia/root@EOS.NCSU.EDU
+sfcallic/root@EOS.NCSU.EDU
+ststewar/root@EOS.NCSU.EDU
+tbyron/root@EOS.NCSU.EDU
+tkl/root@EOS.NCSU.EDU
+tmfarwig/root@EOS.NCSU.EDU
+tpgrimes/root@EOS.NCSU.EDU
+tsgurgan/root@EOS.NCSU.EDU
+twk/root@EOS.NCSU.EDU
+wsetzer/root@EOS.NCSU.EDU
+EOF
+chmod 400 /root/.k5login
+
+cat << EOF >> /etc/sudoers
+alan  ALL=(ALL) ALL
+arkurth  ALL=(ALL) ALL
+brabec  ALL=(ALL) ALL
+charles  ALL=(ALL) ALL
+chking  ALL=(ALL) ALL
+darapple  ALL=(ALL) ALL
+djgreen  ALL=(ALL) ALL
+dlcarraw  ALL=(ALL) ALL
+fapeeler  ALL=(ALL) ALL
+gsgatlin  ALL=(ALL) ALL
+hmn  ALL=(ALL) ALL
+jaklein  ALL=(ALL) ALL
+jjneely  ALL=(ALL) ALL
+jrwells  ALL=(ALL) ALL
+ldosbor2  ALL=(ALL) ALL
+libby  ALL=(ALL) ALL
+macolon  ALL=(ALL) ALL
+nbmccork  ALL=(ALL) ALL
+pevans  ALL=(ALL) ALL
+ptwillia  ALL=(ALL) ALL
+sfcallic  ALL=(ALL) ALL
+ststewar  ALL=(ALL) ALL
+tbyron  ALL=(ALL) ALL
+tkl  ALL=(ALL) ALL
+tmfarwig  ALL=(ALL) ALL
+tpgrimes  ALL=(ALL) ALL
+tsgurgan  ALL=(ALL) ALL
+twk  ALL=(ALL) ALL
+wsetzer  ALL=(ALL) ALL
+EOF
+chmod 400 /etc/sudoers
+
+realmconfig --kickstart auth --users alan,arkurth,brabec,charles,chking,darapple,djgreen,dlcarraw,fapeeler,gsgatlin,hmn,jaklein,jjneely,jrwells,ldosbor2,libby,macolon,nbmccork,pevans,ptwillia,sfcallic,ststewar,tbyron,tkl,tmfarwig,tpgrimes,tsgurgan,twk,wsetzer
+
+
+realmconfig --kickstart sendmail --disable-daemon --masquerade unity.ncsu.edu
+
+# disable login on the console for non-local users
+# RL4.4 and below don't have this code so we need to case that out
+if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
+    mv /etc/pam.d/login /etc/pam.d/login~
+    sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
+    rm /etc/pam.d/login~
+fi
+
+realmconfig --kickstart tmpclean --enable-tmpclean
+realmconfig --kickstart clusters --local-enable ncsu
+realmconfig --kickstart clusters --remote-disable
+realmconfig --kickstart dept --set ncsu
+realmconfig --kickstart printing --default lp
+realmconfig --kickstart support --enable-support
+
+# The registration program's not smart enough to figure out the host name
+# with out this the profile reads "localhost.localdomain"
+FQDN="linux00bld.unity.ncsu.edu"
+/usr/sbin/rhnreg_ks --activationkey 6ed40e5c831bd8a8d706f0abe8f44f09 --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+# Import the RPM GPG keys
+if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
+    /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
+fi
+if [ -f /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release ] ; then
+    /bin/rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+fi
+if [ -f /usr/share/realmconfig/realmkit.gpg ] ; then
+    /bin/rpm --import /usr/share/realmconfig/realmkit.gpg
+fi
+if [ -f /usr/share/realmconfig/data/realmkit.gpg ] ; then
+    /bin/rpm --import /usr/share/realmconfig/data/realmkit.gpg
+fi
+
+# Set Up2Date Configuration
+if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
+    /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
+fi
+
+# Run Yum update
+chvt 3
+/usr/bin/yum -y update yum
+/usr/bin/yum -y update
+chvt 1
+# Final Fixes for RHEL 5
+# Fix for Red Hat Bug #236669
+mv /etc/nsswitch.conf /etc/nsswitch.conf~
+cat /etc/nsswitch.conf~ | sed 's/^protocols.*files ldap/protocols:  files/'         > /etc/nsswitch.conf
+rm -f /etc/nsswitch.conf~
+
+# The following scripts provided by the Jump Start confgs.
+
+
