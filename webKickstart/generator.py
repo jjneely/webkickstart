@@ -24,6 +24,9 @@
 import logging
 from types import *
 
+# Cheetah
+from Cheetah.Template import Template
+
 # WebKickstart imports
 import configtools
 from metaparser import MetaParser
@@ -115,10 +118,21 @@ class Generator(object):
             self.configs.append(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
 
-    def makeKS(self):
-        # return a string of a Red Hat Kickstart
-        template = configtools.config.getTemplate(self.profile)
-        return ""
+    def makeKickstart(self):
+        """Return a string of a Red Hat Kickstart."""
+
+        file = configtools.config.getTemplate(self.profile)
+
+        if file == None:
+            msg = "Profile '%s' from the '%s' key does not exist."
+            msg = msg % (self.profile, configtools.config.profile_key)
+            raise WebKickstartError, msg
+
+        compiled = Template(file=file)
+        # We need to cache the compiled templates and check if they've
+        # changed on disk
+        compiled.__dict__.update(self.variables)
+        return compiled.respond()
 
     def __handleIncludes(self, mc, key):
         """Handle recursive includes"""

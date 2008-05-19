@@ -27,6 +27,8 @@ import os
 import os.path
 import errors
 
+log = logging.getLogger('webks')
+
 # New config file notes:
 # [main] section:
 # logfile, loglevel
