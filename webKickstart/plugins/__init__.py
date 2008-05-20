@@ -24,7 +24,7 @@ import os.path
 import logging
 
 # Make the TemplateVar avaiable as plugins will need it
-from webKickstart.generator import TemplateVar
+from webKickstart.templatevar import TemplateVar
 
 log = logging.getLogger('webks')
 
@@ -54,7 +54,7 @@ def getModules():
     modules = {}
     path = os.path.dirname(__file__)
 
-    log.debug("Loading admin modules from path: %s" % path)
+    log.debug("Loading WebKickstart plugins from path: %s" % path)
 
     files = os.listdir(path)
     for file in files:
@@ -81,7 +81,7 @@ def getModules():
             if obj is WebKickstartPlugin:
                 continue
             
-            modules[m] = obj()
+            modules[m] = obj
 
     return modules
 

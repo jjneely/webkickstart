@@ -29,78 +29,12 @@ from Cheetah.Template import Template
 
 # WebKickstart imports
 import configtools
+import plugins
 from metaparser import MetaParser
 from errors import *
+from templatevar import TemplateVar
 
 log = logging.getLogger("webks")
-
-class TemplateVar(object):
-
-    def __init__(self, tokens):
-        self.table = []
-        self.row = 0
-        self.append(tokens)
-
-        # For the iterator, we need to know if this is the inital
-        # creation/data row.  
-        self._flag = 1
-
-    def __iter__(self):
-    	return self
-    	
-    def __str__(self):
-        return self.verbatim()
-
-    def __getitem__(self, idx):
-        return self.tokens[self.row][idx]
-
-    def __setitem__(self, idx, val):
-        raise WebKickstartError, "Refusing to alter values from a metaconfig."
-        
-    def next(self):
-        if self._flag == 1:
-            self._flag = 0
-        else:
-            self.row = self.row + 1
-
-        if self.row >= len(self.table):
-            self.reset()
-            raise StopIteration
-
-        return self
-
-    def reset(self):
-        self.row = 0
-    
-    def append(self, tokens):
-        if isinstance(tokens, ListType):
-            if len(tokens) == 0:
-                msg = "Refusing to add a list of 0 tokens."
-                raise ParseError, msg
-            self.table.append(tokens)
-
-        elif isinstance(tokens, StringType):
-            self.table.append([tokens])
-
-        else:
-            msg = "Unsupported token type for TemplateVar class."
-            raise WebKickstartError, msg
-
-    def verbatim(self):
-        return ' '.join(self.table[self.row])
-
-    def key(self):
-        return self.table[self.row][0]
-
-    def options(self):
-        return self.table[self.row][1:]
-
-    def len(self):
-        return len(self.table[self.row][1:])
-
-    def records(self):
-        return len(self.table)
-
 
 class Generator(object):
 
@@ -128,6 +62,8 @@ class Generator(object):
             msg = msg % (self.profile, configtools.config.profile_key)
             raise WebKickstartError, msg
 
+        self.runPlugins()
+
         log.debug("Loading template file: %s" % file)
         log.debug("Template vars: %s" % str(self.variables))
         built = Template.compile(file=file)
@@ -136,6 +72,33 @@ class Generator(object):
         # changed on disk
         s = str(built(namespaces=[self.variables]))
         return s
+
+    def runPlugins(self):
+        mods = plugins.getModules()
+        requestedPlugins = configtools.config.getPlugins(self.profile)
+
+        for p in requestedPlugins:
+            if not mods.has_key(p):
+                log.error("Could not find plugin: %s" % p)
+                continue
+
+            try:
+                obj = mods[p](self.variables)
+                newvars = obj.run()
+            except WebKickstartError, e:
+                # User plugin raised a WebKickstart exception...we assume
+                # this is what they want to do
+                raise
+            except Exception, e:
+                # Radom error...eat it and continue
+                log.error("Exception during execution of plugin: %s" % p)
+                log.error('\t' + str(e))
+
+            if isinstance(newvars, dict):
+                self.variables = newvars
+            else:
+                log.error("Plugin return non-dictionary.")
+                log.error("Ignoring plugin: %s" % p)
 
     def __handleIncludes(self, mc, key):
         """Handle recursive includes"""

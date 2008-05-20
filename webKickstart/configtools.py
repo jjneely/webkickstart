@@ -105,6 +105,7 @@ class Configuration(object):
         self.reload()
 
         self.__initLogging()
+        log.debug("Using configuration file: %s" % self.__file)
 
     def __getattr__(self, attr):
         # Override the default getattr behavior to pull info from
@@ -156,12 +157,23 @@ class Configuration(object):
         if file == None: file = self.__file
 
         mtime = os.stat(file).st_mtime
-        if mtime > self.__mtime[file]:
+        if not self.__mtime.has_key(file) or mtime > self.__mtime[file]:
             self.reload(file)
 
     def getPlugins(self, profile):
         # Return a list of plugins used for the given profile
-        pass
+        self.__checkConfig()
+        if not self.__cfg[self.__file].has_section(profile):
+            raise errors.ConfigError, "Profile '%s' not defined." % profile
+
+        # Use the supplied defaults
+        if  self.__cfg[self.__file].has_section('default'):
+            line = self.__cfg[self.__file].get('default', 'plugins', '')
+        else:
+            line = ""
+
+        line = self.__cfg[self.__file].get(profile, 'plugins', line)
+        return line.split()
 
     def getPluginConf(self, plugin):
         # Return a Parser() object with the config file for this plugin
