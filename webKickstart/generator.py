@@ -128,11 +128,14 @@ class Generator(object):
             msg = msg % (self.profile, configtools.config.profile_key)
             raise WebKickstartError, msg
 
-        compiled = Template(file=file)
+        log.debug("Loading template file: %s" % file)
+        log.debug("Template vars: %s" % str(self.variables))
+        built = Template.compile(file=file)
+        log.debug(type(built))
         # We need to cache the compiled templates and check if they've
         # changed on disk
-        compiled.__dict__.update(self.variables)
-        return compiled.respond()
+        s = str(built(namespaces=[self.variables]))
+        return s
 
     def __handleIncludes(self, mc, key):
         """Handle recursive includes"""
