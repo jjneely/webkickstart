@@ -83,6 +83,7 @@ class Generator(object):
                 continue
 
             try:
+                log.debug("Running plugin: %s" % p)
                 obj = mods[p](self.variables)
                 newvars = obj.run()
             except WebKickstartError, e:

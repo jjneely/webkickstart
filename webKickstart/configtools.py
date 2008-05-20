@@ -160,11 +160,15 @@ class Configuration(object):
         if not self.__mtime.has_key(file) or mtime > self.__mtime[file]:
             self.reload(file)
 
-    def getPlugins(self, profile):
-        # Return a list of plugins used for the given profile
+    def __getProfileInfo(self, profile, option):
         self.__checkConfig()
         if not self.__cfg[self.__file].has_section(profile):
             raise errors.ConfigError, "Profile '%s' not defined." % profile
+
+        # Include an enable flag
+        enabled = self.__cfg[self.__file].get(profile, 'enable', '0')
+        if enabled.lower() not in ['1', 'yes', 'true']:
+            raise errors.ConfigError, "Profile '%s' not enabled." % profile
 
         # Use the supplied defaults
         if  self.__cfg[self.__file].has_section('default'):
@@ -173,7 +177,11 @@ class Configuration(object):
             line = ""
 
         line = self.__cfg[self.__file].get(profile, 'plugins', line)
-        return line.split()
+        return line
+
+    def getPlugins(self, profile):
+        # Return a list of plugins used for the given profile
+        return self.__getProfileInfo(profile, "plugins").split()
 
     def getPluginConf(self, plugin):
         # Return a Parser() object with the config file for this plugin
