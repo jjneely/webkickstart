@@ -1,4 +1,8 @@
+#if $varExists('lang')
+$lang
+#else
 lang en_US
+#end if
 
 install
 network --bootproto dhcp
