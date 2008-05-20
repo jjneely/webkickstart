@@ -41,7 +41,7 @@ EOF
 # Make available the ethernet interface we are using
 # ksdevice may == 'link' so lets just grab the goods from the route table
 KSDEVICE=`/sbin/route -n | awk '/^0.0.0.0/ { print $8 }'`
-if [ "$KSDEVICE" = "" ]; then 
+if [ "\$KSDEVICE" = "" ]; then 
     KSDEVICE=eth0
 fi
 
@@ -71,7 +71,7 @@ rm -rf /var/log/audit
 rm -rf /var/log/audit.d/*
 
 
-#set up a reinstall image
+# set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
 if [ ! -f vmlinuz ] ; then
@@ -80,7 +80,7 @@ fi
 if [ ! -f initrd.img ] ; then
     wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.6/x86_64/isolinux/initrd.img
 fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=http://foo.bar ramdisk_size=8192 noshell noipv6 ksdevice=$KSDEVICE" --initrd=/boot/install/initrd.img
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=http://foo.bar ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" --initrd=/boot/install/initrd.img
 
 cat << EOF > /root/.k5login
 alan/root@EOS.NCSU.EDU
@@ -171,7 +171,7 @@ realmconfig --kickstart support --enable-support
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
 FQDN="linux00bld.unity.ncsu.edu"
-/usr/sbin/rhnreg_ks --activationkey 6ed40e5c831bd8a8d706f0abe8f44f09 --profilename $FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+/usr/sbin/rhnreg_ks --activationkey 6ed40e5c831bd8a8d706f0abe8f44f09 --profilename \$FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
 # Import the RPM GPG keys
 if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
     /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
