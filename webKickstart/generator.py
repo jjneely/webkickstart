@@ -21,7 +21,10 @@
 # along with this program; if not, write to the Free Software
 
 # Pythong imports
+import os
 import logging
+#from threading import Lock  # Locking for the cache?
+                             # XXX: See if this is required
 from types import *
 
 # Cheetah
@@ -38,6 +41,8 @@ log = logging.getLogger("webks")
 
 class Generator(object):
 
+    templateCache = {}
+
     def __init__(self, profile, mc=None):
         assert configtools.config != None
 
@@ -48,8 +53,7 @@ class Generator(object):
                                 # the TemplateVar class.
 
         if mc != None:
-            self.includeFile(mc)
-            self.configs.append(mc)
+            self.__includeFile(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
 
     def makeKickstart(self):
@@ -61,15 +65,14 @@ class Generator(object):
             msg = "Profile '%s' from the '%s' key does not exist."
             msg = msg % (self.profile, configtools.config.profile_key)
             raise WebKickstartError, msg
-
+    
+        self.buildPostVar()
         self.runPlugins()
 
         log.debug("Loading template file: %s" % file)
         log.debug("Template vars: %s" % str(self.variables))
-        built = Template.compile(file=file)
-        log.debug(type(built))
-        # We need to cache the compiled templates and check if they've
-        # changed on disk
+        built = self.__getCachedTemplate(file)
+    
         s = str(built(namespaces=[self.variables]))
         return s
 
@@ -101,6 +104,35 @@ class Generator(object):
                 log.error("Plugin return non-dictionary.")
                 log.error("Ignoring plugin: %s" % p)
 
+    def buildPostVar(self):
+        # Attach %posts found in config files
+        key = "WebKickstartScripts"
+
+        scriptlist = []
+        for mc in self.configs:
+            scriptlist.extend(mc.getPosts())
+
+        scriptlist.reverse()
+        if len(scriptlist) > 0:
+            tv = TemplateVar([key, scriptlist[0]])
+        else:
+            return # We are done -- no extra scripts
+
+        for script in scriptlist[1:]:
+            tv.append([key, script])
+
+        self.variables[tv.key()] = tv
+
+    def __getCachedTemplate(self, file):
+        # We check for file's existance in configtools
+        mtime = os.stat(file).st_mtime
+
+        if not self.templateCache.has_key(file) or \
+               mtime > self.templateCache[file][0]:
+            self.templateCache[file] = (mtime, Template.compile(file=file))
+
+        return self.templateCache[file][1]
+
     def __handleIncludes(self, mc, key):
         """Handle recursive includes"""
         configs = []
@@ -115,13 +147,13 @@ class Generator(object):
                     configs.append(tmp_mc)
 
         # This is a change in the order of webkickstart metaconfig file
-        # processing.  This is now width first!!
+        # processing.  This is now depth first!!
         for tmp_mc in configs:
-            self.includeFile(tmp_mc)
+            self.__includeFile(tmp_mc)
             self.__handleIncludes(tmp_mc, key)
 
 
-    def includeFile(self, mc):
+    def __includeFile(self, mc):
         """Parse a solarisConfig object."""
         
         if mc in self.configs:
