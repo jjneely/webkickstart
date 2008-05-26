@@ -87,6 +87,9 @@ class TemplateVar(object):
     def key(self):
         return self.table[self.row][0]
 
+    def verbatimOptions(self):
+        return ' '.join(self.options())
+
     def options(self):
         return self.table[self.row][1:]
 
