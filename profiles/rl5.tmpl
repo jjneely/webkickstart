@@ -4,15 +4,63 @@ $lang
 lang en_US
 #end if
 
+#if $varExists('cmdline')
+cmdline
+#end if
 install
 network --bootproto dhcp
 url --url http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64
 
-repo --name=WebKickstartRepo0 --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/x86_64
+repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/x86_64
+#if $varExists('repo')
+#for $r in $repo
+$r
+#end for
+#end if
 
+#if $varExists('vnc')
+$vnc
+#end if
+#if $varExists('ignoredisk')
+$ignoredisk
+#end if
+#if $varExists('multipath')
+$multipath
+#end if
+#if $varExists('logging')
+$logging
+#end if
+
+#if not $varExists('skippartition')
 zerombr
+#if $varExists('clearpart')
+$clearpart
+#else if $varExists('enable.safepartition')
+clearpart --linux
+#else
 clearpart --all
+#end if
 
+#if $varExists('part')
+#for $p in $part
+$p
+#end for
+#if $varExists('raid')
+#for $r in $raid
+$r
+#end for
+#end if
+#if $varExists('volgroup')
+#for $v in $volgroup
+$v
+#end for
+#end if
+#if $varExists('logvol')
+#for $l in $logvol
+$l
+#end for
+#end if
+#else
 part /boot --size 512
 part pv.00 --fstype=LVM --size 18432 --grow
 volgroup Volume00 pv.00
@@ -20,17 +68,41 @@ logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
 logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
 logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
 logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
+#end if
+#end if
 
+#if $varExists('selinux')
+$selinux
+#else
 selinux --disabled
+#end if
 timezone US/Eastern
 keyboard us
 reboot
+
+#if $varExists('enable.nofirewall')
+firewall --disabled
+#else if $varExists('firewall')
+$firewall
+#else
 firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
+#end if
 
 auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablecache --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
+
+#if $varExists('enable.nox') or $varExists('skipx')
+skipx
+#else if $varExists('xconfig')
+$xconfig
+#else
 xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
-bootloader --location mbr --md5pass xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-rootpw --iscrypted xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#end if
+
+#if not $varExists('rootpw')
+#silent raise ParseError, "Root password not set"
+#end if
+bootloader --location mbr --md5pass $rootpw[1]
+rootpw --iscrypted $rootpw[1]
 
 %packages
 @ realmlinux-base

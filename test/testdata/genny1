@@ -3,6 +3,7 @@ version mark1
 foo bar baz
 enable nox
 enable adminusers jjneely tkl bob
+rootpw foobarbaz
 
 %post
 echo "the king is a lard" >> /tmp/king
