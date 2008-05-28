@@ -101,10 +101,15 @@ xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboo
 #if not $varExists('rootpw')
 #silent raise ParseError, "Root password not set"
 #end if
-bootloader --location mbr --md5pass $rootpw[1]
-rootpw --iscrypted $rootpw[1]
+bootloader --location mbr --md5pass $rootpw.verbatimOptions()
+rootpw --iscrypted $rootpw.verbatimOptions()
 
 %packages
+#if $varExists('package')
+#for $p in $package
+$p
+#end for
+#else
 @ realmlinux-base
 @ realmlinux-devel
 @ authoring-and-publishing
@@ -133,7 +138,7 @@ rootpw --iscrypted $rootpw[1]
 @ base-x
 -logwatch
 -yum-updatesd
-
+#end if
 
 %post
 # Let's make DNS work
@@ -308,4 +313,7 @@ rm -f /etc/nsswitch.conf~
 
 # The following scripts provided by the Jump Start confgs.
 
+#for $script in $WebKickstartScripts
+$script.verbatimOptions()
+#end for
 
