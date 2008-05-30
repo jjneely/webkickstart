@@ -102,12 +102,16 @@ class webKickstart(object):
             return self.__getKS(host, debug)
     
         except WebKickstartError, e:
-            s = "# An error occured while Web-Kickstart was running.\n"
-            s = "%s# The error is: %s" % (s, str(e))
+            s = "An error occured while Web-Kickstart was running.\n"
+            s = "%sThe error is:\n%s" % (s, str(e))
 
-            log.warning(s)
+            text = ""
+            for line in s.split('\n'):
+                text = "%s# %s\n" % (text, line)
 
-            return (42, s)
+            log.warning(text)
+
+            return (42, text)
             
         except:
             text = traceback.format_exception(sys.exc_type,
