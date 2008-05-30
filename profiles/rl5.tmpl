@@ -1,3 +1,8 @@
+#set $tree = "http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1"
+#set $arch = "x86_64"
+#set $kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
+#set $installtree = $tree + "/" + $arch
+
 #if $varExists('lang')
 $lang
 #else
@@ -9,9 +14,9 @@ cmdline
 #end if
 install
 network --bootproto dhcp
-url --url http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64
+url --url $installtree
 
-repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/x86_64
+repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/$arch
 #if $varExists('repo')
 #for $r in $repo
 $r
@@ -104,6 +109,12 @@ xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboo
 bootloader --location mbr --md5pass $rootpw.verbatimOptions()
 rootpw --iscrypted $rootpw.verbatimOptions()
 
+#if $varExists('include')
+#for $i in $include
+%include $i.verbatimOptions()
+#end for
+#end if
+
 %packages
 #if $varExists('package')
 #for $p in $package
@@ -169,27 +180,26 @@ rm /etc/sysconfig/init~
 #so apropos works
 /usr/sbin/makewhatis >/dev/null 2>&1 || :
 
-
 # updates
 realmconfig --kickstart updates --enable-updates
-
 
 # turn off audit and wax any logs
 chkconfig auditd off
 rm -rf /var/log/audit
 rm -rf /var/log/audit.d/*
 
-
+#if not $varExists('enable.noreinstall')
 # set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
 if [ ! -f vmlinuz ] ; then
-    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64/isolinux/vmlinuz
+    wget $installtree/isolinux/vmlinuz
 fi
 if [ ! -f initrd.img ] ; then
-    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1/x86_64/isolinux/initrd.img
+    wget $installtree/isolinux/initrd.img
 fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=http://foo.bar ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" --initrd=/boot/install/initrd.img
+/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" --initrd=/boot/install/initrd.img
+#end if
 
 cat << EOF > /root/.k5login
 alan/root@EOS.NCSU.EDU
