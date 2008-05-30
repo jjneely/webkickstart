@@ -225,6 +225,11 @@ logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
 logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
 logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var</pre>
 </li>
+<li>05/30/08 -
+    Added more advanced error catching if there is an error when the lexical
+    parser reads the config file.  This will show the error message and the
+    line of the config file where the error occured.
+</li>
 </ul>
 
 </body>

@@ -157,6 +157,15 @@ class MetaParser(object):
         """Returns a list of parsed tokens from line number num in the
            commands section of the config file."""
         
+        def wraplex(l, source):
+            try:
+                return l.get_token()
+            except Exception, e:
+                msg = "Error Parsing:\n"
+                msg = "%s%s\n\n" % (msg, source.getvalue())
+                msg = "%sError message: %s" % (msg, str(e))
+                raise errors.ParseError, msg
+
         if num >= len(self.filecommands):
             return None
         
@@ -165,10 +174,10 @@ class MetaParser(object):
         lex.wordchars = lex.wordchars + "-./=$:@,+"
         ops = []
         
-        t = lex.get_token()
+        t = wraplex(lex, s)
         while not t == "":
             ops.append(self.__cleanToken(t))
-            t = lex.get_token()
+            t = wraplex(lex, s)
         
         return ops
         
