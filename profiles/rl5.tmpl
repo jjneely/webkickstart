@@ -312,9 +312,37 @@ chmod 400 /etc/sudoers
 
 realmconfig --kickstart auth --users alan,arkurth,brabec,charles,chking,darapple,djgreen,dlcarraw,fapeeler,gsgatlin,hmn,jaklein,jjneely,jrwells,ldosbor2,libby,macolon,nbmccork,pevans,ptwillia,sfcallic,ststewar,tbyron,tkl,tmfarwig,tpgrimes,tsgurgan,twk,wsetzer
 
+#if $varExists('enable.receivemail')
+#set $sendmaildaemon = "--enable-daemon"
+#else
+#set $sendmaildaemon = "--disable-daemon"
+#end if
+##
+#if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 1
+realmconfig --kickstart sendmail $sendmaildaemon \
+    --masquerade $enable.mailmasq[0]
+#else if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 0
+realmconfig --kickstart sendmail $sendmaildaemon --no-masq
+#else if $varExists('enable.mailmasq') and $enable.mailmasq.len() > 1
+#silent raise ParseError, "enable mailmasq accepts only 1 argument"
+#else
+realmconfig --kickstart sendmail $sendmaildaemon \
+    --masquerade unity.ncsu.edu
+#end if
 
-realmconfig --kickstart sendmail --disable-daemon --masquerade unity.ncsu.edu
+#if $varExists('owner')
+# Setup forwarding for root's mail
+cat << EOF >> /etc/aliases
+root:       $owner[0]
+EOF
+/usr/bin/newaliases
+#end if
 
+#if $varExists('enable.consolelogin')
+# Enable console login by non-local users
+# RL4.4 and below don't have this code, however this is the default anyway
+realmconfig --kickstart pamconf --enable-console-login || true
+#else
 # disable login on the console for non-local users
 # RL4.4 and below don't have this code so we need to case that out
 if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
@@ -322,10 +350,39 @@ if realmconfig --kickstart pamconf --disable-console-login | grep "No such modul
     sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
     rm /etc/pam.d/login~
 fi
+#end if
 
+#if not $varExists('enable.notempclean')
 realmconfig --kickstart tmpclean --enable-tmpclean
-realmconfig --kickstart clusters --local-enable ncsu
+#end if
+##
+#if not $varExists('enable.localcluster')
+#set $localcluster = "ncsu"
+#else if $enable.localcluster.len() == 0
+#set $localcluster = ""
+#else
+#set $localcluster = $enable.localcluster[0]
+#end if
+##
+#if not $varExists('enable.remotecluster')
+#set $remotecluster = "None"
+#else if $enable.remotecluster.len() == 0
+#set $remotecluster = ""
+#else
+#set $remotecluster = $enable.remotecluster[0]
+#end if
+##
+#if $localcluster == "None"
+realmconfig --kickstart clusters --local-disable
+#else
+realmconfig --kickstart clusters --local-enable $localcluster
+#end if
+##
+#if $remotecluster == "None"
 realmconfig --kickstart clusters --remote-disable
+#else
+realmconfig --kickstart clusters --remote-enable $remotecluster
+#end if
 realmconfig --kickstart dept --set ncsu
 realmconfig --kickstart printing --default lp
 realmconfig --kickstart support --enable-support
