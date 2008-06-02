@@ -5,6 +5,12 @@ enable nox
 enable adminusers jjneely tkl bob
 rootpw foobarbaz
 
+package @ Realm Linux Server
+package foo
+package -bar
+
 %post
 echo "the king is a lard" >> /tmp/king
+
+package @ Realm Linux Worstation
 

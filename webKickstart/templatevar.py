@@ -23,6 +23,7 @@
 # Pythong imports
 from types import *
 import logging
+import re
 
 # WebKickstart imports
 from errors import *
@@ -34,6 +35,7 @@ class TemplateVar(object):
     def __init__(self, tokens):
         self.table = []
         self.row = 0
+        self.regex = {}     # regular expression cache
         self.append(tokens)
 
         # For the iterator, we need to know if this is the inital
@@ -98,4 +100,20 @@ class TemplateVar(object):
 
     def records(self):
         return len(self.table)
+
+    def match(self, regex):
+        """Match the provided regex against self.verbatimOptions().
+           We return a MatchObject on success, or None on failure.
+           This can be used like so for the simple case:
+
+              #if foo.match('bob.*sue')
+
+           using Cheetah synatx
+        """
+
+        if not self.regex.has_key(regex):
+            self.regex[regex] = re.compile(regex)
+
+        c = self.regex[regex]
+        return c.match(self.verbatimOptions())
 

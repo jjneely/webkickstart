@@ -118,7 +118,50 @@ rootpw --iscrypted $rootpw.verbatimOptions()
 %packages
 #if $varExists('package')
 #for $p in $package
-$p
+#if $p.match('@.*[Rr]ealm.*[Ss]erver$')
+@ realmlinux-base
+@ editors
+@ base
+@ text-internet
+@ legacy-software-support
+@ system-tools
+@ admin-tools
+@ base-x
+@ java
+- logwatch
+- yum-updatesd
+#else if $p.match('@.*[Rr]ealm.*[Ww]orkstation$')
+@ realmlinux-base
+@ realmlinux-devel
+@ authoring-and-publishing
+@ editors
+@ engineering-and-scientific
+@ games
+@ graphical-internet
+@ graphics
+@ office
+@ sound-and-video
+@ text-internet
+@ gnome-desktop
+@ kde-desktop
+@ development-libs
+@ development-tools
+@ gnome-software-development
+@ java-development
+@ kde-software-development
+@ legacy-software-development
+@ ruby
+@ x-software-development
+@ admin-tools
+@ java
+@ legacy-software-support
+@ system-tools
+@ base-x
+-logwatch
+-yum-updatesd
+#else
+$p.verbatimOptions()
+#end if
 #end for
 #else
 @ realmlinux-base
