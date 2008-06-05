@@ -1,6 +1,7 @@
 #set $tree = "http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1"
 #set $arch = "x86_64"
 #set $kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
+#set $defaultActivation = "6ed40e5c831bd8a8d706f0abe8f44f09"
 #set $installtree = $tree + "/" + $arch
 
 #if $varExists('lang')
@@ -241,7 +242,11 @@ fi
 if [ ! -f initrd.img ] ; then
     wget $installtree/isolinux/initrd.img
 fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" --initrd=/boot/install/initrd.img
+/sbin/grubby --add-kernel=/boot/install/vmlinuz \
+   --title="Reinstall Workstation" \
+   --copy-default \
+   --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" \
+   --initrd=/boot/install/initrd.img
 #end if
 
 cat << EOF > /root/.k5login
@@ -358,10 +363,13 @@ realmconfig --kickstart tmpclean --enable-tmpclean
 ##
 #if not $varExists('enable.localcluster')
 #set $localcluster = "ncsu"
+# No LOCALCLUSTER
 #else if $enable.localcluster.len() == 0
 #set $localcluster = ""
+# LOCALCLUSTER set to ""
 #else
 #set $localcluster = $enable.localcluster[0]
+# LOCALCLUSTER set to $localcluster
 #end if
 ##
 #if not $varExists('enable.remotecluster')
@@ -383,14 +391,38 @@ realmconfig --kickstart clusters --remote-disable
 #else
 realmconfig --kickstart clusters --remote-enable $remotecluster
 #end if
+#if $varExists('dept')
+realmconfig --kickstart dept --set $dept.verbatimOptions()
+#else
 realmconfig --kickstart dept --set ncsu
+#end if
+#if $varExists('printer')
+realmconfig --kickstart printing --default $printer.verbatimOptions()
+#else
 realmconfig --kickstart printing --default lp
+#end if
+#if $varExists('enable.norealmcron')
+realmconfig --kickstart support --disable-support
+#else
 realmconfig --kickstart support --enable-support
+#end if
 
+#if $varExists('activationkey')
+#set $_akey = $activationkey[0]
+#else if $varExists('enable.activationkey')
+#set $_akey = $enable.activationkey[0]
+#else
+#set $_akey = $defaultActivation
+#end if
+#stop
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
-FQDN="linux00bld.unity.ncsu.edu"
-/usr/sbin/rhnreg_ks --activationkey 6ed40e5c831bd8a8d706f0abe8f44f09 --profilename \$FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+FQDN="$webKickstart.remoteHost"
+/usr/sbin/rhnreg_ks --activationkey $_akey        \
+    --profilename \$FQDN                          \
+    --serverUrl https://rhn.linux.ncsu.edu/XMLRPC \
+    --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+
 # Import the RPM GPG keys
 if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
     /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
@@ -415,15 +447,14 @@ chvt 3
 /usr/bin/yum -y update yum
 /usr/bin/yum -y update
 chvt 1
+
 # Final Fixes for RHEL 5
 # Fix for Red Hat Bug #236669
-mv /etc/nsswitch.conf /etc/nsswitch.conf~
-cat /etc/nsswitch.conf~ | sed 's/^protocols.*files ldap/protocols:  files/'         > /etc/nsswitch.conf
-rm -f /etc/nsswitch.conf~
+sed --in-place 's/^protocols.*files ldap/protocols:  files/' /etc/nsswitch.conf
 
 # The following scripts provided by the Jump Start confgs.
 
-#for $script in $WebKickstartScripts
+#for $script in $webKickstart.scripts
 $script.verbatimOptions()
-#end for
 
+#end for

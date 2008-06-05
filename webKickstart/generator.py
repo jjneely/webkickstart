@@ -56,7 +56,7 @@ class Generator(object):
             self.__includeFile(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
 
-    def makeKickstart(self):
+    def makeKickstart(self, fqdn):
         """Return a string of a Red Hat Kickstart."""
 
         file = configtools.config.getTemplate(self.profile)
@@ -66,6 +66,8 @@ class Generator(object):
             msg = msg % (self.profile, configtools.config.profile_key)
             raise WebKickstartError, msg
     
+        self.variables['webKickstart.remoteHost'] = \
+                TemplateVar('webKickstart.remoteHost %s' % fqdn)
         self.buildPostVar()
         self.runPlugins()
 
@@ -95,8 +97,11 @@ class Generator(object):
                 raise
             except Exception, e:
                 # Radom error...eat it and continue
+                # XXX: Need better logging of exception here
                 log.error("Exception during execution of plugin: %s" % p)
                 log.error('\t' + str(e))
+                #raise
+                continue
 
             if isinstance(newvars, dict):
                 self.variables = newvars
@@ -106,7 +111,7 @@ class Generator(object):
 
     def buildPostVar(self):
         # Attach %posts found in config files
-        key = "WebKickstartScripts"
+        key = "webKickstart.scripts"
 
         scriptlist = []
         for mc in self.configs:

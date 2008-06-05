@@ -55,7 +55,7 @@ class TestGenerator(object):
         mc = MetaParser(filename)
         gen = Generator(profile, mc)
         
-        print gen.makeKickstart()
+        print gen.makeKickstart(os.path.basename(filename))
 
 if __name__ == '__main__':
     #unittest.main()

@@ -47,20 +47,22 @@ class EnableParsePlugin(WebKickstartPlugin):
         if not self.variableDict.has_key('enable'):
             return self.variableDict
 
-        enables = self.variableDict['enable']
+        oldenables = self.variableDict['enable']
         del self.variableDict['enable']
+        enable = TemplateVar('enable')
 
-        for record in enables:
+        for record in oldenables:
             if record.len() >= 1:
-                options = record.options()
-                key = 'enable.%s' % options[0]
-                tokens = [key] + options[1:]
-                newvar = TemplateVar(tokens)
-
-                # A helper method to add variables to the dict
-                self.addVar(newvar)
+                if record.len() >= 2:
+                    value = record.options()[1:]
+                else:
+                    value = []
+                enable.setMember(record.options()[0], value)
             else:
                 raise ParseError, "Found 'enable' keyword with no arguments."
+
+        # A helper method to add variables to the variableDict
+        self.addVar(enable)
 
         return self.variableDict
 

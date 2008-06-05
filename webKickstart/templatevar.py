@@ -36,6 +36,8 @@ class TemplateVar(object):
         self.table = []
         self.row = 0
         self.regex = {}     # regular expression cache
+        self.members = {}   # Extra members that may have been added
+
         self.append(tokens)
 
         # For the iterator, we need to know if this is the inital
@@ -50,6 +52,12 @@ class TemplateVar(object):
 
     def __getitem__(self, idx):
         return self.table[self.row][idx]
+
+    def __getattr__(self, name):
+        if self.members.has_key(name):
+            return self.members[name]
+        else:
+            raise AttributeError, name
 
     def __setitem__(self, idx, val):
         raise WebKickstartError, "Refusing to alter values from a metaconfig."
@@ -72,11 +80,14 @@ class TemplateVar(object):
     def append(self, tokens):
         if isinstance(tokens, ListType):
             if len(tokens) == 0:
-                msg = "Refusing to add a list of 0 tokens."
+                msg = "Refusing to add a list of 0 tokens to TemplateVar."
                 raise ParseError, msg
             self.table.append(tokens)
 
         elif isinstance(tokens, StringType):
+            if tokens == "":
+                msg = "Refusing to add an empty token to TemplateVar."
+                raise ParseError, msg
             self.table.append([tokens])
 
         else:
@@ -116,4 +127,23 @@ class TemplateVar(object):
 
         c = self.regex[regex]
         return c.match(self.verbatimOptions())
+
+    def setMember(self, member, value):
+        """Sets a member that can be accessed via foo.<member> where
+           foo is an instance of TemplateVar.  foo.<member> is assigned
+           a value of value which must be a string."""
+
+        if isinstance(value, StringType):
+            tokens = [member, value]
+        elif isinstance(value, ListType):
+            tokens = [member] + value
+        else:
+            msg = "setMamber()'s value must be a list of strings or a string."
+            raise WebKickstartError, msg
+
+        # How crazy is this?
+        var = TemplateVar(tokens)
+        self.members[member] = var
+        log.debug("Created member of '%s' with: %s" % \
+                (self.key(), str(var.table)))
 

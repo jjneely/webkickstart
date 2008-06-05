@@ -9,6 +9,10 @@ package @ Realm Linux Server
 package foo
 package -bar
 
+enable localcluster pams
+enable remotecluster pams
+enable nofirewall
+
 %post
 echo "the king is a lard" >> /tmp/king
 
