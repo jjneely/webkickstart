@@ -18,3 +18,11 @@ echo "the king is a lard" >> /tmp/king
 
 package @ Realm Linux Worstation
 
+%post
+rpm -qa
+
+%post --interperter /usr/bin/python
+# however you spell that
+
+print "Damnit!"
+

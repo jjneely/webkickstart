@@ -65,9 +65,11 @@ class Generator(object):
             msg = "Profile '%s' from the '%s' key does not exist."
             msg = msg % (self.profile, configtools.config.profile_key)
             raise WebKickstartError, msg
-    
-        self.variables['webKickstart.remoteHost'] = \
-                TemplateVar('webKickstart.remoteHost %s' % fqdn)
+   
+        # webkickstart namespace
+        self.variables['webKickstart'] = TemplateVar('webKickstart')
+        self.variables['webKickstart'].setMember('remoteHost', fqdn)
+
         self.buildPostVar()
         self.runPlugins()
 
@@ -111,22 +113,27 @@ class Generator(object):
 
     def buildPostVar(self):
         # Attach %posts found in config files
-        key = "webKickstart.scripts"
-
         scriptlist = []
         for mc in self.configs:
             scriptlist.extend(mc.getPosts())
 
         scriptlist.reverse()
-        if len(scriptlist) > 0:
-            tv = TemplateVar([key, scriptlist[0]])
-        else:
-            return # We are done -- no extra scripts
+        webks = self.variables['webKickstart']
+        if len(scriptlist) == 0:
+            webks.setMember('scripts', '')
+            return # No scripts
 
-        for script in scriptlist[1:]:
-            tv.append([key, script])
+        for script in scriptlist:
+            if webks.hasMember('scripts'):
+                webks.scripts.append(script)
+            else:
+                webks.setMember('scripts', script)
 
-        self.variables[tv.key()] = tv
+        log.debug("SCRIPTS!!")
+        log.debug(str(webks.scripts.table))
+
+        for script in webks.scripts:
+            log.debug("Interating: %s" % str(script))
 
     def __getCachedTemplate(self, file):
         # We check for file's existance in configtools

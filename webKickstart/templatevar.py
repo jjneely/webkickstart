@@ -144,6 +144,7 @@ class TemplateVar(object):
         # How crazy is this?
         var = TemplateVar(tokens)
         self.members[member] = var
-        log.debug("Created member of '%s' with: %s" % \
-                (self.key(), str(var.table)))
+
+    def hasMember(self, name):
+        return self.members.has_key(name)
 
