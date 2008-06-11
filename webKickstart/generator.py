@@ -102,7 +102,6 @@ class Generator(object):
                 # XXX: Need better logging of exception here
                 log.error("Exception during execution of plugin: %s" % p)
                 log.error('\t' + str(e))
-                #raise
                 continue
 
             if isinstance(newvars, dict):

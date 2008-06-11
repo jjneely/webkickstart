@@ -49,7 +49,7 @@ class EnableParsePlugin(WebKickstartPlugin):
 
         oldenables = self.variableDict['enable']
         del self.variableDict['enable']
-        enable = TemplateVar('enable')
+        enable = TemplateVar('', key='enable')
 
         for record in oldenables:
             if record.len() >= 1:
@@ -57,7 +57,7 @@ class EnableParsePlugin(WebKickstartPlugin):
                     value = record.options()[1:]
                 else:
                     value = []
-                enable.setMember(record.options()[0], value)
+                enable.setMember(record.options()[0], value, noKey=True)
             else:
                 raise ParseError, "Found 'enable' keyword with no arguments."
 

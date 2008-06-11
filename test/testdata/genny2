@@ -1,0 +1,36 @@
+version mark1
+
+foo bar baz
+enable nox
+enable adminusers jjneely tkl bob
+rootpw foobarbaz
+
+package @ Realm Linux Server
+package foo
+package -bar
+
+enable localcluster pams
+enable remotecluster pams
+enable nofirewall
+
+part /boot --size 512
+part pv.00 --fstype=LVM --size 18432 --grow
+volgroup Volume00 pv.00
+logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
+logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
+logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
+logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
+
+%post
+echo "the king is a lard" >> /tmp/king
+
+package @ Realm Linux Worstation
+
+%post
+rpm -qa
+
+%post --interperter /usr/bin/python
+# however you spell that
+
+print "Damnit!"
+

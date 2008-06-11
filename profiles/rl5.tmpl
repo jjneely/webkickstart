@@ -20,27 +20,27 @@ url --url $installtree
 repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/$arch
 #if $varExists('repo')
 #for $r in $repo
-$r
+repo $r
 #end for
 #end if
 
 #if $varExists('vnc')
-$vnc
+vnc $vnc
 #end if
 #if $varExists('ignoredisk')
-$ignoredisk
+ignoredisk $ignoredisk
 #end if
 #if $varExists('multipath')
-$multipath
+multipath $multipath
 #end if
 #if $varExists('logging')
-$logging
+logging $logging
 #end if
 
 #if not $varExists('skippartition')
 zerombr
 #if $varExists('clearpart')
-$clearpart
+clearpart $clearpart
 #else if $varExists('enable.safepartition')
 clearpart --linux
 #else
@@ -49,21 +49,21 @@ clearpart --all
 
 #if $varExists('part')
 #for $p in $part
-$p
+part $p
 #end for
 #if $varExists('raid')
 #for $r in $raid
-$r
+raid $r
 #end for
 #end if
 #if $varExists('volgroup')
 #for $v in $volgroup
-$v
+volgroup $v
 #end for
 #end if
 #if $varExists('logvol')
 #for $l in $logvol
-$l
+logvol $l
 #end for
 #end if
 #else
@@ -78,7 +78,7 @@ logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
 #end if
 
 #if $varExists('selinux')
-$selinux
+selinux $selinux
 #else
 selinux --disabled
 #end if
@@ -89,7 +89,7 @@ reboot
 #if $varExists('enable.nofirewall')
 firewall --disabled
 #else if $varExists('firewall')
-$firewall
+firewall $firewall
 #else
 firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
 #end if
@@ -99,7 +99,7 @@ auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbased
 #if $varExists('enable.nox') or $varExists('skipx')
 skipx
 #else if $varExists('xconfig')
-$xconfig
+xconfig $xconfig
 #else
 xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
 #end if
@@ -107,12 +107,12 @@ xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboo
 #if not $varExists('rootpw')
 #silent raise ParseError, "Root password not set"
 #end if
-bootloader --location mbr --md5pass $rootpw.verbatimOptions()
-rootpw --iscrypted $rootpw.verbatimOptions()
+bootloader --location mbr --md5pass $rootpw
+rootpw --iscrypted $rootpw
 
 #if $varExists('include')
 #for $i in $include
-%include $i.verbatimOptions()
+%include $i
 #end for
 #end if
 
@@ -161,7 +161,7 @@ rootpw --iscrypted $rootpw.verbatimOptions()
 -logwatch
 -yum-updatesd
 #else
-$p.verbatimOptions()
+$p
 #end if
 #end for
 #else
@@ -325,7 +325,7 @@ realmconfig --kickstart auth --users alan,arkurth,brabec,charles,chking,darapple
 ##
 #if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 1
 realmconfig --kickstart sendmail $sendmaildaemon \
-    --masquerade $enable.mailmasq[0]
+    --masquerade $enable.mailmasq
 #else if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 0
 realmconfig --kickstart sendmail $sendmaildaemon --no-masq
 #else if $varExists('enable.mailmasq') and $enable.mailmasq.len() > 1
@@ -338,7 +338,7 @@ realmconfig --kickstart sendmail $sendmaildaemon \
 #if $varExists('owner')
 # Setup forwarding for root's mail
 cat << EOF >> /etc/aliases
-root:       $owner[0]
+root:       $owner
 EOF
 /usr/bin/newaliases
 #end if
@@ -368,7 +368,7 @@ realmconfig --kickstart tmpclean --enable-tmpclean
 #set $localcluster = ""
 # LOCALCLUSTER set to ""
 #else
-#set $localcluster = $enable.localcluster[0]
+#set $localcluster = $enable.localcluster
 # LOCALCLUSTER set to $localcluster
 #end if
 ##
@@ -377,7 +377,7 @@ realmconfig --kickstart tmpclean --enable-tmpclean
 #else if $enable.remotecluster.len() == 0
 #set $remotecluster = ""
 #else
-#set $remotecluster = $enable.remotecluster[0]
+#set $remotecluster = $enable.remotecluster
 #end if
 ##
 #if $localcluster == "None"
@@ -392,12 +392,12 @@ realmconfig --kickstart clusters --remote-disable
 realmconfig --kickstart clusters --remote-enable $remotecluster
 #end if
 #if $varExists('dept')
-realmconfig --kickstart dept --set $dept.verbatimOptions()
+realmconfig --kickstart dept --set $dept
 #else
 realmconfig --kickstart dept --set ncsu
 #end if
 #if $varExists('printer')
-realmconfig --kickstart printing --default $printer.verbatimOptions()
+realmconfig --kickstart printing --default $printer
 #else
 realmconfig --kickstart printing --default lp
 #end if
@@ -408,9 +408,9 @@ realmconfig --kickstart support --enable-support
 #end if
 
 #if $varExists('activationkey')
-#set $_akey = $activationkey[0]
+#set $_akey = $activationkey
 #else if $varExists('enable.activationkey')
-#set $_akey = $enable.activationkey[0]
+#set $_akey = $enable.activationkey
 #else
 #set $_akey = $defaultActivation
 #end if
@@ -454,5 +454,5 @@ sed --in-place 's/^protocols.*files ldap/protocols:  files/' /etc/nsswitch.conf
 # The following scripts provided by the Jump Start confgs.
 
 #for $script in $webKickstart.scripts
-$script.verbatimOptions()
+$script
 #end for

@@ -32,13 +32,30 @@ log = logging.getLogger("webks")
 
 class TemplateVar(object):
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, key=None, noKey=False):
+        """
+        tokens -- A list of strings or a single string that becomes the
+           initial value of this TemplateVar Object
+
+        key -- An optional key value to refer to this TemplateVar
+
+        noKey -- Set to True if tokens[0] is not the key, otherwise
+           we assume that if tokens is a list the first value is the key
+        """
+
         self.table = []
+        self._key = None     # Say my name!
         self.row = 0
         self.regex = {}     # regular expression cache
         self.members = {}   # Extra members that may have been added
 
-        self.append(tokens)
+        isKeySet = False
+
+        if self._key is None and key is not None and not noKey:
+            self._key = key
+            isKeySet = True     # Make note if we have already set key
+
+        self.append(tokens, isKeySet=isKeySet, noKey=noKey)
 
         # For the iterator, we need to know if this is the inital
         # creation/data row.  
@@ -77,17 +94,35 @@ class TemplateVar(object):
     def reset(self):
         self.row = 0
     
-    def append(self, tokens):
+    def append(self, tokens, isKeySet=True, noKey=False):
+        """
+        The tokens variable is either a string or a list of strings that
+        make a value to assign this 'row' of this TemplateVar.  A single
+        string may be a script or test file, while a list may be the parsed
+        tokens of a MetaConfig file.
+
+        We assume that the key or the string that identifies this
+        TemplateVar is tokens[0] if tokens is a list.  If tokens is a 
+        string or noKey is True then we do not look for the key in the
+        tokens variable.
+
+        The isKeySet variable helps us not override a previously set
+        value for the key.
+        """
         if isinstance(tokens, ListType):
-            if len(tokens) == 0:
+            if len(tokens) == 0 and not noKey:
                 msg = "Refusing to add a list of 0 tokens to TemplateVar."
                 raise ParseError, msg
-            self.table.append(tokens)
+            if noKey:
+                self.table.append(tokens)
+            elif len(tokens) > 1:
+                self.table.append(tokens[1:])
+            else: # len(tokens) == 1 and tokens[0] == key
+                self.table.append([])
+            if not isKeySet and not noKey:
+                self._key = tokens[0]
 
         elif isinstance(tokens, StringType):
-            if tokens == "":
-                msg = "Refusing to add an empty token to TemplateVar."
-                raise ParseError, msg
             self.table.append([tokens])
 
         else:
@@ -98,22 +133,19 @@ class TemplateVar(object):
         return ' '.join(self.table[self.row])
 
     def key(self):
-        return self.table[self.row][0]
-
-    def verbatimOptions(self):
-        return ' '.join(self.options())
+        return self._key
 
     def options(self):
-        return self.table[self.row][1:]
+        return self.table[self.row]
 
     def len(self):
-        return len(self.table[self.row][1:])
+        return len(self.table[self.row])
 
     def records(self):
         return len(self.table)
 
     def match(self, regex):
-        """Match the provided regex against self.verbatimOptions().
+        """Match the provided regex against self.verbatim().
            We return a MatchObject on success, or None on failure.
            This can be used like so for the simple case:
 
@@ -126,23 +158,15 @@ class TemplateVar(object):
             self.regex[regex] = re.compile(regex)
 
         c = self.regex[regex]
-        return c.match(self.verbatimOptions())
+        return c.match(self.verbatim())
 
-    def setMember(self, member, value):
+    def setMember(self, member, value, noKey=False):
         """Sets a member that can be accessed via foo.<member> where
            foo is an instance of TemplateVar.  foo.<member> is assigned
            a value of value which must be a string."""
 
-        if isinstance(value, StringType):
-            tokens = [member, value]
-        elif isinstance(value, ListType):
-            tokens = [member] + value
-        else:
-            msg = "setMamber()'s value must be a list of strings or a string."
-            raise WebKickstartError, msg
-
         # How crazy is this?
-        var = TemplateVar(tokens)
+        var = TemplateVar(value, key=member, noKey=noKey)
         self.members[member] = var
 
     def hasMember(self, name):

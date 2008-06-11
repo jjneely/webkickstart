@@ -28,7 +28,8 @@ sys.path.insert(0, "../")
 
 from webKickstart import configtools
 from webKickstart.metaparser import MetaParser
-from webKickstart.generator import Generator, TemplateVar
+from webKickstart.generator import Generator
+from webKickstart.templatevar import TemplateVar
 
 log = logging.getLogger('webks')
 
@@ -39,26 +40,26 @@ class TestTemplateVar(unittest.TestCase):
         var = TemplateVar(tokens)
         self.assertEqual(var.key(), 'a')
         
-        self.assertEqual(var.verbatim(), 'a b 1 2')
+        self.assertEqual(var.verbatim(), 'b 1 2')
         self.assertEqual(var.options(), ['b', '1', '2'])
         self.assertEqual(var.len(), 3)
 
     def testRecords(self):
         tokens = [['a', 'b', '1', '2'],
-                  ['z', 'x', 'c', 'v', 'b'],
-                  ['1', '2', '3']]
+                  ['a', 'z', 'x', 'c', 'v', 'b'],
+                  ['a', '1', '2', '3']]
 
         var = TemplateVar(tokens[0])
         var.append(tokens[1])
         var.append(tokens[2])
 
-        self.assertEqual(var.verbatim(), 'a b 1 2')
+        self.assertEqual(var.verbatim(), 'b 1 2')
     
         i = 0
         for element in var:
-            log.debug(i)
-            self.assertEqual(element.key(), tokens[i][0])
-            self.assertEqual(element.verbatim(), ' '.join(tokens[i]))
+            #log.debug(i)
+            self.assertEqual(element.key(), 'a')
+            self.assertEqual(element.verbatim(), ' '.join(tokens[i][1:]))
             i = i + 1
 
 class TestGenerator(unittest.TestCase):
@@ -85,18 +86,19 @@ class TestGenerator(unittest.TestCase):
         mc = MetaParser(self.getFile('genny1'))
         gen = Generator('profile', mc)
 
-        rows = ["enable nox",
-                "enable adminusers jjneely tkl bob"]
+        rows = ["nox",
+                "adminusers jjneely tkl bob",
+                "localcluster pams",
+                "remotecluster pams",
+                "nofirewall" ]
         
         self.assertTrue(gen.variables.has_key('enable'))
 
         stuff = gen.variables['enable']
-        self.assertEqual(stuff.records(), 2)
+        self.assertEqual(stuff.records(), 5)
 
-        print stuff
         i = 0
         for record in stuff:
-            print record
             self.assertEqual(record.verbatim(), rows[i])
             i = i + 1
 
