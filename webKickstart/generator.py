@@ -69,15 +69,18 @@ class Generator(object):
         # webkickstart namespace
         self.variables['webKickstart'] = TemplateVar('webKickstart')
         self.variables['webKickstart'].setMember('remoteHost', fqdn)
+        other = {'WebKickstartError': WebKickstartError, 
+                 'ParseError': ParseError }
 
         self.buildPostVar()
         self.runPlugins()
 
         log.debug("Loading template file: %s" % file)
         log.debug("Template vars: %s" % str(self.variables))
+        log.debug("Other vars: %s" % str(other))
         built = self.__getCachedTemplate(file)
     
-        s = str(built(namespaces=[self.variables]))
+        s = str(built(namespaces=[self.variables, other]))
         return s
 
     def runPlugins(self):
@@ -127,9 +130,6 @@ class Generator(object):
                 webks.scripts.append(script)
             else:
                 webks.setMember('scripts', script)
-
-        log.debug("SCRIPTS!!")
-        log.debug(str(webks.scripts.table))
 
         for script in webks.scripts:
             log.debug("Interating: %s" % str(script))

@@ -78,7 +78,15 @@ class TemplateVar(object):
 
     def __setitem__(self, idx, val):
         raise WebKickstartError, "Refusing to alter values from a metaconfig."
-        
+    
+    def __add__(self, other):
+        """Return a new TemplateVar containing the value of 
+              self.options() + other.options()
+        """
+
+        return TemplateVar(self.opions() + other.options(), 
+                           key=self._key, noKey=True)
+
     def next(self):
         if self._flag == 1:
             self._flag = 0
@@ -143,6 +151,23 @@ class TemplateVar(object):
 
     def records(self):
         return len(self.table)
+
+    def sort(self):
+        """Return the options list sorted."""
+
+        copy = [ i for i in self.options() ]
+        copy.sort()
+        return copy
+
+    def sortunique(self):
+        """Return the options list sorted and uniqued."""
+
+        hash = {}
+        for i in self.options():
+            if not hash.has_key(i): hash[i] = None
+        list = hash.keys()
+        list.sort()
+        return list
 
     def match(self, regex):
         """Match the provided regex against self.verbatim().

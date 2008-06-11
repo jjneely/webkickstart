@@ -105,9 +105,13 @@ xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboo
 #end if
 
 #if not $varExists('rootpw')
-#silent raise ParseError, "Root password not set"
+#silent raise $ParseError, "Root password not set"
 #end if
+#if $varExists('grub')
+bootloader --location mbr --md5pass $grub
+#else
 bootloader --location mbr --md5pass $rootpw
+#end if
 rootpw --iscrypted $rootpw
 
 #if $varExists('include')
@@ -249,73 +253,55 @@ fi
    --initrd=/boot/install/initrd.img
 #end if
 
+#if not $varExists('realmadmins')
+#silent raise $ParseError,"NCSU Realm Admins are not defined, something is wrong"
+#end if
+## Okay, we know that the rlusers plugin has run: do fun stuff
 cat << EOF > /root/.k5login
-alan/root@EOS.NCSU.EDU
-arkurth/root@EOS.NCSU.EDU
-brabec/root@EOS.NCSU.EDU
-charles/root@EOS.NCSU.EDU
-chking/root@EOS.NCSU.EDU
-darapple/root@EOS.NCSU.EDU
-djgreen/root@EOS.NCSU.EDU
-dlcarraw/root@EOS.NCSU.EDU
-fapeeler/root@EOS.NCSU.EDU
-gsgatlin/root@EOS.NCSU.EDU
-hmn/root@EOS.NCSU.EDU
-jaklein/root@EOS.NCSU.EDU
-jjneely/root@EOS.NCSU.EDU
-jrwells/root@EOS.NCSU.EDU
-ldosbor2/root@EOS.NCSU.EDU
-libby/root@EOS.NCSU.EDU
-macolon/root@EOS.NCSU.EDU
-nbmccork/root@EOS.NCSU.EDU
-pevans/root@EOS.NCSU.EDU
-ptwillia/root@EOS.NCSU.EDU
-sfcallic/root@EOS.NCSU.EDU
-ststewar/root@EOS.NCSU.EDU
-tbyron/root@EOS.NCSU.EDU
-tkl/root@EOS.NCSU.EDU
-tmfarwig/root@EOS.NCSU.EDU
-tpgrimes/root@EOS.NCSU.EDU
-tsgurgan/root@EOS.NCSU.EDU
-twk/root@EOS.NCSU.EDU
-wsetzer/root@EOS.NCSU.EDU
+#set $users = $realmadmins + $realmotheradmins
+#for $user in $users.sortunique()
+$user/root@EOS.NCSU.EDU
+#end for
 EOF
 chmod 400 /root/.k5login
 
+cat << EOF > /root/.k5login.base
+#for $user in $realmotheradmins.sort()
+$user/root@EOS.NCSU.EDU
+#end for
+EOF
+chmod 400 /root/.k5login.base
+
 cat << EOF >> /etc/sudoers
-alan  ALL=(ALL) ALL
-arkurth  ALL=(ALL) ALL
-brabec  ALL=(ALL) ALL
-charles  ALL=(ALL) ALL
-chking  ALL=(ALL) ALL
-darapple  ALL=(ALL) ALL
-djgreen  ALL=(ALL) ALL
-dlcarraw  ALL=(ALL) ALL
-fapeeler  ALL=(ALL) ALL
-gsgatlin  ALL=(ALL) ALL
-hmn  ALL=(ALL) ALL
-jaklein  ALL=(ALL) ALL
-jjneely  ALL=(ALL) ALL
-jrwells  ALL=(ALL) ALL
-ldosbor2  ALL=(ALL) ALL
-libby  ALL=(ALL) ALL
-macolon  ALL=(ALL) ALL
-nbmccork  ALL=(ALL) ALL
-pevans  ALL=(ALL) ALL
-ptwillia  ALL=(ALL) ALL
-sfcallic  ALL=(ALL) ALL
-ststewar  ALL=(ALL) ALL
-tbyron  ALL=(ALL) ALL
-tkl  ALL=(ALL) ALL
-tmfarwig  ALL=(ALL) ALL
-tpgrimes  ALL=(ALL) ALL
-tsgurgan  ALL=(ALL) ALL
-twk  ALL=(ALL) ALL
-wsetzer  ALL=(ALL) ALL
+#set $users = $realmadmins + $realmotheradmins
+#for $user in $users.sortunique()
+$user ALL=(ALL) ALL
+#end for
 EOF
 chmod 400 /etc/sudoers
 
-realmconfig --kickstart auth --users alan,arkurth,brabec,charles,chking,darapple,djgreen,dlcarraw,fapeeler,gsgatlin,hmn,jaklein,jjneely,jrwells,ldosbor2,libby,macolon,nbmccork,pevans,ptwillia,sfcallic,ststewar,tbyron,tkl,tmfarwig,tpgrimes,tsgurgan,twk,wsetzer
+cat << EOF >> /etc/sudoers.base
+#for $user in $realmotheradmins.sort()
+$user ALL=(ALL) ALL
+#end for
+EOF
+chmod 400 /etc/sudoers.base
+
+cat << EOF >> /etc/users.local
+#set $users = $realmadmins + $realmotheradmins + $realmusers
+#for $user in $users.sortunique()
+$user
+#end for
+EOF
+chmod 644 /etc/users.local
+
+cat << EOF >> /etc/users.local.base
+#set $users = $realmotheradmins + $realmusers
+#for $user in $users.sortunique()
+$user
+#end for
+EOF
+chmod 644 /etc/users.local.base
 
 #if $varExists('enable.receivemail')
 #set $sendmaildaemon = "--enable-daemon"
@@ -329,7 +315,7 @@ realmconfig --kickstart sendmail $sendmaildaemon \
 #else if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 0
 realmconfig --kickstart sendmail $sendmaildaemon --no-masq
 #else if $varExists('enable.mailmasq') and $enable.mailmasq.len() > 1
-#silent raise ParseError, "enable mailmasq accepts only 1 argument"
+#silent raise $ParseError, "enable mailmasq accepts only 1 argument"
 #else
 realmconfig --kickstart sendmail $sendmaildaemon \
     --masquerade unity.ncsu.edu

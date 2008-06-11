@@ -38,9 +38,12 @@ class WebKickstartPlugin(object):
             raise WekKickstartError, "addVar() requires a TemplateVar argument"
 
         if self.variableDict.has_key(tv.key()):
-            self.variableDict[tv.key()].append(tv.tokens)
+            self.variableDict[tv.key()].append(tv.table[0], noKey=True)
         else:
             self.variableDict[tv.key()] = tv
+
+    def haveVar(self, name):
+        return self.variableDict.has_key(name)
 
     def run(self):
         """This must return a new dict of variables to use in parsing
