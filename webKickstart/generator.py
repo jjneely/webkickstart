@@ -94,7 +94,8 @@ class Generator(object):
 
             try:
                 log.debug("Running plugin: %s" % p)
-                obj = mods[p](self.variables)
+                cfg = configtools.config.getPluginConf(p)
+                obj = mods[p](self.variables, cfg)
                 newvars = obj.run()
             except WebKickstartError, e:
                 # User plugin raised a WebKickstart exception...we assume

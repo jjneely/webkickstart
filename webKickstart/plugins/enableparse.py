@@ -37,9 +37,6 @@ class EnableParsePlugin(WebKickstartPlugin):
        variableDict, and inserts 'enable.<key>' for each enable record.
     """
 
-    def __init__(self, variableDict):
-        self.variableDict = variableDict
-
     def run(self):
         """This must return a new dict of variables to use in parsing
            the template."""

@@ -38,6 +38,7 @@ class RealmLinuxUsersPlugin(WebKickstartPlugin):
 
     def run(self):
         self.doRootPW()
+        self.doUsers()
 
         return self.variableDict
 
@@ -115,9 +116,24 @@ class RealmLinuxUsersPlugin(WebKickstartPlugin):
         """Returns a stripped string of data. what can be 'root.md5' or 'users'.
            Pulls information out of the conftree."""
 
-        defaultkey = 'bob' # XXX: Get this from configs?
-        conftree = '/afs/bp.ncsu.edu/system/common/update'
+        # Load up some defaults from the config
+        if self.cfg is None:
+            msg = "rlusers.conf config file is missing or could not be read."
+            raise WebKickstartError, msg
+        if not self.cfg.has_section('main'):
+            msg = "rlusers.conf is missing the [main] section"
+            raise WebKickstartError, msg
+
+        defaultkey = self.cfg.get('main', 'defaultkey', None)
+        conftree = self.cfg.get('main', 'conftree', None)
         openssl = '/usr/bin/openssl'
+
+        if defaultkey is None or defaultkey == "":
+            msg = "rlusers.conf must provide a 'defaultkey'"
+            raise WebKickstartError, msg
+        if conftree is None or conftree == "":
+            msg = "rlusers.conf must provide a 'conftree'"
+            raise WebKickstartError, msg
     
         if key == None:
             #print "key is None...using default"
@@ -137,8 +153,10 @@ class RealmLinuxUsersPlugin(WebKickstartPlugin):
         stuff = pipe.read().strip()
         ret = pipe.close()
         if not ret == None:
-            msg = "Blowfish decryption failed in RealmLinuxUsersPlugin.decryptData"
-            raise WebKickstartError, msg
+            # XXX: This is raised when the wrong/bad encryption key is used!!
+            msg = "Blowfish decryption failed decrypting the '%s' group.  "
+            msg = msg + "Perhaps you misstyped the encryption key."
+            raise WebKickstartError, msg % group
 
         return stuff
     

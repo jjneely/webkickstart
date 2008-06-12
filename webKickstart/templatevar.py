@@ -51,7 +51,7 @@ class TemplateVar(object):
 
         isKeySet = False
 
-        if self._key is None and key is not None and not noKey:
+        if self._key is None and key is not None:
             self._key = key
             isKeySet = True     # Make note if we have already set key
 
@@ -84,7 +84,7 @@ class TemplateVar(object):
               self.options() + other.options()
         """
 
-        return TemplateVar(self.opions() + other.options(), 
+        return TemplateVar(self.options() + other.options(), 
                            key=self._key, noKey=True)
 
     def next(self):

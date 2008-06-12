@@ -29,25 +29,6 @@ import errors
 
 log = logging.getLogger('webks')
 
-# New config file notes:
-# [main] section:
-# logfile, loglevel
-# generic_ks=profile -- when we don't know about the client
-# config_collision_detection
-# disable_version_case_sensitivity
-# configs=dir
-#
-# [default]
-#  * Sane defaults for profile sections
-# plugins=foo bar baz
-# <template specific args>
-# 
-# [<profile name>]
-# * Each template will define list of required/optional keys
-# * Plugins may add additional required/optional keys
-# * Templates must be smart enough to know what templateVars exported
-#   by the plugins to use
-
 # A global Configuration class instance.  
 # (Must be initialized via the WebKickstart main module.)
 config = None
@@ -55,6 +36,11 @@ config = None
 class Parser(ConfigParser.ConfigParser):
 
     def get(self, section, option, default):
+        """
+        Override ConfigParser.get: If the request option is not in the
+        config file then return the value of default rather than raise
+        an exception.  We still raise exceptions on missing sections.
+        """
         try:
             return ConfigParser.ConfigParser.get(self, section, option)
         except ConfigParser.NoOptionError:
@@ -68,6 +54,7 @@ class Configuration(object):
     defaultFile = "webkickstart.conf"
 
     # [main] keys that we require and their defaults
+    # XXX: Where are these non abs paths relative to?
     defaultCfg = {'logfile':        '/var/log/webkickstart.log',
                   'log_level':      1,
                   'generic_ks':     0,
@@ -78,6 +65,7 @@ class Configuration(object):
                   'profiles':       './profiles',
                   'include_key':    'use',
                   'profile_key':    'version',
+                  'pluginconfd':    './pluginconf.d',
                  }
 
     def __init__(self, configDir=None):
@@ -185,7 +173,17 @@ class Configuration(object):
 
     def getPluginConf(self, plugin):
         # Return a Parser() object with the config file for this plugin
-        pass
+        plugind = self.pluginconfd
+        if not os.path.isabs(plugind):
+            plugind = os.path.join(self.__dir, plugind)
+
+        file = os.path.join(plugind, "%s.conf" % plugin)
+        log.debug("Looking for plugin config: %s" % file)
+        if not os.access(file, os.R_OK):
+            return None
+        
+        self.__checkConfig(file)
+        return self.__cfg[file]
 
     def getTemplate(self, profile):
         # Return the template file for the specified version/profile
@@ -206,5 +204,4 @@ class Configuration(object):
         self.__mtime[file] = os.stat(file).st_mtime
         self.__cfg[file] = Parser()
         self.__cfg[file].read(file)
-
 
