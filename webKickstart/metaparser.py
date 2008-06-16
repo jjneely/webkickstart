@@ -209,6 +209,12 @@ class MetaParser(object):
         for post in self.fileposts:
             scripts.append('\n'.join(post))
 
+        # We reverse the order of %posts in the generator.  Why?  We want
+        # MetaConfigs higher on the tree to override those that are on 
+        # lower nodes/children.  However, %posts from the same MC should
+        # be next to each other and in the same order.
+        scripts.reverse()
+
         return scripts
         
         

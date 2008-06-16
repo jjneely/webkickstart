@@ -1,0 +1,10 @@
+%post
+
+# From file post1 this is the 1st %post entry
+echo "1" >> /tmp/post
+
+%post
+
+# From file post1 this is the 2nd %post entry
+echo "2" >> /tmp/post
+

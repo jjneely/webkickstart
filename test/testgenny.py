@@ -76,9 +76,6 @@ class TestGenerator(unittest.TestCase):
 
         self.cfg = configtools.config
 
-        self.testfiles = os.path.join(os.path.dirname(__file__), 'testdata/')
-        self.cfg.hosts = self.testfiles
-
     def testCreate(self):
         gen = Generator('profile')
 

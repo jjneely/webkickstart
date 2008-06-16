@@ -123,7 +123,7 @@ monitor $monitor
 #end if
 
 #if not $varExists('rootpw')
-#silent raise $ParseError, "Root password not set"
+#raise $ParseError, "Root password not set"
 #end if
 #if $varExists('enable.keepmbr')
 #set $bootloaderlocation = "--location partition"
@@ -131,7 +131,7 @@ monitor $monitor
 #set $bootloaderlocation = "--location mbr"
 #end if
 #if $varExists('driveorder')
-#set $bootloaderdrives = "--driveorder $driveorder"
+#set $bootloaderdrives = "--driveorder " + $driveorder.verbatim()
 #else
 #set $bootloaderdrives = ""
 #end if
@@ -288,7 +288,7 @@ fi
 #end if
 
 #if not $varExists('realmadmins')
-#silent raise $ParseError,"NCSU Realm Admins are not defined, something is wrong"
+#raise $ParseError,"NCSU Realm Admins are not defined, something is wrong"
 #end if
 ## Okay, we know that the rlusers plugin has run: do fun stuff
 cat << EOF > /root/.k5login
@@ -349,7 +349,7 @@ realmconfig --kickstart sendmail $sendmaildaemon \
 #else if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 0
 realmconfig --kickstart sendmail $sendmaildaemon --no-masq
 #else if $varExists('enable.mailmasq') and $enable.mailmasq.len() > 1
-#silent raise $ParseError, "enable mailmasq accepts only 1 argument"
+#raise $ParseError, "enable mailmasq accepts only 1 argument"
 #else
 realmconfig --kickstart sendmail $sendmaildaemon \
     --masquerade unity.ncsu.edu

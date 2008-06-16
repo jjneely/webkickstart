@@ -42,13 +42,11 @@ class TestGenerator(object):
             log.debug("Doing configuration bits...")
             self.cfgdir = os.path.join(os.path.dirname(__file__),
                                        'testconfig/')
+            if not os.path.isabs(self.cfgdir):
+                self.cfgdir = os.path.abspath(self.cfgdir)
             configtools.config = configtools.Configuration(self.cfgdir)
 
         self.cfg = configtools.config
-
-        self.testfiles = os.path.join(os.path.dirname(__file__), 'testdata/')
-        self.cfg.hosts = self.testfiles
-
         log.debug("hosts: %s" %configtools.config.hosts)
 
     def makeKS(self, profile, filename):

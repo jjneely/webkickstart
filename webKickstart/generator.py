@@ -152,7 +152,7 @@ class Generator(object):
                     msg = "'%s' key must have one argument." % key
                     raise errors.ParseError, msg
                 else:
-                    tmp_mc = MetaConfig(rec[1])
+                    tmp_mc = MetaParser(rec[1])
                     configs.append(tmp_mc)
 
         # This is a change in the order of webkickstart metaconfig file
@@ -166,7 +166,8 @@ class Generator(object):
         """Parse a solarisConfig object."""
         
         if mc in self.configs:
-            msg = "Recursive '%s' loop detected." % configtools.include_key
+            msg = "Recursive '%s' loop detected." % \
+                    configtools.config.include_key
             raise ParseError, msg
 
         for row in mc.parseCommands():

@@ -61,7 +61,7 @@ class Configuration(object):
                   'security':       1,
                   'collision':      1,
                   'profile_case_sensitivity':   0,
-                  'hosts':          './configs',
+                  'hosts':          './hosts',
                   'profiles':       './profiles',
                   'include_key':    'use',
                   'profile_key':    'version',
@@ -99,7 +99,7 @@ class Configuration(object):
 
         # Check the path for hosts
         if not os.path.isabs(self.hosts):
-            self.hosts = os.path.join(self.__dir, hosts)
+            self.hosts = os.path.join(self.__dir, self.hosts)
 
     def __getattr__(self, attr):
         # Override the default getattr behavior to pull info from

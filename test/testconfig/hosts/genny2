@@ -1,5 +1,8 @@
 version mark1
 
+use post1
+driveorder bob,barker
+
 foo bar baz
 enable nox
 enable adminusers jjneely tkl bob

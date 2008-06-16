@@ -34,7 +34,7 @@ log = logging.getLogger('webks')
 class TestMetaParser(unittest.TestCase):
 
     def getFile(self, test):
-        return os.path.join(os.getcwd(), self.testfiles, test)
+        return os.path.join(self.cfg.hosts, test)
 
     def setUp(self):
         if configtools.config == None:
@@ -44,11 +44,6 @@ class TestMetaParser(unittest.TestCase):
             configtools.config = configtools.Configuration(self.cfgdir)
 
         self.cfg = configtools.config
-
-        self.testfiles = os.path.join(os.path.dirname(__file__), 'testdata/')
-        log.debug("self.testfiles = " + self.testfiles)
-        log.debug(__file__)
-        self.cfg.hosts = self.testfiles
 
         self.p1 = MetaParser(self.getFile('meta1'))
         self.p2 = MetaParser(self.getFile('meta2'))
@@ -72,10 +67,10 @@ class TestMetaParser(unittest.TestCase):
 
     def testPosts(self):
         posts1 = ['%post\n\n# Post Script\n\n']
-        posts2 = ['%post\n\n# Post Script\n\n    date > /.install-date\n', '%post --interpreter /usr/bin/python\n\nprint "Hello World"\n\n']
+        posts2 = ['%post --interpreter /usr/bin/python\n\nprint "Hello World"\n\n', '%post\n\n# Post Script\n\n    date > /.install-date\n']
         
-        self.assert_(self.p1.getPosts() == posts1)
-        self.assert_(self.p2.getPosts() == posts2)
+        self.assertEquals(self.p1.getPosts(), posts1)
+        self.assertEquals(self.p2.getPosts(), posts2)
 
     def testVersion(self):
         self.assertNotEqual(configtools.config, None)

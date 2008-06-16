@@ -129,20 +129,6 @@ Yum repositores.  Packages and groups defined in these additional
 repositories may be selected with the package keyword.  This key may
 be used multiple times.
 
-    key <Red Hat Installation Number>
-
-Optional.  EL5 and higher.  Provide a specific Installation Number to
-override the default defined in the Web-Kickstart configuration.
-
-    src <from/how to install>
-
-Optional.  This key can specify how and where to install from.  There
-are three options "nfs", "http", and "ftp".  The default is "http" and
-will install the kit from install.linux.ncsu.edu.  The "nfs" and "ftp"
-options will install using that protocol from
-ftp.linux.ncsu.edu.  More options can be added in the future to
-support other install methods from other mirrors.
- 
     grub  <MD5 Crypt>
 
 Optional.  Use this key to specify a password from grub, the
@@ -194,8 +180,6 @@ the system.  The default value is a generic 2 button mouse with 3
 button emulation.  This key behaves exactly the same way as the
 'mouse' keyword in a Red Hat Kickstart.  For complete documentation of
 this key please see the Kickstart Options page at the following URL. 
-
-http://www.redhat.com/docs/manuals/linux/RHL-7.3-Manual/custom-guide/s1-kickstart2-options.html
 
     staticip
 
