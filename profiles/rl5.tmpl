@@ -3,9 +3,9 @@
 #set $kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
 #set $defaultActivation = "6ed40e5c831bd8a8d706f0abe8f44f09"
 #set $installtree = $tree + "/" + $arch
-
+##
 #if $varExists('lang')
-$lang
+lang $lang
 #else
 lang en_US
 #end if
@@ -14,7 +14,17 @@ lang en_US
 cmdline
 #end if
 install
+#if $varExists('enable.staticip')
+#if $enable.staticip.len() != 4
+#raise $ParseError, "enable staticip requires 4 arguments"
+#end if
+network --bootproto static  --ip $enable.staticip[0] \
+        --netmask $enable.staticip[1] \
+        --gateway $enable.staticip[2] \
+        --nameserver $enable.staticip[3]
+#else
 network --bootproto dhcp
+#end if
 url --url $installtree
 
 repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/$arch
@@ -94,23 +104,41 @@ firewall $firewall
 firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
 #end if
 
-auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablecache --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
+auth --useshadow --enablemd5 --enableldap \
+     --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu \
+     --enablecache --enablekrb5 --enablekrb5kdcdns \
+     --krb5realm EOS.NCSU.EDU
 
 #if $varExists('enable.nox') or $varExists('skipx')
 skipx
 #else if $varExists('xconfig')
 xconfig $xconfig
 #else
-xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
+xconfig --resolution "1280x1024" \
+        --depth 24 --defaultdesktop GNOME \
+        --startxonboot
+#end if
+#if $varExists('monitor')
+monitor $monitor
 #end if
 
 #if not $varExists('rootpw')
 #silent raise $ParseError, "Root password not set"
 #end if
-#if $varExists('grub')
-bootloader --location mbr --md5pass $grub
+#if $varExists('enable.keepmbr')
+#set $bootloaderlocation = "--location partition"
 #else
-bootloader --location mbr --md5pass $rootpw
+#set $bootloaderlocation = "--location mbr"
+#end if
+#if $varExists('driveorder')
+#set $bootloaderdrives = "--driveorder $driveorder
+#else
+#set $bootloaderdrives = ""
+#end
+#if $varExists('grub')
+bootloader $bootloaderlocation $driveorder --md5pass $grub
+#else
+bootloader $bootloaderlocation $driveorder --md5pass $rootpw
 #end if
 rootpw --iscrypted $rootpw
 
@@ -231,10 +259,15 @@ rm /etc/sysconfig/init~
 # updates
 realmconfig --kickstart updates --enable-updates
 
-# turn off audit and wax any logs
+#if $varExists('enable.audit')
+# make sure audit is on
+chkconfig auditd on
+#else
+# turn off audit and remove any logs
 chkconfig auditd off
 rm -rf /var/log/audit
 rm -rf /var/log/audit.d/*
+#end if
 
 #if not $varExists('enable.noreinstall')
 # set up a reinstall image
@@ -393,6 +426,38 @@ realmconfig --kickstart support --disable-support
 realmconfig --kickstart support --enable-support
 #end if
 
+#if $varExists('staticip')
+# M-DHCP to Static IP conversion hack because the Comtech[tm] DHCP server
+# is not always up. Originally by Lin Osborne (ITECS).
+
+# Figure out the relevant information about this system
+IP=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
+HOSTNAME=`/usr/bin/host \$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
+NETMASK=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
+NETWORK=`/bin/ipcalc \$IP -n \$NETMASK | /bin/cut -d\= -f2`
+GATEWAY=`echo \$NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+HWADDR=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
+
+# Overwrite the appropriate files (/etc/sysconfig/network and
+# /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
+# upon DHCP
+cat << EOF > /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=\$HOSTNAME
+GATEWAY=\$GATEWAY
+EOF
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-\$KSDEVICE
+DEVICE=\$KSDEVICE
+BOOTPROTO=static
+IPADDR=\$IP
+NETMASK=\$NETMASK
+ONBOOT=yes
+HWADDR=\$HWADDR
+EOF
+
+#end if
+##
 #if $varExists('activationkey')
 #set $_akey = $activationkey
 #else if $varExists('enable.activationkey')
