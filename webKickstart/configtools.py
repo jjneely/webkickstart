@@ -54,7 +54,7 @@ class Configuration(object):
     defaultFile = "webkickstart.conf"
 
     # [main] keys that we require and their defaults
-    # XXX: Where are these non abs paths relative to?
+    # These paths are relative to defaultDir or configDir if given below
     defaultCfg = {'logfile':        '/var/log/webkickstart.log',
                   'log_level':      1,
                   'generic_ks':     0,
@@ -76,6 +76,8 @@ class Configuration(object):
         else:
             dir = self.defaultDir
 
+        if not os.path.isabs(dir): dir = os.path.abspath(dir)
+
         file = os.path.join(dir, self.defaultFile)
 
         if not os.path.exists(file):
@@ -94,6 +96,10 @@ class Configuration(object):
 
         self.__initLogging()
         log.debug("Using configuration file: %s" % self.__file)
+
+        # Check the path for hosts
+        if not os.path.isabs(self.hosts):
+            self.hosts = os.path.join(self.__dir, hosts)
 
     def __getattr__(self, attr):
         # Override the default getattr behavior to pull info from
@@ -189,7 +195,7 @@ class Configuration(object):
         # Return the template file for the specified version/profile
         filename = os.path.join(self.profiles, '%s.tmpl' % profile)
         if not os.path.isabs(filename):
-            filename = os.path.abspath(filename)
+            filename = os.path.join(self.__dir, filename)
 
         if os.access(filename, os.R_OK):
             return filename
