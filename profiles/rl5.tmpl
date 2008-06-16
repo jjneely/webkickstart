@@ -46,7 +46,7 @@ multipath $multipath
 #if $varExists('logging')
 logging $logging
 #end if
-
+##
 #if not $varExists('skippartition')
 zerombr
 #if $varExists('clearpart')
@@ -131,23 +131,24 @@ monitor $monitor
 #set $bootloaderlocation = "--location mbr"
 #end if
 #if $varExists('driveorder')
-#set $bootloaderdrives = "--driveorder $driveorder
+#set $bootloaderdrives = "--driveorder $driveorder"
 #else
 #set $bootloaderdrives = ""
-#end
+#end if
 #if $varExists('grub')
-bootloader $bootloaderlocation $driveorder --md5pass $grub
+bootloader $bootloaderlocation $bootloaderdrives --md5pass $grub
 #else
-bootloader $bootloaderlocation $driveorder --md5pass $rootpw
+bootloader $bootloaderlocation $bootloaderdrives --md5pass $rootpw
 #end if
 rootpw --iscrypted $rootpw
 
 #if $varExists('include')
 #for $i in $include
 %include $i
+
 #end for
 #end if
-
+##
 %packages
 #if $varExists('package')
 #for $p in $package
@@ -382,13 +383,10 @@ realmconfig --kickstart tmpclean --enable-tmpclean
 ##
 #if not $varExists('enable.localcluster')
 #set $localcluster = "ncsu"
-# No LOCALCLUSTER
 #else if $enable.localcluster.len() == 0
 #set $localcluster = ""
-# LOCALCLUSTER set to ""
 #else
 #set $localcluster = $enable.localcluster
-# LOCALCLUSTER set to $localcluster
 #end if
 ##
 #if not $varExists('enable.remotecluster')
