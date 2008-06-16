@@ -76,8 +76,8 @@ class Generator(object):
         self.runPlugins()
 
         log.debug("Loading template file: %s" % file)
-        log.debug("Template vars: %s" % str(self.variables))
-        log.debug("Other vars: %s" % str(other))
+        #log.debug("Template vars: %s" % str(self.variables))
+        #log.debug("Other vars: %s" % str(other))
         built = self.__getCachedTemplate(file)
     
         s = str(built(namespaces=[self.variables, other]))
@@ -131,9 +131,6 @@ class Generator(object):
                 webks.scripts.append(script)
             else:
                 webks.setMember('scripts', script)
-
-        for script in webks.scripts:
-            log.debug("Interating: %s" % str(script))
 
     def __getCachedTemplate(self, file):
         # We check for file's existance in configtools

@@ -186,6 +186,7 @@ class Configuration(object):
         file = os.path.join(plugind, "%s.conf" % plugin)
         log.debug("Looking for plugin config: %s" % file)
         if not os.access(file, os.R_OK):
+            log.debug("File not found: %s" % file)
             return None
         
         self.__checkConfig(file)
