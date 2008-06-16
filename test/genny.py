@@ -21,7 +21,6 @@
 import os
 import sys
 import os.path
-import unittest
 import logging
 
 sys.path.insert(0, "../")
@@ -56,7 +55,10 @@ class TestGenerator(object):
         print gen.makeKickstart(os.path.basename(filename))
 
 if __name__ == '__main__':
-    #unittest.main()
+    
+    if len(sys.argv) != 3:
+        print "Usage: python %s ProfileName Filename" % sys.argv[0]
+        sys.exit()
 
     profile = sys.argv[1]
     filename = sys.argv[2]
