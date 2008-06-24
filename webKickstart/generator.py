@@ -56,7 +56,7 @@ class Generator(object):
             self.__includeFile(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
 
-    def makeKickstart(self, fqdn):
+    def makeKickstart(self, fqdn, excludePlugins=[]):
         """Return a string of a Red Hat Kickstart."""
 
         file = configtools.config.getTemplate(self.profile)

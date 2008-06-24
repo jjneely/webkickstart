@@ -22,8 +22,7 @@ import os
 import sys
 import os.path
 import logging
-
-sys.path.insert(0, "../")
+import optparse
 
 from webKickstart import configtools
 from webKickstart.metaparser import MetaParser
@@ -32,9 +31,6 @@ from webKickstart.generator import Generator
 log = logging.getLogger('webks')
 
 class TestGenerator(object):
-
-    def getFile(self, test):
-        return os.path.join(os.getcwd(), self.testfiles, test)
 
     def setUp(self):
         if configtools.config == None:
@@ -48,22 +44,36 @@ class TestGenerator(object):
         self.cfg = configtools.config
         log.debug("hosts: %s" %configtools.config.hosts)
 
-    def makeKS(self, profile, filename):
+    def makeKS(self, filename):
         mc = MetaParser(filename)
-        gen = Generator(profile, mc)
+        version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
+        fqdn = os.path.basename(filename)
+        log.debug("Found version string: %s" % version)
+        gen = Generator(version, mc)
         
-        print gen.makeKickstart(os.path.basename(filename))
+        print gen.makeKickstart(fqdn)
 
-if __name__ == '__main__':
-    
-    if len(sys.argv) != 3:
-        print "Usage: python %s ProfileName Filename" % sys.argv[0]
+
+def main():
+    parser = optparse.OptionParser("%%prog %s [options] MetaConfig" % \
+                                   sys.argv[0])
+    parser.add_option("-C", "--configdir", action="store", type="string",
+                                      dest="configdir", default=None)
+
+    (opts, args) = parser.parse_args(sys.argv)
+    print args
+
+    if len(args) != 2:
+        parser.print_help()
         sys.exit()
 
-    profile = sys.argv[1]
-    filename = sys.argv[2]
+    filename = sys.argv[1]
 
     t = TestGenerator()
     t.setUp()
-    t.makeKS(profile, filename)
+    t.makeKS(filename)
+
+
+if __name__ == '__main__':
+    main()
 
