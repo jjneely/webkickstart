@@ -34,9 +34,6 @@ import os.path
 
 log = logging.getLogger("webks")
 
-# XXX:
-security = None
-
 class webKickstart(object):
 
     def __init__(self, url, headers):
@@ -50,6 +47,22 @@ class webKickstart(object):
             configtools.config == self.cfg
         else:
             self.cfg = configtools.config
+
+    def __headerCheck(self, fqdn):
+        # check for anaconda
+        if self.headers.has_key("X-RHN-Provisioning-MAC-0"):
+            # continue through...we *know* this is anaconda
+            # only present in version >= FC1
+            return True
+        # This handles anaconda before Fedora which includes RHEL 3
+        elif len(self.headers) > 1:
+            # Bad
+            return False
+        elif not self.headers.has_key('Host'):
+            # More bad
+            return False
+
+        return False
 
     def __getKS(self, host, debug=0):
         # Figure out the file name to look for, parse it and see what we get.
@@ -74,8 +87,7 @@ class webKickstart(object):
 
         if not debug and mc != None:
             # Security check
-            if ( self.cfg.security and 
-                 not security.check(self.headers, filename) ):
+            if self.cfg.security and not self.__headerCheck(filename):
                 return (2, "# You do not appear to be Anaconda.")
                 
         if mc != None:

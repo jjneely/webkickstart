@@ -1,0 +1,11 @@
+# An example config file for the rlsecurity plugin.
+# This plugin does some NCSU-specific logging of Realm Linux installs
+
+[main]
+
+# server URL
+server = https://localhost/xmlrpc
+
+# shared secret
+secret = b47a8c73-2d8b-4f9c-ab05-3fab88a8ea04
+

@@ -22,6 +22,7 @@ import sys
 import os
 
 from mod_python import apache
+from mod_python import util
 
 from webKickstart import webKickstart
 
@@ -39,9 +40,23 @@ def handler(req):
     # Init webKickstart
     w = webKickstart(url, req.headers_in)
 
-    # Main mode of operation
-    # Other cool stuff moved to webapp.py
-    tuple = w.getKS(ip, 0)
+    # get the GET/POST thingies
+    args = util.FieldStorage(req)
+    
+    # Check to see what mode to run in
+    if 'collision_detection' in args.keys():
+        tuple = w.collisionDetection(args['collision_detection'])
+        
+    elif 'dns_config_check' in args.keys():
+        tuple = w.checkConfigHostnames()
+        
+    elif 'debugtool' in args.keys():
+        # Pass what we intered into the debug field and turn on debug mode
+        tuple = w.getKS(args['debugtool'], 1)
+        
+    else:
+        # Main mode of operation
+        tuple = w.getKS(ip, 0)
 
     # send on the kickstart
     req.write(tuple[1])
