@@ -32,25 +32,37 @@ log = logging.getLogger('webks')
 
 class TestGenerator(object):
 
-    def setUp(self):
+    def setUp(self, dir=None):
         if configtools.config == None:
             log.debug("Doing configuration bits...")
-            self.cfgdir = os.path.join(os.path.dirname(__file__),
-                                       'testconfig/')
-            if not os.path.isabs(self.cfgdir):
-                self.cfgdir = os.path.abspath(self.cfgdir)
+            if dir is not None:
+                self.cfgdir = dir
+                if not os.path.isabs(self.cfgdir):
+                    self.cfgdir = os.path.abspath(self.cfgdir)
+            else:
+                self.cfgdir = None
+
             configtools.config = configtools.Configuration(self.cfgdir)
 
         self.cfg = configtools.config
-        log.debug("hosts: %s" %configtools.config.hosts)
 
     def makeKS(self, filename):
+        # Load the config file into a MetaParser object
         mc = MetaParser(filename)
+
+        # Grab out the version/profile string
         version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
-        fqdn = os.path.basename(filename)
         log.debug("Found version string: %s" % version)
+
+        # The mod_python bits assume the FQDN matches the basename of the
+        # config file.  For generating the file you can aquire the FQDN
+        # any way that's useful.
+        fqdn = os.path.basename(filename)
+
+        # Create a Generator object
         gen = Generator(version, mc)
         
+        # Assumble the kickstart
         print gen.makeKickstart(fqdn)
 
 
@@ -58,19 +70,19 @@ def main():
     parser = optparse.OptionParser("%%prog %s [options] MetaConfig" % \
                                    sys.argv[0])
     parser.add_option("-C", "--configdir", action="store", type="string",
-                                      dest="configdir", default=None)
+           dest="configdir", default=None,
+           help="Configuration directory. [/etc/webkickstart]")
 
     (opts, args) = parser.parse_args(sys.argv)
-    print args
 
     if len(args) != 2:
         parser.print_help()
         sys.exit()
 
-    filename = sys.argv[1]
+    filename = args[1]
 
     t = TestGenerator()
-    t.setUp()
+    t.setUp(opts.configdir)
     t.makeKS(filename)
 
 

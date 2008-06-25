@@ -95,7 +95,7 @@ class Configuration(object):
         self.reload()
 
         self.__initLogging()
-        log.debug("Using configuration file: %s" % self.__file)
+        log.info("Using configuration file: %s" % self.__file)
 
         # Check the path for hosts
         if not os.path.isabs(self.hosts):
@@ -132,8 +132,10 @@ class Configuration(object):
             # we've already set something up here
             return
         
-        if file == None or file == '-':
+        if file == '-':
             handler = logging.StreamHandler(sys.stdout)
+        elif file == None or file == "":
+            handler = logging.StreamHandler(sys.stderr)
         else:
             handler = logging.FileHandler(file)
 

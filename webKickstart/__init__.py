@@ -24,7 +24,6 @@
 from metaparser import MetaParser
 from errors import *
 import configtools
-import security
 
 import socket
 import traceback
@@ -34,6 +33,9 @@ import os
 import os.path
 
 log = logging.getLogger("webks")
+
+# XXX:
+security = None
 
 class webKickstart(object):
 
