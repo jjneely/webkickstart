@@ -18,10 +18,7 @@ install
 #if $enable.staticip.len() != 4
 #raise $ParseError, "enable staticip requires 4 arguments"
 #end if
-network --bootproto static  --ip $enable.staticip[0] \
-        --netmask $enable.staticip[1] \
-        --gateway $enable.staticip[2] \
-        --nameserver $enable.staticip[3]
+network --bootproto static  --ip $enable.staticip[0] --netmask $enable.staticip[1] --gateway $enable.staticip[2] --nameserver $enable.staticip[3]
 #else
 network --bootproto dhcp
 #end if
@@ -104,19 +101,14 @@ firewall $firewall
 firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
 #end if
 
-auth --useshadow --enablemd5 --enableldap \
-     --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu \
-     --enablecache --enablekrb5 --enablekrb5kdcdns \
-     --krb5realm EOS.NCSU.EDU
+auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablecache --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
 
 #if $varExists('enable.nox') or $varExists('skipx')
 skipx
 #else if $varExists('xconfig')
 xconfig $xconfig
 #else
-xconfig --resolution "1280x1024" \
-        --depth 24 --defaultdesktop GNOME \
-        --startxonboot
+xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
 #end if
 #if $varExists('monitor')
 monitor $monitor
