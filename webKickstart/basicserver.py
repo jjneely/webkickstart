@@ -22,11 +22,14 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import BaseHTTPServer
-import logger
+import optparse
+import logging
+import sys
 
 from webKickstart import webKickstart
+from webKickstart import configtools
 
-log = logger.getLogger("webks")
+log = logging.getLogger("webks")
 
 class WebKSHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
@@ -37,15 +40,39 @@ class WebKSHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         w = webKickstart("url", self.headers)
         tuple = w.getKS(ip, 0)
 
-        self.send_header('content_type', "text/plain")
+        self.send_header('content_type', 'text/plain')
 
         if tuple[0] != 0:
-            log.warning("Something bad happend.")
+            log.warning("An error occured in WebKickstart:")
             log.warning(tuple[1])
 
         return tuple[1]
 
 
 def main():
-    pass
+    parser = optparse.OptionParser("%%prog %s [options]" % \
+                                   sys.argv[0])
+    parser.add_option("-C", "--configdir", action="store", type="string",
+           dest="configdir", default=None,
+           help="Configuration directory. [/etc/webkickstart]")
+    parser.add_option("-p", "--port", action="store", type="int",
+           dest="port", default=8080,
+           help="HTTP Port. [8080]")
+
+    (opts, args) = parser.parse_args(sys.argv)
+    
+    if len(args) > 1:
+        parser.print_help()
+        sys.exit(1)
+
+    cfg = configtools.Configuration(opts.configdir)
+    configtools.config = cfg
+
+    log.info("Hit ^C to terminate.")
+
+    httpd = BaseHTTPServer.HTTPServer(('', opts.port), WebKSHandler)
+    httpd.serve_forever()
+
+if __name__ == "__main__":
+    main()
 
