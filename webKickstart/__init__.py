@@ -22,6 +22,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from metaparser import MetaParser
+from generator import Generator
 from errors import *
 import configtools
 
@@ -64,7 +65,7 @@ class webKickstart(object):
 
         return False
 
-    def __getKS(self, host, debug=0):
+    def __getKS(self, host):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
@@ -75,7 +76,7 @@ class webKickstart(object):
 
         mcList = self.findFile(filename, self.cfg.hosts)
 
-        if len(mcList) > 1 and self.cfg.collision:
+        if len(mcList) > 1 and self.cfg.isTrue('collision'):
             # if collision_detection is on then bitch
             # otherwise we just want the first hit
             return self.__collisionMessage(mcList)
@@ -85,10 +86,12 @@ class webKickstart(object):
         else:
             mc = mcList[0]
 
-        if not debug and mc != None:
-            # Security check
-            if self.cfg.security and not self.__headerCheck(filename):
-                return (2, "# You do not appear to be Anaconda.")
+        # Security check
+        #log.debug("Security Set to: %s" % self.cfg.isTrue('security'))
+        #log.debug("Header Check Boolean: %s" % self.__headerCheck(filename))
+        if self.cfg.isTrue('security') and not self.__headerCheck(filename):
+            log.warning("Requesting client is not Anaconda.")
+            return (2, "# You do not appear to be Anaconda.")
                 
         if mc != None:
             if mc.isKickstart():
@@ -99,21 +102,21 @@ class webKickstart(object):
             genny = Generator(version, mc)
         else:
             # disable the default, no-config file, generic kickstart
-            if self.cfg.generic_ks:
+            if self.cfg.isTrue('generic_ks'):
                 genny = Generator('default', mc)
             else:
                 log.info("No config file for host " + filename)
                 return (1, "# No config file for host " + filename)
                 
         log.info("Generating kickstart for %s." % filename)    
-        retval = genny.makeKS()
+        retval = genny.makeKickstart(filename)
         return (0, retval)
         
 
-    def getKS(self, host, debug=0):
+    def getKS(self, host):
         # Wrapper for error checking/handling
         try:
-            return self.__getKS(host, debug)
+            return self.__getKS(host)
     
         except WebKickstartError, e:
             s = "An error occured while Web-Kickstart was running.\n"

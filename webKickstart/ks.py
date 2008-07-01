@@ -41,7 +41,7 @@ def handler(req):
 
     # Main mode of operation
     # Other cool stuff moved to webapp.py
-    tuple = w.getKS(ip, 0)
+    tuple = w.getKS(ip)
 
     # send on the kickstart
     req.write(tuple[1])

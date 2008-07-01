@@ -94,7 +94,7 @@ class Configuration(object):
         self.__mtime = {}
         self.reload()
 
-        self.__initLogging()
+        self.__initLogging(self.logfile, int(self.log_level))
         log.info("Using configuration file: %s" % self.__file)
 
         # Check the path for hosts
@@ -174,6 +174,13 @@ class Configuration(object):
 
         line = self.__cfg[self.__file].get(profile, 'plugins', line)
         return line
+
+    def isTrue(self, attr):
+        value = self.__getattr__(attr)
+        if value.lower() in ['1', 'true', 'enabled']:
+            return True
+        else:
+            return False
 
     def getPlugins(self, profile):
         # Return a list of plugins used for the given profile

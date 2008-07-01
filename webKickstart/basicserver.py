@@ -34,19 +34,24 @@ log = logging.getLogger("webks")
 class WebKSHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_GET(self):
-        log.info("WebKickstart request from %s" % self.client_address)
+        #log.info("WebKickstart request from %s" % self.client_address)
         log.debug("Headers: %s" % str(self.headers))
 
         w = webKickstart("url", self.headers)
-        tuple = w.getKS(ip, 0)
-
-        self.send_header('content_type', 'text/plain')
+        tuple = w.getKS(self.address_string())
 
         if tuple[0] != 0:
-            log.warning("An error occured in WebKickstart:")
-            log.warning(tuple[1])
+            log.warning("Returning error message to client.")
 
-        return tuple[1]
+        self.send_response(200)
+        self.send_header('Content_type', 'text/plain')
+        self.end_headers()
+
+        self.wfile.write(tuple[1])
+
+    def log_message(self, format, *args):
+        log.info("%s - - %s" % (self.address_string(),
+                                format % args))
 
 
 def main():
@@ -71,7 +76,13 @@ def main():
     log.info("Hit ^C to terminate.")
 
     httpd = BaseHTTPServer.HTTPServer(('', opts.port), WebKSHandler)
-    httpd.serve_forever()
+
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+    log.info("Shutting down...")
 
 if __name__ == "__main__":
     main()
