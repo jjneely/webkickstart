@@ -18,13 +18,34 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import cherrypy
 import sys
 import os
-
-from mod_python import apache
-from mod_python import util
+import kid 
 
 from webKickstart import webKickstart
+from webKickstart import configtools
+
+def importer(module):
+    tree = module.split('.')
+    for path in sys.path:
+        basepath = apply(os.path.join, [path] + tree[:-1])
+        file = os.path.join(basepath, tree[-1]+'.kid')
+        if os.path.exists(file):
+            return kid.Template(file=file)
+
+    return None
+
+def serialize(mod, dict):
+    #template = importer(mod)
+    template = kid.Template(name=mod)
+    if template == None:
+        raise Exception("No kid module %s" % mod)
+
+    for key, value in dict.items():
+        setattr(template, key, value)
+
+    return template.serialize(encoding='utf-8', output='xhtml')
 
 def handler(req):
     # Main apache request handler
@@ -65,4 +86,17 @@ def handler(req):
     if tuple[0] == 42: apache.log_error(tuple[1], apache.APLOG_ERR)
 
     return apache.OK
+
+class Application(object):
+
+    def index(self):
+        pass
+
+
+def main():
+    cherrypy.root = Application()
+    cherrypy.server.start()
+
+if __name__ == "__main__":
+    main()
 
