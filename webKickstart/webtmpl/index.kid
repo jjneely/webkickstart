@@ -25,9 +25,9 @@ in the box below.  This will show you the kickstart that will be sent
 to that host when it is Web-Kickstarted.  If there is an error a
 hopefully helpful message will appear.</p>
 
-<form action="$url" method="post">
-<p>IP or host name: <input type="text" name="debugtool">
-<input type="submit"></p>
+<form action="debugtool" method="post">
+<p>IP or host name: <input type="text" name="host"/>
+<input type="submit"/></p>
 </form>
 
 <h2>Collision Detection</h2>
@@ -36,18 +36,10 @@ hopefully helpful message will appear.</p>
 host?  Well, its not good.  Enter in the the IP or FQDN of a host name
 to this tool and it will report config file collisions.</p>
 
-<?php
-    
-    if ( $acl ) {
-        echo "<form action=\"$url\" method=\"post\">";
-        echo "<p>IP or host name: <input type=\"text\" name=\"collision_detection\">";
-        echo "<input type=\"submit\"></p>";
-        echo "</form>";
-    } else {
-        echo "<p>Access to form denied.</p>";
-    }
-
-?>
+<form action="collision" method="post">
+<p>IP or host name: <input type="text" name="host"/>
+<input type="submit"/></p>
+</form>
 
 <h2>Old Config Files</h2>
 
@@ -55,18 +47,10 @@ to this tool and it will report config file collisions.</p>
 all the config files for hosts that no longer resolve in DNS.  Click the 
 submit button.</p>
 
-<?php
-    
-    if ( $acl ) {
-        echo "<form action=\"$url\" method=\"post\">";
-        echo "<input type=\"hidden\" name=\"dns_config_check\" value=\"1\">";
-        echo "<input type=\"submit\">";
-        echo "</form>";
-    } else {
-        echo "<p>Access to form denied.</p>";
-    }
-
-?>
+<form action="checkconfigs" method="post">
+  <input type="submit"/>
+</form>
 
 </body>
 </html>
+

@@ -18,6 +18,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import optparse
 import cherrypy
 import sys
 import os
@@ -90,10 +91,40 @@ def handler(req):
 class Application(object):
 
     def index(self):
-        pass
+        return serialize('webtmpl.index', {})
+    index.exposed = True
+
+    def debugtool(self, host):
+        if host == "":
+            return serialize('webtmpl.debugtool', dict(host="None",
+                  kickstart="# You failed to provide a host to check."))
+
+        w = webKickstart('url', {})
+        tuple = w.getKS(host)
+
+        return serialize('webtmpl.debugtool', dict(host=host,
+                  kickstart=tuple[1]))
+    debugtool.exposed = True
 
 
 def main():
+    parser = optparse.OptionParser("%%prog %s [options]" % \
+                                   sys.argv[0])
+    parser.add_option("-C", "--configdir", action="store", type="string",
+           dest="configdir", default=None,
+           help="Configuration directory. [/etc/webkickstart]")
+    
+    (opts, args) = parser.parse_args(sys.argv)
+    
+    if len(args) > 1:
+        parser.print_help()
+        sys.exit(1)
+
+    cfg = configtools.Configuration(opts.configdir)
+    # XXX: We know that security checks wont work for the webapp
+    cfg.security = "0"
+    configtools.config = cfg
+
     cherrypy.root = Application()
     cherrypy.server.start()
 
