@@ -1,11 +1,9 @@
 Web-Kickstart
 =============
 
-Also known as Solaris2ks.
+Version 3.0-ish.
 
-Version 2.3.
-
-Copyright 2002-2006 NC State University
+Copyright 2002-2008 NC State University
 Written by
    Jack Neely   <jjneely@pams.ncsu.edu>
    Elliot Peele <ebpeele2@pams.ncsu.edu>
@@ -50,7 +48,7 @@ system or a server.  These files follow in a similar style to
 <key> [value ...].  With two to four lines you can have a highly
 customized and configure linux install.  Config files can include
 other files, and you can even attach multiple %post's and %pre's.
-Web-Kickstart takes this config file, loads it into a Python class
+Web-Kickstart takes this config file, loads it into a Cheetah template
 that you can customize, dynamically generates a complete kickstart,
 and sends it to the installing client via HTTP.  For example, I can
 install a Realm Linux 9 machine (which is a customized version of
@@ -66,11 +64,10 @@ specifies the proper default printer, and adds a user to the administrative
 users for the machine.  The rest of the install is controlled by the
 defaults in the class.  
 
-Included is a class and documentation for installing stock Red Hat Linux
-or Fedora Core.  I also include the working classes that we use at NC
+Included is a template and documentation for installing stock RHEL
+or Fedora.  These are the basis of the working templates I use at NC
 State University to install Realm Linux as an example for how you can
-customize the software.  Classes for install rPath Linux are also
-included but not tested by myself.
+customize the software.  
 
 Feedback and patches welcome!
 
@@ -78,44 +75,61 @@ Feedback and patches welcome!
 Installing
 ----------
 
-Installing the software is pretty easy.  There are a couple of things
-that are still specific to the setup at NCSU that we are working out
-so we can have a more generally useful project.  Accepting patches.
+There should be RPMs and a python setup.py file at some point.  For now
+you can take the webKickstart/ directory from the archive and stick it
+in Python's site-packages directory or any place that's in Python's
+sys.path.
 
-You will need an Apache server with mod_python setup and running on 
-a machine that has read access to your distributed file system or
-where ever you want to keep your config files.  I'd recommend a 
-virtual host dedicated to this service.
-
-    http://web-kickstart.linux.ncsu.edu
-
-All the files in this tarball go into the top level directory that is 
-served out on the virtual domain.  You want to be able to do a
-
-    http://web-kickstart.linux.ncsu.edu/ks.py
-
-
-The directory that contains your configuration files can be anywhere on
-your system.  However, Apache must be able to read them.
-
-Lastly, make sure that the Apache overrides are set properly to let 
-mod_python code run.  With this version you will also want to edit the
-web pages so that they have the extension html instead of phtml which
-is for a templating engine called Pharser we use at NCSU.
-
+You can run WebKickstart through Apache via mod_python or by using the 
+stand alone basic server.  The ks.py file is the mod_python handler while
+basicserver.py runs an HTTP server with Python's build it baseHTTPServer.
 
 Configuring
 -----------
 
-The next part of the install is setting up the config file called
-solaris2ks.conf.  There is an example included that is fairly well
-documented.  Start from there.  This is where you map the version keys,
-like '9' in the above example, to a class and supply some base URLs.
-Also, the path to where you store the configuration files must be
-included here.
+All the configuration bits normally go in an /etc/webkickstart directory.
+The main config file is webkickstart.conf inside that directory.  
+The config files for each hosts by default live in /etc/webkickstart/hosts,
+configuration for any user supplied plugins in /etc/webkickstart/pluginconf.d,
+and the templates or profiles in /etc/webkickstart/profiles.
 
-At this point you should have a semi-working system.  Make a few config
-files and start testing and customizing.
+You may configure WebKickstart to use a different path other than
+/etc/webkickstart for configuration information.  However, it still expects
+for /you/custom/path/webkickstart.conf to exist.  See the default 
+webkickstart.conf for details.
+
+You may specify the keyword you want to use to indicate which template or
+profile to use and which keywords will include other config files.  You
+can also specify alternate locations for where the profiles and config
+files live.  Each available configuration bit is documented in the
+example webkickstart.conf.
+
+The config file has a section for each template / profile.  The section
+name (the name inside [ ]) is the name that your configs must use to
+refer to the template/profile they want to use.  There are two options:
+
+    enable = 1 -- Set to enable the usage of this profile
+    plugins = <plugin1>... 
+               -- The list of custom plugins to run in order
+
+Plugins are python modules that live in the webKickstart.plugins package.
+The __init__.py file contains a super class for them and I've included
+several examples.  These plugins give you added flexibility to add
+variables and data to what the profile template can see.
+
+Profiles
+--------
+
+The profiles are normal Cheetah templates.  You can do anything you
+normally would in that environment.  Each row from a config file turns 
+into a variable the template can use that is named the same as the first
+token in the row.  The variables are TemplateVar objects defined in the
+templatevar.py file.  This makes the variable very easy to print out 
+verbatim, reference each token via its index, match a regex pattern, and
+iterate through multiple rows if the same key word is used multiple times.
+
+The example profiles provide many examples for how to use the template 
+variables.
 
 
 More Information

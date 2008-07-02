@@ -1,6 +1,3 @@
-* Fix config code:
-   * So we can load any arbitrary source file
-   * take out all the defaults crap -> kickstart templates
 
 * add unit test cases
 
