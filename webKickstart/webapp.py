@@ -106,6 +106,24 @@ class Application(object):
                   kickstart=tuple[1]))
     debugtool.exposed = True
 
+    def collision(self, host):
+        if host == "":
+            return serialize('webtmpl.debugtool', dict(host="None",
+                  kickstart="# You failed to provide a host to check."))
+        
+        w = webKickstart('url', {})
+        tuple = w.collisionDetection(host)
+        return serialize('webtmpl.collision', dict(host=host,
+                                                   output=tuple[1]))
+    collision.exposed = True
+
+    def checkconfigs(self):
+        w = webKickstart('url', {})
+        tuple = w.checkConfigHostnames()
+
+        return serialize('webtmpl.checkconfigs', dict(output=tuple[1]))
+    checkconfigs.exposed = True
+
 
 def main():
     parser = optparse.OptionParser("%%prog %s [options]" % \

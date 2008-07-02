@@ -177,7 +177,7 @@ class webKickstart(object):
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]
                          
-        scList = self.findFile(filename, self.cfg.jumpstarts)
+        scList = self.findFile(filename, self.cfg.hosts)
 
         if len(scList) > 1:
             return self.__collisionMessage(scList)
@@ -198,7 +198,7 @@ class webKickstart(object):
         """
         Check for config files that don't resolve in dns any longer.
         """
-        list = self.__checkConfigHostnamesHelper(self.cfg.jumpstarts)
+        list = self.__checkConfigHostnamesHelper(self.cfg.hosts)
         if len(list) == 0:
             s = "No config files found that don't resolve in dns."
         else:
