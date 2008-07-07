@@ -52,8 +52,26 @@ class WebKickstartPlugin(object):
 
         return self.variableDict
 
+class AuthN(object):
 
-def getModules():
+    def authenticate(self, id, password):
+        "Return a boolean value if user/password is correct."
+        return True
+
+    def getName(self):
+        "Return the user's name that can be displayed on the website."
+        return "Guest User"
+
+class AuthZ(object):
+
+    def authorize(self):
+        """Return a boolean value if user is allowed to use the WebKickstart
+           Web app.
+        """
+        return True
+
+
+def getModules(superclass):
     list = []
     modules = {}
     path = os.path.dirname(__file__)
@@ -80,9 +98,9 @@ def getModules():
         for n, obj in mod.__dict__.items():
             if not type(obj) == type(object):
                 continue
-            if not issubclass(obj, WebKickstartPlugin):
+            if not issubclass(obj, superclass):
                 continue
-            if obj is WebKickstartPlugin:
+            if obj is superclass:
                 continue
             
             modules[m] = obj

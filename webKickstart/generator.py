@@ -84,7 +84,7 @@ class Generator(object):
         return s
 
     def runPlugins(self):
-        mods = plugins.getModules()
+        mods = plugins.getModules(plugins.WebKickstartPlugin)
         requestedPlugins = configtools.config.getPlugins(self.profile)
 
         for p in requestedPlugins:
