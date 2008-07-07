@@ -22,6 +22,7 @@ import optparse
 import cherrypy
 import sys
 import os
+import os.path
 import kid 
 
 from webKickstart import webKickstart
@@ -142,6 +143,12 @@ def main():
     # XXX: We know that security checks wont work for the webapp
     cfg.security = "0"
     configtools.config = cfg
+
+    # XXX: Static directory.  Hopefully relative...
+    staticDir = os.path.join(os.path.dirname(__file__), "static")
+    cherrypy.config.update({"/static": {
+                            'static_filter.on': True,
+                            'static_filter.dir': os.path.abspath(staticDir) }})
 
     cherrypy.root = Application()
     cherrypy.server.start()

@@ -1,12 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:py="http://purl.org/kid/ns#">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://purl.org/kid/ns#"
+  py:extends="'master.kid'">
 
-<head>
-<title>Web-Kickstart Tools</title>
-</head>
+<head></head>
 <body>
-
-<h1>Web-Kickstart Tools</h1>
 
 <p>Welcome to the Web-Kickstart Tools page.  This page gives you access
 to some additional tools to help you debug you config files and manage
