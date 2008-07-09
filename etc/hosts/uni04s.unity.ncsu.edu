@@ -1,6 +1,0 @@
-version 9
-use configs/unity/nagios-server
-
-%post
-#finish heartbeat setup
-/bin/echo "ucast eth0 152.1.1.200" >> /etc/ha.d/ha.cf

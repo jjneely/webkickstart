@@ -1,8 +1,0 @@
-%post
-
-# This is just a generic script that does nothing but serve as
-# an example.  This file was included via a "use" key and its
-# script will appear at the bottom.
-
-echo "script1 file was incorperated properly" >> /KICKSTART
-
