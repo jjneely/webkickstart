@@ -1,0 +1,11 @@
+# An example config file for the rlusers plugin.
+# This plugin does some NCSU-specific things
+
+[main]
+
+# Path to the tree of encrypted passwords and users
+conftree = /afs/bp.ncsu.edu/system/common/update
+
+# The Blowfish encryption key for the 'default' group
+defaultkey = foobarbaz
+

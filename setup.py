@@ -24,6 +24,7 @@
 import os
 import os.path
 from distutils.core import setup
+from glob import glob
 
 VERSION="3.0"
 
@@ -44,8 +45,6 @@ def getDirs(path):
 
     return dirs
 
-print getDirs('webKickstart')
-
 setup(  version=VERSION,
 
         name="Web-Kickstart",
@@ -60,6 +59,10 @@ setup(  version=VERSION,
                                        'static/*.gif',
                                        'static/css/*.css'],
                      },
-        #data_files=[('/etc/current', ['current.conf'])],
+        data_files=[('/etc/webkickstart', ['etc/webkickstart.conf']),
+         ('/etc/webkickstart/hosts', glob('etc/hosts/*')),
+         ('/etc/webkickstart/pluginconf.d', glob('etc/pluginconf.d/*.example')),
+         ('/etc/webkickstart/profiles', glob('etc/profiles/*.tmpl')),
+        ],
         scripts=['scripts/makekickstart.py'],
      )

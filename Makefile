@@ -12,6 +12,6 @@ clean:
 
 archive:
 	git archive --prefix=$(NAME)-$(VERSION)/ \
-		--format=tar master | bzip2 > $(NAME)-$(VERSION).tar.gz
+		--format=tar master | bzip2 > $(NAME)-$(VERSION).tar.bz2
 	@echo "The archive is in $(NAME)-$(VERSION).tar.bz2"
 
