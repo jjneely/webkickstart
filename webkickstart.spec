@@ -9,7 +9,7 @@ Summary:        Dynamically generate complex Red Hat Kickstarts.
 Group:          System Environment/Daemons
 License:        GPL
 URL:            https://secure.linux.ncsu.edu/moin/WebKickstart
-Source0:        %{name}-%{version}.tar.gz
+Source0:        %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      noarch
