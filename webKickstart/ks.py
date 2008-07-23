@@ -24,8 +24,22 @@ import os
 from mod_python import apache
 
 from webKickstart import webKickstart
+from webKickstart import configtools
+
+def doSetup(req):
+    if req.get_options().has_key('webKickstart.config'):
+        configDir = req.get_options()['webKickstart.config']
+    else:
+        configDir = None
+
+    configtools.config = configtools.Configuration(configDir)
+
 
 def handler(req):
+    # PythonOptions and configuration
+    if configtools.config == None:
+        doSetup(req)
+
     # Main apache request handler
     req.content_type = "text/plain"
     req.send_http_header()

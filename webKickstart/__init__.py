@@ -37,14 +37,14 @@ log = logging.getLogger("webks")
 
 class webKickstart(object):
 
-    def __init__(self, url, headers):
+    def __init__(self, url, headers, configDir=None):
         # set up url from reinstalls
         self.url = url
         # client's headers
         self.headers = headers
 
         if configtools.config == None:
-            self.cfg = configtools.Configuration()
+            self.cfg = configtools.Configuration(configDir)
             configtools.config == self.cfg
         else:
             self.cfg = configtools.config
