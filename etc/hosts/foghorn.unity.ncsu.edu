@@ -1,0 +1,26 @@
+# An example testing config I use to build webKickstart 3.0
+
+version rl5
+printer hlb-212-1
+use cls
+
+# 'foobar' for a root password
+rootpw $1$RzQxl/3k$wA9WeJvFa7vXF80szN6l3.
+
+part /boot --size 256
+part pv.00 --size 1 --grow
+
+volgroup Vol0 pv.00 
+
+logvol /               --vgname=Vol0 --size=5000 --grow --name=root
+logvol /var            --vgname=Vol0 --size=2048        --name=var
+logvol swap            --vgname=Vol0 --recommended      --name=swap
+
+package @ Realm Linux Server
+package @ development-tools
+package @ realmlinux-vmware
+
+enable nox
+
+enable adminusers gnriehle
+

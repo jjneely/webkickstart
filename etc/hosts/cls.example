@@ -1,0 +1,14 @@
+# This would normally be named 'cls' and includes some of the
+# secret keys I include with many of my servers/clients at NCSU.
+# I've inserted some bogus mess for the keys, but this will be an
+# example for the rlusers and rlsecurity plugins.
+
+enable activationkey yCeX9RBXLPDR3OVFIku6bH7Q8HQ0B6WG
+dept itd-cls
+root unixsys zB0T4kjKDX4DiPX15ErBxhCWiqYjbElA
+users itd-cls Vby4IkqQehYZdwsfDr7DC2T5AZwRE9u3
+owner linuxroot@lists.ncsu.edu
+selinux --disabled
+enable localcluster None
+enable remotecluster None
+

@@ -75,14 +75,23 @@ Feedback and patches welcome!
 Installing
 ----------
 
-There should be RPMs and a python setup.py file at some point.  For now
-you can take the webKickstart/ directory from the archive and stick it
-in Python's site-packages directory or any place that's in Python's
-sys.path.
+The RPMs provided or generated from the Makefile should get everything
+installed for you.  
 
 You can run WebKickstart through Apache via mod_python or by using the 
 stand alone basic server.  The ks.py file is the mod_python handler while
 basicserver.py runs an HTTP server with Python's build it baseHTTPServer.
+
+The basic server can be run like so
+
+    python simplewebkickstart.py -C /path/to/conf/dir
+
+The default for the configuration directory is /etc/webkickstart.
+
+To do some quick testing and generation of kickstarts you can use the
+following:
+
+    python makekickstart.py -C /bah/foo foghorn.unity.ncsu.edu
 
 Configuring
 -----------
