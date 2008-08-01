@@ -153,7 +153,7 @@ class webKickstart(object):
            filename.  Ie, /foo/bar and /baz/bar when fn="bar".  This
            is case insensitive as is DNS.
         """
-
+        log.debug("Searching for MC: %s" % fn)
         ret = []
         fn = fn.lower()
 

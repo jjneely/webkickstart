@@ -97,9 +97,12 @@ class Configuration(object):
         self.__initLogging(self.logfile, int(self.log_level))
         log.info("Using configuration file: %s" % self.__file)
 
+        # XXX:  Can't do this here.  Its nuked when the config file is
+        # reloaded.  Must do this consitantly
+
         # Check the path for hosts
-        if not os.path.isabs(self.hosts):
-            self.hosts = os.path.join(self.__dir, self.hosts)
+        #if not os.path.isabs(self.hosts):
+        #    self.hosts = os.path.join(self.__dir, self.hosts)
 
     def __getattr__(self, attr):
         # Override the default getattr behavior to pull info from
@@ -216,7 +219,8 @@ class Configuration(object):
     def reload(self, file=None):
         # call to reload the config on file change
         if file == None: file = self.__file
-
+        
+        log.info("Loading config file: %s" % file)
         self.__mtime[file] = os.stat(file).st_mtime
         self.__cfg[file] = Parser()
         self.__cfg[file].read(file)
