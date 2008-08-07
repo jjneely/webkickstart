@@ -65,7 +65,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(self.cfg.log_levelbob, foobar)
 
     def testDefaultConfig(self):
-        self.assertEqual(self.cfg.collision, 1)
+        self.assert_(self.cfg.isTrue('collision'))
 
 if __name__ == '__main__':
     unittest.main()

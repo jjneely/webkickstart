@@ -66,7 +66,13 @@ class Generator(object):
             msg = msg % (self.profile, configtools.config.profile_key)
             raise WebKickstartError, msg
    
-        # webkickstart namespace
+        # webkickstart namespaces
+        d = configtools.config.getProfileVars(self.profile)
+        configvars = {}
+        # TemplateVar up all the stuff from the config file
+        for k in d.keys():
+            configvars[k] = TemplateVar(d[k], key=k)
+
         self.variables['webKickstart'] = TemplateVar('webKickstart')
         self.variables['webKickstart'].setMember('remoteHost', fqdn)
         other = {'WebKickstartError': WebKickstartError, 
@@ -76,11 +82,12 @@ class Generator(object):
         self.runPlugins()
 
         log.debug("Loading template file: %s" % file)
+        #log.debug("Configuration vars: %s" % str(configvars))
         #log.debug("Template vars: %s" % str(self.variables))
         #log.debug("Other vars: %s" % str(other))
         built = self.__getCachedTemplate(file)
     
-        s = str(built(namespaces=[self.variables, other]))
+        s = str(built(namespaces=[configvars, self.variables, other]))
         return s
 
     def runPlugins(self):

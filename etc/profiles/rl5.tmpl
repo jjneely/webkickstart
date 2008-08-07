@@ -1,7 +1,6 @@
 #set $tree = "http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1"
 #set $arch = "x86_64"
 #set $kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
-#set $defaultActivation = "6ed40e5c831bd8a8d706f0abe8f44f09"
 #set $installtree = $tree + "/" + $arch
 ##
 #if $varExists('lang')
@@ -453,7 +452,7 @@ EOF
 #else if $varExists('enable.activationkey')
 #set $_akey = $enable.activationkey
 #else
-#set $_akey = $defaultActivation
+#set $_akey = $defaultactivation
 #end if
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"

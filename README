@@ -132,16 +132,23 @@ example webkickstart.conf.
 
 The config file has a section for each template / profile.  The section
 name (the name inside [ ]) is the name that your configs must use to
-refer to the template/profile they want to use.  There are two options:
+refer to the template/profile they want to use.  These are the options:
 
     enable = 1 -- Set to enable the usage of this profile
     plugins = <plugin1>... 
                -- The list of custom plugins to run in order
+    var.<foo> = <value>
 
 Plugins are python modules that live in the webKickstart.plugins package.
 The __init__.py file contains a super class for them and I've included
 several examples.  These plugins give you added flexibility to add
 variables and data to what the profile template can see.
+
+Above in 'var.<foo>' the '<foo>' may be replaced by any text to insert
+extra variables into the Template directly from the configuration.  This
+is useful to store private keys or such only in the configuration rather
+that code or templates.  Note that '<foo>' is not case preserving as
+its groked with python's ConfigParser.
 
 There may also be a [default] section that sets default values for each
 template/profile.  This avoids having to type similar configuration information

@@ -65,16 +65,13 @@ class TestTemplateVar(unittest.TestCase):
 class TestGenerator(unittest.TestCase):
 
     def getFile(self, test):
-        return os.path.join(os.getcwd(), self.testfiles, test)
+        return os.path.join(self.cfg.hosts, test)
 
     def setUp(self):
-        if configtools.config == None:
-            log.debug("Doing configuration bits...")
-            self.cfgdir = os.path.join(os.path.dirname(__file__),
-                                       'testconfig/')
-            configtools.config = configtools.Configuration(self.cfgdir)
-
-        self.cfg = configtools.config
+        self.cfgdir = os.path.join(os.path.dirname(__file__), 'testconfig/')
+        self.cfg = configtools.Configuration(self.cfgdir)
+        configtools.config = self.cfg
+        log.debug("Config dir: %s" % self.cfgdir)
 
     def testCreate(self):
         gen = Generator('profile')

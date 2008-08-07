@@ -178,13 +178,38 @@ class Configuration(object):
             raise errors.ConfigError, "Profile '%s' not enabled." % profile
 
         # Use the supplied defaults
-        if  self.__cfg[self.__file].has_section('default'):
-            line = self.__cfg[self.__file].get('default', 'plugins', '')
+        if self.__cfg[self.__file].has_section('default'):
+            line = self.__cfg[self.__file].get('default', option, '')
         else:
             line = ""
 
-        line = self.__cfg[self.__file].get(profile, 'plugins', line)
+        line = self.__cfg[self.__file].get(profile, option, line)
         return line
+
+    def getProfileVars(self, profile):
+        """Return a dict of var:value of extra variables from the profile's
+           configuration that should be inserted into the template's
+           namespace.
+        """
+        fltr = lambda x: [ k for k in self.__cfg[self.__file].options(x) \
+                            if k.startswith('var.') ]
+
+        keys = []
+        if self.__cfg[self.__file].has_section('default'):
+            keys.extend(fltr('default'))
+        keys.extend(fltr(profile))
+
+        dict = {}
+        for k in keys:
+            if len(k) <= 4:
+                log.warning("Configuration option badly formed: %s" % k)
+                continue
+
+            name = k[4:]
+            if not dict.has_key(name):
+                dict[name] = self.__getProfileInfo(profile, k)
+
+        return dict
 
     def isTrue(self, attr):
         value = self.__getattr__(attr)
