@@ -93,6 +93,23 @@ following:
 
     python makekickstart.py -C /bah/foo foghorn.unity.ncsu.edu
 
+To run the mod_python handler you need to make sure that
+
+    AllowOverride FileInfo
+
+is set in your Apache configuration for the directory you want to
+run the handler from.  You can put the rest in a .htaccess file or
+directly in Apache's configuration:
+
+    AddHandler python-program .py
+    PythonHandler webKickstart.ks
+    PythonPath "sys.path + ['/extra/python/path']"
+    PythonOption webKickstart.config /path/to/conf/dir/
+
+The PythonPath line is only needed if WebKickstart is installed some other
+place that where Python normally keeps its packages.  The 'webKickstart.config'
+option can be used to specify where the main configuration directory is.
+
 Configuring
 -----------
 
@@ -125,6 +142,11 @@ Plugins are python modules that live in the webKickstart.plugins package.
 The __init__.py file contains a super class for them and I've included
 several examples.  These plugins give you added flexibility to add
 variables and data to what the profile template can see.
+
+There may also be a [default] section that sets default values for each
+template/profile.  This avoids having to type similar configuration information
+for each template/profile.  This section cannot be used to set 'enable = 1'
+however.
 
 Profiles
 --------
