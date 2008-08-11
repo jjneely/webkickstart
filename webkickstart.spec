@@ -7,7 +7,7 @@ Release:        1%{?dist}
 Summary:        Dynamically generate complex Red Hat Kickstarts.
 
 Group:          System Environment/Daemons
-License:        GPL
+License:        GPLv2+
 URL:            https://secure.linux.ncsu.edu/moin/WebKickstart
 Source0:        %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -44,6 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
+%doc ChangeLog README AUTHORS COPYING
 %dir /etc/webkickstart
 
 %{_bindir}/*
@@ -52,6 +53,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/webkickstart/*
 
 %changelog
-* Wed Jul 09 2008 Jack Neely <jjneely@ncsu.edu> 3.0-1
+* Mon Aug 11 2008 Jack Neely <jjneely@ncsu.edu> 3.0-1
 - Initial packaging
 
