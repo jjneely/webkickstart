@@ -47,7 +47,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/webkickstart
 
 %{_bindir}/*
-%{python_sitelib}/current/*
+%{python_sitelib}/webKickstart/*
 
 %changelog
 * Wed Jul 09 2008 Jack Neely <jjneely@ncsu.edu> 3.0-1
