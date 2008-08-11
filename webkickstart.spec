@@ -49,6 +49,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{python_sitelib}/webKickstart/*
 
+%config(noreplace) /etc/webkickstart/*
+
 %changelog
 * Wed Jul 09 2008 Jack Neely <jjneely@ncsu.edu> 3.0-1
 - Initial packaging
