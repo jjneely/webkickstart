@@ -64,5 +64,6 @@ setup(  version=VERSION,
          ('/etc/webkickstart/pluginconf.d', glob('etc/pluginconf.d/*.example')),
          ('/etc/webkickstart/profiles', glob('etc/profiles/*.tmpl')),
         ],
-        scripts=['scripts/makekickstart.py'],
+        scripts=['scripts/makekickstart.py',
+                 'scripts/simplewebkickstart.py'],
      )
