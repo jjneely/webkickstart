@@ -132,11 +132,12 @@ example webkickstart.conf.
 
 The config file has a section for each template / profile.  The section
 name (the name inside [ ]) is the name that your configs must use to
-refer to the template/profile they want to use.  These are the options:
+refer to the profile they want to use.  These are the options:
 
     enable = 1 -- Set to enable the usage of this profile
     plugins = <plugin1>... 
                -- The list of custom plugins to run in order
+    template = <path>
     var.<foo> = <value>
 
 Plugins are python modules that live in the webKickstart.plugins package.
@@ -149,6 +150,12 @@ extra variables into the Template directly from the configuration.  This
 is useful to store private keys or such only in the configuration rather
 that code or templates.  Note that '<foo>' is not case preserving as
 its groked with python's ConfigParser.
+
+The 'template' configuration option selects the exact Cheetah Template
+file that will be used.  Non-absolute paths are relative to the profiles
+option in the [main] section.  If a default is not specified elsewhere in
+the configuration file then '<section>.tmpl' is used where <section> is the
+text inside the [ ] brackets for this section.
 
 There may also be a [default] section that sets default values for each
 template/profile.  This avoids having to type similar configuration information

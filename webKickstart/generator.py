@@ -62,8 +62,8 @@ class Generator(object):
         file = configtools.config.getTemplate(self.profile)
 
         if file == None:
-            msg = "Profile '%s' from the '%s' key does not exist."
-            msg = msg % (self.profile, configtools.config.profile_key)
+            msg = "The Cheetah template for the '%s' profile does not exist."
+            msg = msg % self.profile
             raise WebKickstartError, msg
    
         # webkickstart namespaces

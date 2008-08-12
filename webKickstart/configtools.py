@@ -239,9 +239,19 @@ class Configuration(object):
 
     def getTemplate(self, profile):
         # Return the template file for the specified version/profile
-        filename = os.path.join(self.profiles, '%s.tmpl' % profile)
+        self.__checkConfig()
+        if not self.__cfg[self.__file].has_section(profile):
+            raise errors.ConfigError, "Profile '%s' not defined." % profile
+
+        # A 'template' option for each profile can select the template file
+        # to use.  We check the [default] section too, finally trying
+        # <profile>.tmpl
+        default = '%s.tmpl' % profile
+        filename = self.__cfg[self.__file].get(profile, 'template', \
+                   self.__cfg[self.__file].get('default', 'template', default))
+
         if not os.path.isabs(filename):
-            filename = os.path.join(self.__dir, filename)
+            filename = os.path.join(self.__dir, self.profiles, filename)
 
         if os.access(filename, os.R_OK):
             return filename

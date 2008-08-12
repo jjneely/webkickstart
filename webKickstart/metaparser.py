@@ -50,6 +50,8 @@ class MetaParser(object):
         self.fileposts = []
         self.parsings = None
 
+        log.info("Reading meta config: %s" % self.getFileName())
+
         file = open(self.getFileName())
         
         self.filedata = file.read()
@@ -240,7 +242,7 @@ class MetaParser(object):
                 if os.access(filename, os.R_OK):
                     return filename
 
-        raise errors.AccessError("Cannot read config file: %s" % self.filename)
+        raise errors.AccessError("Cannot find config file: %s" % self.filename)
 
         
     def getListOfKeys(self):

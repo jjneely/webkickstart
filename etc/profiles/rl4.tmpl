@@ -1,13 +1,65 @@
-lang en_US
-langsupport --default en_US en_US
+## This is for RHEL 4
+#set $tree = "http://install.linux.ncsu.edu/pub/realmkit/realmkit-AS4.6"
+#set $arch = "x86_64"
+#set $kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
+#set $installtree = $tree + "/" + $arch
+##
+#if not $varExists('lang')
+#set $lang = "en_US"
+#end if
+lang $lang
+#if $varExists('langs')
+langsupport --default $lang $langs
+#else
+langsupport --default $lang en_US
+#end if
+timezone US/Eastern
 
+#if $varExists('cmdline')
+cmdline
+#end if
 install
+reboot
+#if $varExists('enable.staticip')
+#if $enable.staticip.len() != 4
+#raise $ParseError, "enable staticip requires 4 arguments"
+#end if
+network --bootproto static  --ip $enable.staticip[0] --netmask $enable.staticip[1] --gateway $enable.staticip[2] --nameserver $enable.staticip[3]
+#else
 network --bootproto dhcp
-url --url http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.6/x86_64
+#end if
+url --url $installtree
 
+#if not $varExists('skippartition')
 zerombr yes
+#if $varExists('clearpart')
+clearpart $clearpart
+#else if $varExists('enable.safepartition')
+clearpart --linux
+#else
 clearpart --all
+#end if
 
+#if $varExists('part')
+#for $p in $part
+part $p
+#end for
+#if $varExists('raid')
+#for $r in $raid
+raid $r
+#end for
+#end if
+#if $varExists('volgroup')
+#for $v in $volgroup
+volgroup $v
+#end for
+#end if
+#if $varExists('logvol')
+#for $l in $logvol
+logvol $l
+#end for
+#end if
+#else
 part /boot --size 512
 part pv.00 --fstype=LVM --size 18432 --grow
 volgroup Volume00 pv.00
@@ -15,21 +67,79 @@ logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
 logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
 logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
 logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
+#end if
+#end if
 
-timezone US/Eastern
 keyboard us
-reboot
+#if not $varExists('mouse')
 mouse --emulthree genericps/2
+#else
+mouse $mouse
+#end if
 
+## The SELinux default for RHEL 4 is specifically to have it Enabled
+#if $varExists('selinux')
+selinux $selinux
+#end if
+#if $varExists('enable.nofirewall')
+firewall --disabled
+#else if $varExists('firewall')
+firewall $firewall
+#else
 firewall --medium --ssh --dhcp --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
+#end if
 
 auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
-xconfig --resolution "1280x1024" --depth 24 --hsync 31.5-80.0 --vsync 50-90 --startxonboot
-bootloader --location mbr --md5pass xxxxxxxxxxxxxxxxxxxxxxxx
-rootpw --iscrypted xxxxxxxxxxxxxxxxxxxxxxxx
 
+#if $varExists('enable.nox') or $varExists('skipx')
+skipx
+#else if $varExists('xconfig')
+xconfig $xconfig
+#else
+xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
+#end if
+
+#if not $varExists('rootpw')
+#raise $ParseError, "Root password not set"
+#end if
+#if $varExists('enable.keepmbr')
+#set $bootloaderlocation = "--location partition"
+#else
+#set $bootloaderlocation = "--location mbr"
+#end if
+#if $varExists('driveorder')
+#set $bootloaderdrives = "--driveorder " + $driveorder.verbatim()
+#else
+#set $bootloaderdrives = ""
+#end if
+#if $varExists('grub')
+bootloader $bootloaderlocation $bootloaderdrives --md5pass $grub
+#else
+bootloader $bootloaderlocation $bootloaderdrives --md5pass $rootpw
+#end if
+rootpw --iscrypted $rootpw
+
+#if $varExists('include')
+#for $i in $include
+%include $i
+
+#end for
+#end if
+##
 %packages
+#if $varExists('package')
+#for $p in $package
+#if $p.match('@.*[Rr]ealm.*[Ss]erver$')
+@ NCSU Realm Kit Server
+#else if $p.match('@.*[Rr]ealm.*[Ww]orkstation$')
 @ NCSU Realm Kit Workstation
+#else
+$p
+#end if
+#end for
+#else
+@ NCSU Realm Kit Workstation
+#end if
 
 %post
 # Let's make DNS work
@@ -60,99 +170,117 @@ rm /etc/sysconfig/init~
 #so apropos works
 /usr/sbin/makewhatis >/dev/null 2>&1 || :
 
-
 # updates
 realmconfig --kickstart updates --enable-updates
 
-
-# turn off audit and wax any logs
+#if $varExists('enable.audit')
+# make sure audit is on
+chkconfig auditd on
+#else
+# turn off audit and remove any logs
 chkconfig auditd off
 rm -rf /var/log/audit
 rm -rf /var/log/audit.d/*
+#end if
 
-
+#if not $varExists('enable.noreinstall')
 # set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
 if [ ! -f vmlinuz ] ; then
-    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.6/x86_64/isolinux/vmlinuz
+    wget $installtree/isolinux/vmlinuz
 fi
 if [ ! -f initrd.img ] ; then
-    wget http://install.linux.ncsu.edu//pub/realmkit/realmkit-AS4.6/x86_64/isolinux/initrd.img
+    wget $installtree/isolinux/initrd.img
 fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz --title="Reinstall Workstation" --copy-default --args="ks=http://foo.bar ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" --initrd=/boot/install/initrd.img
+/sbin/grubby --add-kernel=/boot/install/vmlinuz \
+   --title="Reinstall Workstation" \
+   --copy-default \
+   --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" \
+   --initrd=/boot/install/initrd.img
+#end if
 
+#if not $varExists('realmadmins')
+#raise $ParseError,"NCSU Realm Admins are not defined, something is wrong"
+#end if
+## Okay, we know that the rlusers plugin has run: do fun stuff
 cat << EOF > /root/.k5login
-alan/root@EOS.NCSU.EDU
-arkurth/root@EOS.NCSU.EDU
-brabec/root@EOS.NCSU.EDU
-charles/root@EOS.NCSU.EDU
-chking/root@EOS.NCSU.EDU
-darapple/root@EOS.NCSU.EDU
-djgreen/root@EOS.NCSU.EDU
-dlcarraw/root@EOS.NCSU.EDU
-fapeeler/root@EOS.NCSU.EDU
-gsgatlin/root@EOS.NCSU.EDU
-hmn/root@EOS.NCSU.EDU
-jaklein/root@EOS.NCSU.EDU
-jjneely/root@EOS.NCSU.EDU
-jrwells/root@EOS.NCSU.EDU
-ldosbor2/root@EOS.NCSU.EDU
-libby/root@EOS.NCSU.EDU
-macolon/root@EOS.NCSU.EDU
-nbmccork/root@EOS.NCSU.EDU
-pevans/root@EOS.NCSU.EDU
-ptwillia/root@EOS.NCSU.EDU
-sfcallic/root@EOS.NCSU.EDU
-ststewar/root@EOS.NCSU.EDU
-tbyron/root@EOS.NCSU.EDU
-tkl/root@EOS.NCSU.EDU
-tmfarwig/root@EOS.NCSU.EDU
-tpgrimes/root@EOS.NCSU.EDU
-tsgurgan/root@EOS.NCSU.EDU
-twk/root@EOS.NCSU.EDU
-wsetzer/root@EOS.NCSU.EDU
+#set $users = $realmadmins + $realmotheradmins
+#for $user in $users.sortunique()
+$user/root@EOS.NCSU.EDU
+#end for
 EOF
 chmod 400 /root/.k5login
 
+cat << EOF > /root/.k5login.base
+#for $user in $realmotheradmins.sort()
+$user/root@EOS.NCSU.EDU
+#end for
+EOF
+chmod 400 /root/.k5login.base
+
 cat << EOF >> /etc/sudoers
-alan  ALL=(ALL) ALL
-arkurth  ALL=(ALL) ALL
-brabec  ALL=(ALL) ALL
-charles  ALL=(ALL) ALL
-chking  ALL=(ALL) ALL
-darapple  ALL=(ALL) ALL
-djgreen  ALL=(ALL) ALL
-dlcarraw  ALL=(ALL) ALL
-fapeeler  ALL=(ALL) ALL
-gsgatlin  ALL=(ALL) ALL
-hmn  ALL=(ALL) ALL
-jaklein  ALL=(ALL) ALL
-jjneely  ALL=(ALL) ALL
-jrwells  ALL=(ALL) ALL
-ldosbor2  ALL=(ALL) ALL
-libby  ALL=(ALL) ALL
-macolon  ALL=(ALL) ALL
-nbmccork  ALL=(ALL) ALL
-pevans  ALL=(ALL) ALL
-ptwillia  ALL=(ALL) ALL
-sfcallic  ALL=(ALL) ALL
-ststewar  ALL=(ALL) ALL
-tbyron  ALL=(ALL) ALL
-tkl  ALL=(ALL) ALL
-tmfarwig  ALL=(ALL) ALL
-tpgrimes  ALL=(ALL) ALL
-tsgurgan  ALL=(ALL) ALL
-twk  ALL=(ALL) ALL
-wsetzer  ALL=(ALL) ALL
+#set $users = $realmadmins + $realmotheradmins
+#for $user in $users.sortunique()
+$user ALL=(ALL) ALL
+#end for
 EOF
 chmod 400 /etc/sudoers
 
-realmconfig --kickstart auth --users alan,arkurth,brabec,charles,chking,darapple,djgreen,dlcarraw,fapeeler,gsgatlin,hmn,jaklein,jjneely,jrwells,ldosbor2,libby,macolon,nbmccork,pevans,ptwillia,sfcallic,ststewar,tbyron,tkl,tmfarwig,tpgrimes,tsgurgan,twk,wsetzer
+cat << EOF >> /etc/sudoers.base
+#for $user in $realmotheradmins.sort()
+$user ALL=(ALL) ALL
+#end for
+EOF
+chmod 400 /etc/sudoers.base
 
+cat << EOF >> /etc/users.local
+#set $users = $realmadmins + $realmotheradmins + $realmusers
+#for $user in $users.sortunique()
+$user
+#end for
+EOF
+chmod 644 /etc/users.local
 
-realmconfig --kickstart sendmail --disable-daemon --masquerade unity.ncsu.edu
+cat << EOF >> /etc/users.local.base
+#set $users = $realmotheradmins + $realmusers
+#for $user in $users.sortunique()
+$user
+#end for
+EOF
+chmod 644 /etc/users.local.base
 
+#if $varExists('enable.receivemail')
+#set $sendmaildaemon = "--enable-daemon"
+#else
+#set $sendmaildaemon = "--disable-daemon"
+#end if
+##
+#if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 1
+realmconfig --kickstart sendmail $sendmaildaemon \
+    --masquerade $enable.mailmasq
+#else if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 0
+realmconfig --kickstart sendmail $sendmaildaemon --no-masq
+#else if $varExists('enable.mailmasq') and $enable.mailmasq.len() > 1
+#raise $ParseError, "enable mailmasq accepts only 1 argument"
+#else
+realmconfig --kickstart sendmail $sendmaildaemon \
+    --masquerade unity.ncsu.edu
+#end if
+
+#if $varExists('owner')
+# Setup forwarding for root's mail
+cat << EOF >> /etc/aliases
+root:       $owner
+EOF
+/usr/bin/newaliases
+#end if
+
+#if $varExists('enable.consolelogin')
+# Enable console login by non-local users
+# RL4.4 and below don't have this code, however this is the default anyway
+realmconfig --kickstart pamconf --enable-console-login || true
+#else
 # disable login on the console for non-local users
 # RL4.4 and below don't have this code so we need to case that out
 if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
@@ -160,18 +288,102 @@ if realmconfig --kickstart pamconf --disable-console-login | grep "No such modul
     sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
     rm /etc/pam.d/login~
 fi
+#end if
 
+#if not $varExists('enable.notempclean')
 realmconfig --kickstart tmpclean --enable-tmpclean
-realmconfig --kickstart clusters --local-enable ncsu
+#end if
+##
+#if not $varExists('enable.localcluster')
+#set $localcluster = "ncsu"
+#else if $enable.localcluster.len() == 0
+#set $localcluster = ""
+#else
+#set $localcluster = $enable.localcluster
+#end if
+##
+#if not $varExists('enable.remotecluster')
+#set $remotecluster = "None"
+#else if $enable.remotecluster.len() == 0
+#set $remotecluster = ""
+#else
+#set $remotecluster = $enable.remotecluster
+#end if
+##
+#if $localcluster == "None"
+realmconfig --kickstart clusters --local-disable
+#else
+realmconfig --kickstart clusters --local-enable $localcluster
+#end if
+##
+#if $remotecluster == "None"
 realmconfig --kickstart clusters --remote-disable
+#else
+realmconfig --kickstart clusters --remote-enable $remotecluster
+#end if
+#if $varExists('dept')
+realmconfig --kickstart dept --set $dept
+#else
 realmconfig --kickstart dept --set ncsu
+#end if
+#if $varExists('printer')
+realmconfig --kickstart printing --default $printer
+#else
 realmconfig --kickstart printing --default lp
+#end if
+#if $varExists('enable.norealmcron')
+realmconfig --kickstart support --disable-support
+#else
 realmconfig --kickstart support --enable-support
+#end if
 
+#if $varExists('staticip')
+# M-DHCP to Static IP conversion hack because the Comtech[tm] DHCP server
+# is not always up. Originally by Lin Osborne (ITECS).
+
+# Figure out the relevant information about this system
+IP=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
+HOSTNAME=`/usr/bin/host \$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
+NETMASK=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
+NETWORK=`/bin/ipcalc \$IP -n \$NETMASK | /bin/cut -d\= -f2`
+GATEWAY=`echo \$NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+HWADDR=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
+
+# Overwrite the appropriate files (/etc/sysconfig/network and
+# /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
+# upon DHCP
+cat << EOF > /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=\$HOSTNAME
+GATEWAY=\$GATEWAY
+EOF
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-\$KSDEVICE
+DEVICE=\$KSDEVICE
+BOOTPROTO=static
+IPADDR=\$IP
+NETMASK=\$NETMASK
+ONBOOT=yes
+HWADDR=\$HWADDR
+EOF
+
+#end if
+##
+#if $varExists('activationkey')
+#set $_akey = $activationkey
+#else if $varExists('enable.activationkey')
+#set $_akey = $enable.activationkey
+#else
+#set $_akey = $defaultactivation
+#end if
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
-FQDN="linux00bld.unity.ncsu.edu"
-/usr/sbin/rhnreg_ks --activationkey 6ed40e5c831bd8a8d706f0abe8f44f09 --profilename \$FQDN --serverUrl https://rhn.linux.ncsu.edu/XMLRPC --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+FQDN="$webKickstart.remoteHost"
+/usr/sbin/rhnreg_ks --activationkey $_akey        \
+    --profilename \$FQDN                          \
+    --serverUrl https://rhn.linux.ncsu.edu/XMLRPC \
+    --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+
 # Import the RPM GPG keys
 if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
     /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
@@ -191,12 +403,14 @@ if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
     /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
 fi
 
-# Run Up2Date
+# Run Up2date
 chvt 3
 /usr/sbin/up2date --nox -u up2date
 /usr/sbin/up2date --nox -u
 chvt 1
 
-# The following scripts provided by the Jump Start confgs.
+# The following scripts provided by the Web-Kickstart confgs.
 
-
+#for $script in $webKickstart.scripts
+$script
+#end for
