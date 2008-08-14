@@ -74,11 +74,11 @@ class TestGenerator(unittest.TestCase):
         log.debug("Config dir: %s" % self.cfgdir)
 
     def testCreate(self):
-        gen = Generator('profile')
+        gen = Generator('rl5')
 
     def testGenny(self):
         mc = MetaParser(self.getFile('genny1'))
-        gen = Generator('profile', mc)
+        gen = Generator('rl5', mc)
 
         rows = ["nox",
                 "adminusers jjneely tkl bob",

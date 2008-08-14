@@ -56,11 +56,11 @@ class Configuration(object):
     # [main] keys that we require and their defaults
     # These paths are relative to defaultDir or configDir if given below
     defaultCfg = {'logfile':        '/var/log/webkickstart.log',
-                  'log_level':      1,
-                  'generic_ks':     0,
-                  'security':       1,
-                  'collision':      1,
-                  'profile_case_sensitivity':   0,
+                  'log_level':      '1',
+                  'generic_ks':     '0',
+                  'security':       '1',
+                  'collision':      '1',
+                  'case_sensitivity':   '0',
                   'hosts':          './hosts',
                   'profiles':       './profiles',
                   'include_key':    'use',
@@ -167,37 +167,63 @@ class Configuration(object):
         if not self.__mtime.has_key(file) or mtime > self.__mtime[file]:
             self.reload(file)
 
+    def __get(self, section, option, default):
+        # Handy function to query the main config file -- NOT others
+        return self.__cfg[self.__file].get(section, option, default)        
+
     def __getProfileInfo(self, profile, option):
-        self.__checkConfig()
-        if not self.__cfg[self.__file].has_section(profile):
+        section = self.findProfile(profile)
+        if section == None:
             raise errors.ConfigError, "Profile '%s' not defined." % profile
 
         # Include an enable flag
-        enabled = self.__cfg[self.__file].get(profile, 'enable', '0')
+        enabled = self.__get(section, 'enable', '0')
         if enabled.lower() not in ['1', 'yes', 'true']:
-            raise errors.ConfigError, "Profile '%s' not enabled." % profile
+            msg = "Profile '%s' exists bug is not enabled." % profile
+            raise errors.ConfigError, msg
 
         # Use the supplied defaults
         if self.__cfg[self.__file].has_section('default'):
-            line = self.__cfg[self.__file].get('default', option, '')
+            line = self.__get('default', option, '')
         else:
             line = ""
 
-        line = self.__cfg[self.__file].get(profile, option, line)
-        return line
+        return self.__get(section, option, line)
+
+    def findProfile(self, profile):
+        """Returns the section name of the profile which may differ when
+           case sensitivity is turned off.  If the profile isn't found we
+           return None.  
+        """
+        
+        self.__checkConfig()
+        sections = self.__cfg[self.__file].sections()
+        sections.remove('main')
+        sections.remove('default')
+
+        if self.isTrue('case_sensitivity'):
+            if profile in sections: return profile
+        else:
+            for i in sections:
+                if profile.lower() == i.lower(): return i
+
+        return None
+
 
     def getProfileVars(self, profile):
         """Return a dict of var:value of extra variables from the profile's
            configuration that should be inserted into the template's
            namespace.
         """
+        # XXX: We call findProfile at least twice from here...
         fltr = lambda x: [ k for k in self.__cfg[self.__file].options(x) \
                             if k.startswith('var.') ]
 
+        section = self.findProfile(profile)
         keys = []
         if self.__cfg[self.__file].has_section('default'):
             keys.extend(fltr('default'))
-        keys.extend(fltr(profile))
+        keys.extend(fltr(section))
 
         dict = {}
         for k in keys:
@@ -238,17 +264,15 @@ class Configuration(object):
         return self.__cfg[file]
 
     def getTemplate(self, profile):
-        # Return the template file for the specified version/profile
-        self.__checkConfig()
-        if not self.__cfg[self.__file].has_section(profile):
-            raise errors.ConfigError, "Profile '%s' not defined." % profile
-
+        "Return the template file for the specified version/profile."
+        
         # A 'template' option for each profile can select the template file
         # to use.  We check the [default] section too, finally trying
         # <profile>.tmpl
-        default = '%s.tmpl' % profile
-        filename = self.__cfg[self.__file].get(profile, 'template', \
-                   self.__cfg[self.__file].get('default', 'template', default))
+        filename = self.__getProfileInfo(profile, 'template')
+        if filename == '':
+            # We don't have a default setup in the conig
+            filename = '%s.tmpl' % profile
 
         if not os.path.isabs(filename):
             filename = os.path.join(self.__dir, self.profiles, filename)

@@ -43,7 +43,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(self.cfg.logfile, '-')
 
         # Pulling from the built in defaults:
-        self.assertEqual(int(self.cfg.profile_case_sensitivity), 0)
+        self.assertEqual(int(self.cfg.case_sensitivity), 0)
 
     def testReload(self):
         self.cfg.reload()

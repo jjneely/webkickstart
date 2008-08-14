@@ -52,6 +52,11 @@ class Generator(object):
                                 # cheetah template.  Order perserved in
                                 # the TemplateVar class.
 
+        if configtools.config.findProfile(self.profile) == None:
+            log.info("Requested profile not defined: %s" % self.profile)
+            msg = "The profile \"%s\" is not defined." % self.profile
+            raise WebKickstartError, msg
+
         if mc != None:
             self.__includeFile(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
