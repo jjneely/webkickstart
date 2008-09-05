@@ -153,6 +153,30 @@ def main():
     cherrypy.root = Application()
     cherrypy.server.start()
 
+def wsgi(req):
+    if req.get_options().has_key('webKickstart.config'):
+        configDir = req.get_options()['webKickstart.config']
+    else:
+        configDir = None
+
+    cfg = configtools.Configuration(opts.configdir)
+    # XXX: We know that security checks wont work for the webapp
+    cfg.security = "0"
+    configtools.config = cfg
+
+    # XXX: Static directory.  Hopefully relative...
+    staticDir = os.path.join(os.path.dirname(__file__), "static")
+    cherrypy.config.update({"/static": {
+                            'static_filter.on': True,
+                            'static_filter.dir': os.path.abspath(staticDir) }})
+
+    cherrypy.config.update({"server.environment": "production",
+                            "server.protocolVersion": "HTTP/1.1",
+                            "server.log_file": "/tmp/rlmtools.log"})
+
+    cherrypy.root = Application()
+    cherrypy.server.start(initOnly=True, serverClass=None)
+
 if __name__ == "__main__":
     main()
 
