@@ -17,7 +17,7 @@
 <div class="oitnavbar">
   <div class="oit_logo">
       <a href="http://oit.ncsu.edu/"><img alt="OIT Web Site"
-          src="static/oit_logo_cartoon_30.png"/></a></div>
+          src="static/oit-logo-icon.png"/></a></div>
   <div class="ncsu_brick">
       <a href="http://www.ncsu.edu/"><img src="static/brick_black.gif"
           alt="NC State University"/></a></div>

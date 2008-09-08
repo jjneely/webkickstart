@@ -92,29 +92,29 @@ def handler(req):
 class Application(object):
 
     def index(self):
-        return serialize('webtmpl.index', {})
+        return serialize('webKickstart.webtmpl.index', {})
     index.exposed = True
 
     def debugtool(self, host):
         if host == "":
-            return serialize('webtmpl.debugtool', dict(host="None",
+            return serialize('webKickstart.webtmpl.debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
 
         w = webKickstart('url', {})
         tuple = w.getKS(host)
 
-        return serialize('webtmpl.debugtool', dict(host=host,
+        return serialize('webKickstart.webtmpl.debugtool', dict(host=host,
                   kickstart=tuple[1]))
     debugtool.exposed = True
 
     def collision(self, host):
         if host == "":
-            return serialize('webtmpl.debugtool', dict(host="None",
+            return serialize('webKickstart.webtmpl.debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
         
         w = webKickstart('url', {})
         tuple = w.collisionDetection(host)
-        return serialize('webtmpl.collision', dict(host=host,
+        return serialize('webKickstart.webtmpl.collision', dict(host=host,
                                                    output=tuple[1]))
     collision.exposed = True
 
@@ -159,22 +159,35 @@ def wsgi(req):
     else:
         configDir = None
 
-    cfg = configtools.Configuration(opts.configdir)
+    if req.get_options().has_key('webKickstart.appMount'):
+        appMount = req.get_options()['webKickstart.appMount']
+    else:
+        appMount = None
+
+    cfg = configtools.Configuration(configDir)
     # XXX: We know that security checks wont work for the webapp
     cfg.security = "0"
     configtools.config = cfg
 
-    # XXX: Static directory.  Hopefully relative...
     staticDir = os.path.join(os.path.dirname(__file__), "static")
-    cherrypy.config.update({"/static": {
+    if appMount is None:
+        staticMount = "/static"
+    else:
+        staticMount = os.path.join('/', appMount, 'static')
+
+    cherrypy.config.update({staticMount: {
                             'static_filter.on': True,
                             'static_filter.dir': os.path.abspath(staticDir) }})
 
     cherrypy.config.update({"server.environment": "production",
                             "server.protocolVersion": "HTTP/1.1",
-                            "server.log_file": "/tmp/rlmtools.log"})
+                            "server.log_file": "/tmp/webkickstart-tools.log"})
 
-    cherrypy.root = Application()
+    if appMount is None:
+        cherrypy.root = Application()
+    else:
+        cherrypy.tree.mount(Application(), appMount)
+
     cherrypy.server.start(initOnly=True, serverClass=None)
 
 if __name__ == "__main__":

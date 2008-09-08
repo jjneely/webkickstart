@@ -8,9 +8,9 @@
 </head>
 <body>
 
-  <h2>Debug View</h2>
+  <p>This page processes the WebKickstart config for the below host.  It will display any errors that may be present or the generated Red Hat Kickstart as it will be sent to the host.</p>
 
-  <p><b>Host: </b><span py:replace="host"/></p>
+  <h2>Host: <span py:replace="host"/></h2>
 
   <div class="code">
     <pre py:content="kickstart"/>

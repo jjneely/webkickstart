@@ -1,8 +1,9 @@
 div.code {
-    background-color: #dddddd;
+    background-color: #cccccc;
     padding: 0.5em;
-    border: 1px solid #000000;
-    overflow: auto;
+    border-bottom: 1px solid #000000;
+    border-top: 1px solid #000000;
+    overflow: visible;
 }
 h1 {
    /*clear: both;*/
