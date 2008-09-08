@@ -8,9 +8,10 @@
 </head>
 <body>
 
-  <h2>Config File Collision</h2>
+  <p>This page will alert you if there are colliding configurations
+    present for the below host.</p>
 
-  <p><b>Host: </b><span py:replace="host"/></p>
+  <h2>Host: <span py:replace="host"/></h2>
 
   <div class="code">
     <pre py:content="output"/>

@@ -53,7 +53,8 @@
 
   </div>
 
-  <p><font size="-1"><i>Part of the Liquid Dragon project.</i></font></p>
+  <p><font size="-1"><i>Part of the Liquid Dragon project.<br /> 
+  &copy; Copyright 2008 NC State University.</i></font></p>
 
 </body>
 

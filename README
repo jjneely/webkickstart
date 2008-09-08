@@ -177,6 +177,34 @@ The example profiles provide many examples for how to use the template
 variables.
 
 
+WebKickstart Tools WebApp
+-------------------------
+
+A simple CherryPy based web application is provided in webapp.py in the
+webKickstart package directory.  You'll need the Kid templating language
+and CherryPy 2.3 for it to run.  This provides some handy tools that allow
+you to debug your config files, check for collisions, etc.
+
+Chose a location directive or a directory to use to serve out the web app.
+It does not need to be the root of a domain.  Set up your Apache configuration
+like so:
+
+    PythonPath "sys.path + ['/extra/python/path']"
+    PythonOption webKickstart.config /webKickstart/config/directory
+    PythonOption webKickstart.appMount /webapp/url/path
+    SetHandler python-program
+    PythonHandler webKickstart.modpython_gateway::handler
+    PythonOption wsgi.application cherrypy._cpwsgi::wsgiApp
+    PythonOption wsgi.startup webKickstart.webapp::wsgi
+
+Restart your Apache server and you should find the app running at
+
+    http[s]://servername/webapp/url/path
+
+You should use some sort of authentication and authorization to use these
+tools.  That's left up to your implementation.
+
+
 More Information
 ----------------
 

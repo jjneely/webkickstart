@@ -122,7 +122,8 @@ class Application(object):
         w = webKickstart('url', {})
         tuple = w.checkConfigHostnames()
 
-        return serialize('webtmpl.checkconfigs', dict(output=tuple[1]))
+        return serialize('webKickstart.webtmpl.checkconfigs', 
+                         dict(output=tuple[1]))
     checkconfigs.exposed = True
 
 

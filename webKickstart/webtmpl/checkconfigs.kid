@@ -7,6 +7,9 @@
 </head>
 <body>
 
+  <p>This page lists out WebKickstart configurations that no longer
+    resolve in DNS and are possibly not being used.</p>
+
   <h2>Old Config File Locator</h2>
 
   <div class="code">
