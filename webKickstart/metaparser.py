@@ -294,8 +294,8 @@ class MetaParser(object):
         if sclist == None:
             sclist = []
 
-        log.debug("In __parseOutVersion()")
-        log.debug("  sclist = %s" % str(sclist))
+        #log.debug("In __parseOutVersion()")
+        #log.debug("  sclist = %s" % str(sclist))
         
         # Gaurd against infinite recursion
         fn = sc.getFileName()
@@ -305,7 +305,7 @@ class MetaParser(object):
         sclist.append(fn)
 
         for rec in sc.parseCommands():
-            log.debug("Parsing for version: key: %s" % rec[0])
+            #log.debug("Parsing for version: key: %s" % rec[0])
             if rec[0] == profileKey:
                 if len(rec) != 2:
                     errmsg = "'%s' key must have one argument." % key
