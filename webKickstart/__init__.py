@@ -38,6 +38,7 @@ log = logging.getLogger("webks")
 class webKickstart(object):
 
     def __init__(self, url, headers, configDir=None):
+        self.__debug = False
         # set up url from reinstalls
         self.url = url
         # client's headers
@@ -64,6 +65,10 @@ class webKickstart(object):
             return False
 
         return False
+
+    def setDebug(self, bool):
+        "Turn on debug mode, useful for kickstart preview."
+        self.__debug = bool
 
     def __getKS(self, host):
         # Figure out the file name to look for, parse it and see what we get.
@@ -99,11 +104,11 @@ class webKickstart(object):
                 return (0, mc.getFile())
             
             version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
-            genny = Generator(version, mc)
+            genny = Generator(version, mc, self.__debug)
         else:
             # disable the default, no-config file, generic kickstart
             if self.cfg.isTrue('generic_ks'):
-                genny = Generator('default', mc)
+                genny = Generator('default', mc, self.__debug)
             else:
                 log.info("No config file for host " + filename)
                 return (1, "# No config file for host " + filename)

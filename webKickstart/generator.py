@@ -43,9 +43,10 @@ class Generator(object):
 
     templateCache = {}
 
-    def __init__(self, profile, mc=None):
+    def __init__(self, profile, mc=None, debug=False):
         assert configtools.config != None
 
+        self.__debug = debug
         self.profile = profile
         self.configs = []
         self.variables = {}     # The dictionary that is presented to the
@@ -109,7 +110,7 @@ class Generator(object):
             try:
                 log.debug("Running plugin: %s" % p)
                 cfg = configtools.config.getPluginConf(p)
-                obj = mods[p](self.variables, cfg)
+                obj = mods[p](self.variables, cfg, self.__debug)
                 newvars = obj.run()
             except WebKickstartError, e:
                 # User plugin raised a WebKickstart exception...we assume

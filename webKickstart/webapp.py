@@ -101,6 +101,8 @@ class Application(object):
                   kickstart="# You failed to provide a host to check."))
 
         w = webKickstart('url', {})
+        w.setDebug(True)           # Previent running of things that shouldn't
+                                   # for preview mode
         tuple = w.getKS(host)
 
         return serialize('webKickstart.webtmpl.debugtool', dict(host=host,

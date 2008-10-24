@@ -30,7 +30,8 @@ log = logging.getLogger('webks')
 
 class WebKickstartPlugin(object):
 
-    def __init__(self, variableDict, cfg=None):
+    def __init__(self, variableDict, cfg=None, debug=False):
+        self.debug = debug
         self.variableDict = variableDict
         self.cfg = cfg
 

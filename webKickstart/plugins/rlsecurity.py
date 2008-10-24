@@ -32,8 +32,13 @@ log = logging.getLogger("webks")
 class LiquidDragonPlugin(WebKickstartPlugin):
 
     def run(self):
-        fqdn = str(self.variableDict["webKickstart"].remoteHost)
-        self.loghost(fqdn)
+        if not self.debug:
+            # Debug modes are on for the website kickstart preview 
+            fqdn = str(self.variableDict["webKickstart"].remoteHost)
+            self.loghost(fqdn)
+        else:
+            log.info("Debug mode detected, not logging install for %s",
+                     self.variableDict['webKickstart'].remoteHost)
 
         return self.variableDict
 
