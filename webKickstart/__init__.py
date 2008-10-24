@@ -46,7 +46,7 @@ class webKickstart(object):
 
         if configtools.config == None:
             self.cfg = configtools.Configuration(configDir)
-            configtools.config == self.cfg
+            configtools.config = self.cfg
         else:
             self.cfg = configtools.config
 
