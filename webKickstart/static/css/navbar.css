@@ -15,7 +15,7 @@ div.oitnavbar {
     color: #FFFFFF;
     padding: 0em;
     margin: 0em;
-    height: 30px;
+    height: 24px;
 }
 div.oitnavbar a {
     color: #FFFFFF;
@@ -26,7 +26,7 @@ div.oitnavbar a:hover {
     text-decoration: underline;
 }
 div.oitcontainer {
-    padding-top: 5px;
+    padding-top: 2px;
 }
 div.oitnavbar ul {
     display: inline;
@@ -53,7 +53,7 @@ div.oit_logo img {
 div.ncsu_brick {
     margin: 0em;
     padding: 0em;
-    padding-top: 4px;
+    padding-top: 1px;
     height: 22px;
     width: 142px;
     float: right;
