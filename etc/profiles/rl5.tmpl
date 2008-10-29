@@ -141,6 +141,7 @@ rootpw --iscrypted $rootpw
 #end if
 ##
 %packages
+#block PackagesSection
 #if $varExists('package')
 #for $p in $package
 #if $p.match('@.*[Rr]ealm.*[Ss]erver$')
@@ -218,6 +219,7 @@ $p
 -logwatch
 -yum-updatesd
 #end if
+#end block
 
 %post
 # Let's make DNS work

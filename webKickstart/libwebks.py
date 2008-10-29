@@ -20,8 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 
+import logging
 import webKickstart
 import webKickstart.generator
+
+log = logging.getLogger('webks')
 
 class LibWebKickstart(object):
 
@@ -32,20 +35,21 @@ class LibWebKickstart(object):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
         wks = webKickstart.webKickstart("fakeurl", {}, self.configDir)
-        mcList = wks.findFile(self.client, wks.config.hosts)
+        mcList = wks.findFile(fqdn, wks.cfg.hosts)
         
         if len(mcList) == 0:
+            log.debug("LibWebKickstart: Did not find config: %s" % fqdn)
             return None
 
         mc = mcList[0]
         try:
             # Debug mode is True to avoid special stuff...we just
             # want to query the config file
-            g = webKickstart.generator.Gennerator(mc.getVersion(), mc, True)
+            g = webKickstart.generator.Generator(mc.getVersion(), mc, True)
         except Exception, e:
             # KeyError or ConfgError from webkickstart
             # Unsupported version key in config file
-            g = webKickstart.generator.Gennerator('default', mc, True)
+            g = webKickstart.generator.Generator('default', mc, True)
 
         g.runPlugins()
         return g.variables
