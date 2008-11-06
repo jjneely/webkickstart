@@ -23,6 +23,7 @@
 import logging
 import webKickstart
 import webKickstart.generator
+import webKickstart.configtools
 
 log = logging.getLogger('webks')
 
@@ -31,7 +32,7 @@ class LibWebKickstart(object):
     def __init__(self, configDir='/etc/webkickstart'):
         self.configDir = configDir
 
-    def getKeys(self, fqdn):
+    def __generator(self, fqdn):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
         wks = webKickstart.webKickstart("fakeurl", {}, self.configDir)
@@ -52,7 +53,12 @@ class LibWebKickstart(object):
             g = webKickstart.generator.Generator('default', mc, True)
 
         g.runPlugins()
-        return g.variables
+        return g
+
+    def getKeys(self, fqdn):
+        """Returns a dict of TemplateVars or None if host is not defined."""
+
+        return self.__generator(fqdn).variables
 
     def getKey(self, fqdn, key):
         """Returns a list of strings for each instance of key defined for
@@ -63,4 +69,14 @@ class LibWebKickstart(object):
             return None
 
         return [ e.verbatim() for e in dict[key] ]
+
+    def getProfileKeys(self, fqdn):
+        g = self.__generator(fqdn)
+        cfg = webKickstart.configtools.config
+
+        if cfg is None:
+            log.debug("WebKickstart configuration not setup??")
+            return None
+
+        return cfg.getProfileVars(g.profile)
 
