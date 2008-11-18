@@ -79,6 +79,12 @@ class webKickstart(object):
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]
 
+        # Security check
+        if not self.__debug and self.cfg.isTrue('security') and not \
+                self.__headerCheck(filename):
+            log.warning("Requesting client is not Anaconda.")
+            return (2, "# You do not appear to be Anaconda.")
+                
         mcList = self.findFile(filename, self.cfg.hosts)
 
         if len(mcList) > 1 and self.cfg.isTrue('collision'):
@@ -91,13 +97,6 @@ class webKickstart(object):
         else:
             mc = mcList[0]
 
-        # Security check
-        #log.debug("Security Set to: %s" % self.cfg.isTrue('security'))
-        #log.debug("Header Check Boolean: %s" % self.__headerCheck(filename))
-        if self.cfg.isTrue('security') and not self.__headerCheck(filename):
-            log.warning("Requesting client is not Anaconda.")
-            return (2, "# You do not appear to be Anaconda.")
-                
         if mc != None:
             if mc.isKickstart():
                 log.info("Returning pre-defined kickstart for %s." % filename)
