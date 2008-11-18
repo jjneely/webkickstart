@@ -27,6 +27,7 @@ install:
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/hosts
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/pluginconf.d
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/profiles
+	install -d -m 755 $(DESTDIR)/usr/bin
 	
 	install -m 644 webKickstart/webtmpl/*.kid $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
 	kidc $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
