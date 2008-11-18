@@ -75,7 +75,6 @@ class webKickstart(object):
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
         
-        log.info("Kickstart request from: %s" % host)
         addr = socket.gethostbyaddr(host)
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]

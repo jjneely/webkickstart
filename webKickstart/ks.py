@@ -20,6 +20,7 @@
 
 import sys
 import os
+import logging
 
 from mod_python import apache
 
@@ -40,6 +41,17 @@ def handler(req):
     if configtools.config == None:
         doSetup(req)
 
+    # Figure out the user agent
+    if req.headers_in.has_key('User-Agent'):
+        userAgent = req.headers_in['User-Agent']
+    else:
+        userAgent = "None"
+
+    # Log this request
+    log = logging.getLogger("webks")
+    log.info("%s - %s - %s" % (req.get_remote_host(apache.REMOTE_NOLOOKUP),
+                               userAgent, req.the_request))
+    
     # Main apache request handler
     req.content_type = "text/plain"
     req.send_http_header()
