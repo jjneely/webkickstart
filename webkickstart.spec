@@ -13,7 +13,7 @@ Source0:        %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      noarch
-BuildRequires:  python-devel
+BuildRequires:  python-devel, python-kid
 
 Requires: python-abi = %(%{__python} -c "import sys ; print sys.version[:3]")
 Requires: mod_python, python-cherrypy, python-kid, python-cheetah
@@ -30,13 +30,11 @@ private while making use of a single template.
 
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%{__python} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-
+[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
  
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -44,15 +42,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc ChangeLog README AUTHORS COPYING
-%dir /etc/webkickstart
-
+%doc README AUTHORS COPYING docs
+%config(noreplace) %{_sysconfdir}/*
+%{_datadir}/webkickstart
 %{_bindir}/*
-%{python_sitelib}/webKickstart/*
+%{python_sitelib}/webKickstart
 
-%config(noreplace) /etc/webkickstart/*
 
 %changelog
+* Tue Nov 18 2008 Jack Neely <jjneely@ncsu.edu> 
+- Ditch python's distutils in favor of a working Makefile
+- some tweaks to finish up the spec
+
 * Mon Aug 11 2008 Jack Neely <jjneely@ncsu.edu> 3.0-1
 - Initial packaging
 
