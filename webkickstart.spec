@@ -44,7 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc README AUTHORS COPYING docs
 %config(noreplace) %{_sysconfdir}/*
-%{_datadir}/webkickstart
+%{_datadir}/webKickstart
 %{_bindir}/*
 %{python_sitelib}/webKickstart
 
