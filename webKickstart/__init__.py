@@ -29,6 +29,7 @@ import configtools
 import socket
 import traceback
 import logging
+import stat
 import sys
 import os
 import os.path
@@ -84,7 +85,7 @@ class webKickstart(object):
                 self.__headerCheck(filename):
             log.warning("Requesting client is not Anaconda.")
             return (2, "# You do not appear to be Anaconda.")
-                
+        
         mcList = self.findFile(filename, self.cfg.hosts)
 
         if len(mcList) > 1 and self.cfg.isTrue('collision'):
@@ -249,10 +250,14 @@ class webKickstart(object):
             if node.startswith('.'):
                 continue
             apath = os.path.join(path, node)
-            if os.path.isdir(apath):
-                # isdir() does the right thing if its passed a symlink
+            try:
+                # stat() follows symlinks
+                mode = os.stat(apath).st_mode
+            except os.error:
+                continue
+            if stat.S_ISDIR(mode):
                 dirs.append(apath)
-            elif os.path.isfile(apath):
+            elif stat.S_ISREG(mode):
                 files.append(apath)
 
         return files, dirs
