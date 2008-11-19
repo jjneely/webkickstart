@@ -208,7 +208,7 @@ def wsgi(req):
 
     cherrypy.config.update({"server.environment": "production",
                             "server.protocolVersion": "HTTP/1.1",
-                            "server.log_file": "/tmp/webkickstart-tools.log"})
+                            "server.log_file": "/var/log/webkickstart-cherrypy.log"})
 
     if appMount is None:
         cherrypy.root = Application()

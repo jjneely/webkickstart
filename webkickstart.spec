@@ -17,6 +17,7 @@ BuildRequires:  python-devel, python-kid
 
 Requires: python-abi = %(%{__python} -c "import sys ; print sys.version[:3]")
 Requires: mod_python, python-cherrypy, python-kid, python-cheetah
+Requires(post): httpd
 
 %description
 WebKickstart is an implementation to generate Kickstarts from a Cheetah
@@ -39,6 +40,18 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+
+# Log file fun...
+if [ ! -e /var/log/webkickstart.log ] ; then
+    touch /var/log/webkickstart.log
+    chown apache:apache /var/log/webkickstart.log
+fi
+
+if [ ! -e /var/log/webkickstart-cherrypy.log ] ; then
+    touch /var/log/webkickstart-cherrypy.log
+    chown apache:apache /var/log/webkickstart-cherrypy.log
+fi
 
 %files
 %defattr(-,root,root,-)
