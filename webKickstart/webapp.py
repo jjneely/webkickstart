@@ -28,6 +28,9 @@ import kid
 from webKickstart import webKickstart
 from webKickstart import configtools
 
+# How to better handle web authentication?
+from webKickstart.plugins import webauth
+
 def importer(module):
     tree = module.split('.')
     for path in sys.path:
@@ -92,10 +95,21 @@ def handler(req):
 class Application(object):
 
     def index(self):
-        return serialize('webKickstart.webtmpl.index', {})
+        auth = webauth.Auth()
+        name = auth.getName()
+
+        if not auth.isAuthorized():
+            return serialize('webKickstart.webtmpl.notauth', dict(name=name))
+        
+        return serialize('webKickstart.webtmpl.index', dict(name=name))
     index.exposed = True
 
     def debugtool(self, host):
+        auth = webauth.Auth()
+        if not auth.isAuthorized():
+            return serialize('webKickstart.webtmpl.notauth', 
+                             dict(name=auth.getName()))
+        
         if host == "":
             return serialize('webKickstart.webtmpl.debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
@@ -110,6 +124,11 @@ class Application(object):
     debugtool.exposed = True
 
     def collision(self, host):
+        auth = webauth.Auth()
+        if not auth.isAuthorized():
+            return serialize('webKickstart.webtmpl.notauth', 
+                             dict(name=auth.getName()))
+        
         if host == "":
             return serialize('webKickstart.webtmpl.debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
@@ -121,6 +140,11 @@ class Application(object):
     collision.exposed = True
 
     def checkconfigs(self):
+        auth = webauth.Auth()
+        if not auth.isAuthorized():
+            return serialize('webKickstart.webtmpl.notauth', 
+                             dict(name=auth.getName()))
+        
         w = webKickstart('url', {})
         tuple = w.checkConfigHostnames()
 

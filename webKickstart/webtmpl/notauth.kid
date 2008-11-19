@@ -15,7 +15,8 @@ a note to <a href="mailto:linux@help.ncsu.edu">linux@help.ncsu.edu</a>.</p>
 for future enhancments of Web-Kickstart, please open a Remedy ticket by
 the above email address.</p>
 
-<p>Welcome <span py:replace="name" />.</p>
+<p>Welcome <span py:replace="name" />.  You are currently <b>not
+authorized</b>.</p>
 
 <h2>Config File Debugging Or Kickstart Preview</h2>
 
@@ -24,10 +25,7 @@ in the box below.  This will show you the kickstart that will be sent
 to that host when it is Web-Kickstarted.  If there is an error a
 hopefully helpful message will appear.</p>
 
-<form action="debugtool" method="post">
-<p>IP or host name: <input type="text" name="host"/>
-<input type="submit"/></p>
-</form>
+<p>You must be authorized to use this function.</p>
 
 <h2>Collision Detection</h2>
 
@@ -35,10 +33,7 @@ hopefully helpful message will appear.</p>
 host?  Well, its not good.  Enter in the the IP or FQDN of a host name
 to this tool and it will report config file collisions.</p>
 
-<form action="collision" method="post">
-<p>IP or host name: <input type="text" name="host"/>
-<input type="submit"/></p>
-</form>
+<p>You must be authorized to use this function.</p>
 
 <h2>Old Config Files</h2>
 
@@ -46,9 +41,7 @@ to this tool and it will report config file collisions.</p>
 all the config files for hosts that no longer resolve in DNS.  Click the 
 submit button.</p>
 
-<form action="checkconfigs" method="post">
-  <input type="submit"/>
-</form>
+<p>You must be authorized to use this function.</p>
 
 </body>
 </html>
