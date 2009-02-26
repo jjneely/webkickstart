@@ -24,6 +24,7 @@ import os.path
 import logging
 import optparse
 
+from webKickstart import webKickstart
 from webKickstart import configtools
 from webKickstart.metaparser import MetaParser
 from webKickstart.generator import Generator
@@ -32,38 +33,13 @@ log = logging.getLogger('webks')
 
 class TestGenerator(object):
 
-    def setUp(self, dir=None):
-        if configtools.config == None:
-            log.debug("Doing configuration bits...")
-            if dir is not None:
-                self.cfgdir = dir
-                if not os.path.isabs(self.cfgdir):
-                    self.cfgdir = os.path.abspath(self.cfgdir)
-            else:
-                self.cfgdir = None
+    def makeKS(self, fqdn, conf):
+        wks = webKickstart("url/", {}, conf)
+        wks.setDebug(True)
 
-            configtools.config = configtools.Configuration(self.cfgdir)
-
-        self.cfg = configtools.config
-
-    def makeKS(self, filename):
-        # Load the config file into a MetaParser object
-        mc = MetaParser(filename)
-
-        # Grab out the version/profile string
-        version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
-        log.debug("Found version string: %s" % version)
-
-        # The mod_python bits assume the FQDN matches the basename of the
-        # config file.  For generating the file you can aquire the FQDN
-        # any way that's useful.
-        fqdn = os.path.basename(filename)
-
-        # Create a Generator object
-        gen = Generator(version, mc)
-        
-        # Assumble the kickstart
-        print gen.makeKickstart(fqdn)
+        t = wks.getKS(fqdn)
+        print t[1]
+        return t[0]
 
 
 def main():
@@ -79,11 +55,10 @@ def main():
         parser.print_help()
         sys.exit()
 
-    filename = args[1]
+    fqdn = args[1]
 
     t = TestGenerator()
-    t.setUp(opts.configdir)
-    t.makeKS(filename)
+    t.makeKS(fqdn, opts.configdir)
 
 
 if __name__ == '__main__':
