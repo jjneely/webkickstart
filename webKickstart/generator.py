@@ -39,7 +39,7 @@ log = logging.getLogger("webks")
 
 class Generator(object):
 
-    tLoader = TemplateLoader(default_class=NewTextTemplate)
+    tLoader = TemplateLoader(default_class=NewTextTemplate, allow_exec=True)
 
     def __init__(self, profile, mc=None, debug=False):
         assert configtools.config != None
