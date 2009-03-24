@@ -43,7 +43,7 @@ class TestGenerator(object):
 
 
 def main():
-    parser = optparse.OptionParser("%%prog %s [options] MetaConfig" % \
+    parser = optparse.OptionParser("%%prog %s [options] hostname" % \
                                    sys.argv[0])
     parser.add_option("-C", "--configdir", action="store", type="string",
            dest="configdir", default=None,

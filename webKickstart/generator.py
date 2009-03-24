@@ -78,8 +78,7 @@ class Generator(object):
 
         self.variables['webKickstart'] = TemplateVar('webKickstart')
         self.variables['webKickstart'].setMember('remoteHost', fqdn)
-        self.variables['webKickstart'].setMember('templates', 
-                configtools.config.profiles)
+        self.variables['webKickstart'].setMember('profile', self.profile)
         self.variables['WebKickstartError'] = WebKickstartError
         self.variables['ParseError'] = ParseError
 
