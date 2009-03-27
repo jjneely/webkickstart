@@ -2,7 +2,7 @@
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           webkickstart
-Version: 3.0
+Version: 3.1.0
 Release:        1%{?dist}
 Summary:        Dynamically generate complex Red Hat Kickstarts.
 
@@ -13,10 +13,10 @@ Source0:        %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      noarch
-BuildRequires:  python-devel, python-kid
+BuildRequires:  python-devel
 
 Requires: python-abi = %(%{__python} -c "import sys ; print sys.version[:3]")
-Requires: mod_python, python-cherrypy, python-kid, python-cheetah
+Requires: mod_python, python-cherrypy, python-genshi
 Requires(post): httpd
 
 %description
@@ -63,6 +63,9 @@ fi
 
 
 %changelog
+* Thu Mar 26 2009 Jack Neely <jjneely@ncsu.edu> 3.1.0-1
+- port all templating to genshi
+
 * Tue Nov 18 2008 Jack Neely <jjneely@ncsu.edu> 
 - Ditch python's distutils in favor of a working Makefile
 - some tweaks to finish up the spec

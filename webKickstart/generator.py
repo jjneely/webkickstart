@@ -23,12 +23,10 @@
 # Pythong imports
 import os
 import logging
-#from threading import Lock  # Locking for the cache?
-                             # XXX: See if this is required
 from types import *
 
-# Cheetah
-from Cheetah.Template import Template
+from genshi.template import TemplateLoader
+from genshi.template import NewTextTemplate
 
 # WebKickstart imports
 import configtools
@@ -41,7 +39,7 @@ log = logging.getLogger("webks")
 
 class Generator(object):
 
-    templateCache = {}
+    tLoader = TemplateLoader(default_class=NewTextTemplate, allow_exec=True)
 
     def __init__(self, profile, mc=None, debug=False):
         assert configtools.config != None
@@ -50,7 +48,7 @@ class Generator(object):
         self.profile = profile
         self.configs = []
         self.variables = {}     # The dictionary that is presented to the
-                                # cheetah template.  Order perserved in
+                                # genshi template.  Order perserved in
                                 # the TemplateVar class.
 
         if configtools.config.findProfile(self.profile) == None:
@@ -68,35 +66,33 @@ class Generator(object):
         file = configtools.config.getTemplate(self.profile)
 
         if file == None:
-            msg = "The Cheetah template for the '%s' profile does not exist."
+            msg = "The Genshi template for the '%s' profile does not exist."
             msg = msg % self.profile
             raise WebKickstartError, msg
    
         # webkickstart namespaces
         d = configtools.config.getProfileVars(self.profile)
-        configvars = {}
         # TemplateVar up all the stuff from the config file
         for k in d.keys():
-            configvars[k] = TemplateVar(d[k], key=k)
+            self.variables[k] = TemplateVar(d[k], key=k)
 
         self.variables['webKickstart'] = TemplateVar('webKickstart')
         self.variables['webKickstart'].setMember('remoteHost', fqdn)
-        self.variables['webKickstart'].setMember('templates', 
-                configtools.config.profiles)
-        other = {'WebKickstartError': WebKickstartError, 
-                 'ParseError': ParseError }
+        self.variables['webKickstart'].setMember('profile', self.profile)
+        self.variables['WebKickstartError'] = WebKickstartError
+        self.variables['ParseError'] = ParseError
 
         self.buildPostVar()
         self.runPlugins()
 
         log.debug("Loading template file: %s" % file)
-        #log.debug("Configuration vars: %s" % str(configvars))
         #log.debug("Template vars: %s" % str(self.variables))
-        #log.debug("Other vars: %s" % str(other))
-        built = self.__getCachedTemplate(file)
-    
-        s = str(built(namespaces=[configvars, self.variables, other]))
-        return s
+        ##built = self.__getCachedTemplate(file)
+        built = self.tLoader.load(file)
+        stream = built.generate(**self.variables)
+        
+        #s = str(built(namespaces=[configvars, self.variables, other]))
+        return stream.render()
 
     def runPlugins(self):
         mods = plugins.getModules(plugins.WebKickstartPlugin)
@@ -146,16 +142,6 @@ class Generator(object):
                 webks.scripts.append(script)
             else:
                 webks.setMember('scripts', script)
-
-    def __getCachedTemplate(self, file):
-        # We check for file's existance in configtools
-        mtime = os.stat(file).st_mtime
-
-        if not self.templateCache.has_key(file) or \
-               mtime > self.templateCache[file][0]:
-            self.templateCache[file] = (mtime, Template.compile(file=file))
-
-        return self.templateCache[file][1]
 
     def __handleIncludes(self, mc, key):
         """Handle recursive includes"""

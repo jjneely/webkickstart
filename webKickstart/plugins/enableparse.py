@@ -48,7 +48,7 @@ class EnableParsePlugin(WebKickstartPlugin):
         del self.variableDict['enable']
         enable = TemplateVar('', key='enable')
 
-        for record in oldenables:
+        for record in oldenables.allRows():
             if record.len() >= 1:
                 if record.len() >= 2:
                     value = record.options()[1:]

@@ -23,34 +23,14 @@ import cherrypy
 import sys
 import os
 import os.path
-import kid 
+
+from genshi.template import TemplateLoader
 
 from webKickstart import webKickstart
 from webKickstart import configtools
 
 # How to better handle web authentication?
 from webKickstart.plugins import webauth
-
-def importer(module):
-    tree = module.split('.')
-    for path in sys.path:
-        basepath = apply(os.path.join, [path] + tree[:-1])
-        file = os.path.join(basepath, tree[-1]+'.kid')
-        if os.path.exists(file):
-            return kid.Template(file=file)
-
-    return None
-
-def serialize(mod, dict):
-    #template = importer(mod)
-    template = kid.Template(name=mod)
-    if template == None:
-        raise Exception("No kid module %s" % mod)
-
-    for key, value in dict.items():
-        setattr(template, key, value)
-
-    return template.serialize(encoding='utf-8', output='xhtml')
 
 def handler(req):
     # Main apache request handler
@@ -94,24 +74,32 @@ def handler(req):
 
 class Application(object):
 
+    def __init__(self):
+        self.loader = TemplateLoader([os.path.join(os.path.dirname(__file__), 
+                                                   'webtmpl')])
+
+    def render(self, tmpl, dict):
+        compiled = self.loader.load('%s.xml' % tmpl)
+        stream = compiled.generate(**dict)
+        return stream.render('xhtml')
+
     def index(self):
         auth = webauth.Auth()
         name = auth.getName()
 
         if not auth.isAuthorized():
-            return serialize('webKickstart.webtmpl.notauth', dict(name=name))
+            return self.render('notauth', dict(name=name))
         
-        return serialize('webKickstart.webtmpl.index', dict(name=name))
+        return self.render('index', dict(name=name))
     index.exposed = True
 
     def debugtool(self, host):
         auth = webauth.Auth()
         if not auth.isAuthorized():
-            return serialize('webKickstart.webtmpl.notauth', 
-                             dict(name=auth.getName()))
+            return self.render('notauth', dict(name=auth.getName()))
         
         if host == "":
-            return serialize('webKickstart.webtmpl.debugtool', dict(host="None",
+            return self.render('debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
 
         w = webKickstart('url', {})
@@ -119,37 +107,32 @@ class Application(object):
                                    # for preview mode
         tuple = w.getKS(host)
 
-        return serialize('webKickstart.webtmpl.debugtool', dict(host=host,
-                  kickstart=tuple[1]))
+        return self.render('debugtool', dict(host=host, kickstart=tuple[1]))
     debugtool.exposed = True
 
     def collision(self, host):
         auth = webauth.Auth()
         if not auth.isAuthorized():
-            return serialize('webKickstart.webtmpl.notauth', 
-                             dict(name=auth.getName()))
+            return self.render('notauth', dict(name=auth.getName()))
         
         if host == "":
-            return serialize('webKickstart.webtmpl.debugtool', dict(host="None",
+            return self.render('debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
         
         w = webKickstart('url', {})
         tuple = w.collisionDetection(host)
-        return serialize('webKickstart.webtmpl.collision', dict(host=host,
-                                                   output=tuple[1]))
+        return self.render('collision', dict(host=host, output=tuple[1]))
     collision.exposed = True
 
     def checkconfigs(self):
         auth = webauth.Auth()
         if not auth.isAuthorized():
-            return serialize('webKickstart.webtmpl.notauth', 
-                             dict(name=auth.getName()))
+            return self.render('notauth', dict(name=auth.getName()))
         
         w = webKickstart('url', {})
         tuple = w.checkConfigHostnames()
 
-        return serialize('webKickstart.webtmpl.checkconfigs', 
-                         dict(output=tuple[1]))
+        return self.render('checkconfigs', dict(output=tuple[1]))
     checkconfigs.exposed = True
 
 

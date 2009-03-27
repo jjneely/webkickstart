@@ -1,4 +1,4 @@
-VERSION=3.0
+VERSION=3.1.0
 NAME=webkickstart
 SPEC=webkickstart.spec
 
@@ -29,9 +29,7 @@ install:
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/profiles
 	install -d -m 755 $(DESTDIR)/usr/bin
 	
-	install -m 644 webKickstart/webtmpl/*.kid $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
-	kidc $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
-	install -m 644 webKickstart/webtmpl/*.py $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
+	install -m 644 webKickstart/webtmpl/*.xml $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
 	install -m 644 webKickstart/static/css/*.css $(DESTDIR)$(SITELIB)/webKickstart/static/css/
 	install -m 644 webKickstart/static/*.gif webKickstart/static/*.png $(DESTDIR)$(SITELIB)/webKickstart/static/
 	install -m 644 webKickstart/plugins/*.py $(DESTDIR)$(SITELIB)/webKickstart/plugins/

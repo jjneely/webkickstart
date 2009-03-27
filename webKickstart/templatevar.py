@@ -61,8 +61,10 @@ class TemplateVar(object):
         # creation/data row.  
         self._flag = 1
 
-    def __iter__(self):
-    	return self
+    def allRows(self):
+        # Return a generator that yeilds a TemplateVar for each row
+        for row in self.table:
+            yield TemplateVar(row, key=self._key, noKey=True)
     	
     def __str__(self):
         return self.verbatim()
@@ -87,21 +89,6 @@ class TemplateVar(object):
         return TemplateVar(self.options() + other.options(), 
                            key=self._key, noKey=True)
 
-    def next(self):
-        if self._flag == 1:
-            self._flag = 0
-        else:
-            self.row = self.row + 1
-
-        if self.row >= len(self.table):
-            self.reset()
-            raise StopIteration
-
-        return self
-
-    def reset(self):
-        self.row = 0
-    
     def append(self, tokens, isKeySet=True, noKey=False):
         """
         The tokens variable is either a string or a list of strings that
@@ -136,6 +123,14 @@ class TemplateVar(object):
         else:
             msg = "Unsupported token type for TemplateVar class."
             raise WebKickstartError, msg
+
+    def next(self):
+        self.row = self.row + 1
+        if self.row >= len(self.table):
+            raise StopIteration
+
+    def reset(self):
+        self.row = 0
 
     def verbatim(self):
         return ' '.join(self.table[self.row])
