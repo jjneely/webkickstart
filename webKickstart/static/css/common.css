@@ -1,3 +1,10 @@
+textarea {
+    overflow: scroll;
+    border: 2px solid #aaaaaa;
+    background: #dddddd;
+    padding: 5px;
+    font-family: monospace;
+}
 div.code {
     background-color: #cccccc;
     padding: 0.5em;

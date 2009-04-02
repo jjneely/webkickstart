@@ -16,9 +16,8 @@
 
   <h2>Host: <span py:replace="host"/></h2>
 
-  <div class="code">
-    <pre py:content="kickstart"/>
-  </div>
+  <textarea cols="120" rows="35" readonly="readonly" wrap="off"
+    py:content="kickstart"/>
 
 </body>
 </html>
