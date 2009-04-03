@@ -2,7 +2,7 @@
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           webkickstart
-Version: 3.1.0
+Version: 3.1.1
 Release:        1%{?dist}
 Summary:        Dynamically generate complex Red Hat Kickstarts.
 
