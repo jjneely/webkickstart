@@ -93,6 +93,20 @@ class Application(object):
         return self.render('index', dict(name=name))
     index.exposed = True
 
+    def rawKickstart(self, host):
+        auth = webauth.Auth()
+        if not auth.isAuthorized():
+            return self.render('notauth', dict(name=auth.getName()))
+
+        w = webKickstart('url', {})
+        w.setDebug(True)           # Previent running of things that shouldn't
+                                   # for preview mode
+        tuple = w.getKS(host)
+
+        cherrypy.response.headers['Content-Type'] = 'text/plain'
+        return tuple[1]
+    rawKickstart.exposed = True
+
     def debugtool(self, host):
         auth = webauth.Auth()
         if not auth.isAuthorized():

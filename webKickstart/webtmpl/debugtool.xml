@@ -16,6 +16,8 @@
 
   <h2>Host: <span py:replace="host"/></h2>
 
+  <p>View as <a href="rawKickstart?host=${host}">Plain Text</a>.</p>
+
   <textarea cols="120" rows="35" readonly="readonly" wrap="off"
     py:content="kickstart"/>
 
