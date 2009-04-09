@@ -36,10 +36,11 @@ import os.path
 
 log = logging.getLogger("webks")
 
-class webKickstart(object):
+# Cache constructs
+mcCache = {}
+mcCacheRoot = ""
 
-    mcCache = {}
-    mcCacheRoot = ""
+class webKickstart(object):
 
     def __init__(self, url, headers, configDir=None):
         self.__debug = False
@@ -157,13 +158,15 @@ class webKickstart(object):
         
 
     def findMC(self, fqdn):
+        global mcCache, mcCacheRoot
         key = fqdn.lower()
-        if self.cfg.hosts == self.mcCacheRoot and key in self.mcCache:
+        if self.cfg.hosts == mcCacheRoot and key in mcCache:
             flag = True
-            for file in self.mcCache[key]:
+            for file in mcCache[key]:
                 flag = flag and os.path.exists(file)
             if flag:
-                return [ MetaParser(f) for f in self.mcCache[key] ]
+                log.info("Cache Hit: %s" % str(mcCache[key]))
+                return [ MetaParser(f) for f in mcCache[key] ]
 
         return self.rebuildCache(fqdn)
 
@@ -191,13 +194,15 @@ class webKickstart(object):
             for d in dirs:
                 recurse(d, dict)
 
+        global mcCache, mcCacheRoot
         recurse(root, cache)
-        self.mcCacheRoot = root
-        self.mcCache = cache
+        mcCacheRoot = root
+        mcCache = cache
         key = fqdn.lower()
-        if key not in self.mcCache:
+        if key not in mcCache:
             return []
-        return [ MetaParser(f) for f in self.mcCache[key] ]
+        log.debug("Cache MISS: %s" % key)
+        return [ MetaParser(f) for f in mcCache[key] ]
 
     
     def collisionDetection(self, host):
