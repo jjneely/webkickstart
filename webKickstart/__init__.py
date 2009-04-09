@@ -38,6 +38,9 @@ log = logging.getLogger("webks")
 
 class webKickstart(object):
 
+    mcCache = {}
+    mcCacheRoot = ""
+
     def __init__(self, url, headers, configDir=None):
         self.__debug = False
         # set up url from reinstalls
@@ -86,7 +89,7 @@ class webKickstart(object):
             log.warning("Requesting client is not Anaconda.")
             return (2, "# You do not appear to be Anaconda.")
         
-        mcList = self.findFile(filename, self.cfg.hosts)
+        mcList = self.findMC(filename)
 
         if len(mcList) > 1 and self.cfg.isTrue('collision'):
             # if collision_detection is on then bitch
@@ -153,28 +156,48 @@ class webKickstart(object):
             return (42, s)
         
 
-    def findFile(self, fn, cd="./configs"):
-        """Return a list of MetaParserss that match the givein
-           filename.  Ie, /foo/bar and /baz/bar when fn="bar".  This
-           is case insensitive as is DNS.
-        """
-        #log.debug("Searching for MC: %s" % fn)
-        ret = []
-        fn = fn.lower()
+    def findMC(self, fqdn):
+        key = fqdn.lower()
+        if self.cfg.hosts == self.mcCacheRoot and key in self.mcCache:
+            flag = True
+            for file in self.mcCache[key]:
+                flag = flag and os.path.exists(file)
+            if flag:
+                return [ MetaParser(f) for f in self.mcCache[key] ]
 
-        try:
-            files, dirs = self.getFilesAndDirs(cd)
-        except OSError, e:
-            raise AccessError(str(e))
+        return self.rebuildCache(fqdn)
 
-        for f in files:
-            if os.path.basename(f).lower() == fn:
-                ret.append(MetaParser(f))
+    def rebuildCache(self, fqdn):
+        """Return a list of MetaConfigs that match the givin FQDN while
+           rebuilding the assumed old cache objects.  Matches are case
+           insensitive."""
 
-        for d in dirs:
-            ret.extend(self.findFile(fn, d))
+        root = self.cfg.hosts
+        cache = {}
 
-        return ret
+        def recurse(dir, dict):
+            try:
+                files, dirs = self.getFilesAndDirs(dir)
+            except OSError, e:
+                raise AccessError(str(e))
+
+            for f in files:
+                key = os.path.basename(f).lower()
+                if key in dict:
+                    dict[key].append(f)
+                else:
+                    dict[key] = [f]
+
+            for d in dirs:
+                recurse(d, dict)
+
+        recurse(root, cache)
+        self.mcCacheRoot = root
+        self.mcCache = cache
+        key = fqdn.lower()
+        if key not in self.mcCache:
+            return []
+        return [ MetaParser(f) for f in self.mcCache[key] ]
 
     
     def collisionDetection(self, host):
@@ -182,7 +205,7 @@ class webKickstart(object):
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]
                          
-        scList = self.findFile(filename, self.cfg.hosts)
+        scList = self.rebuildCache(filename)
 
         if len(scList) > 1:
             return self.__collisionMessage(scList)
