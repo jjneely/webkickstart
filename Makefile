@@ -45,7 +45,7 @@ install:
 	install -m 644 etc/pluginconf.d/*.example $(DESTDIR)/etc/webkickstart/pluginconf.d/
 
 srpm: archive
-	rpmbuild -ts $(NAME)-$(VERSION).tar.bz2
+	rpmbuild --define "_srcrpmdir ." -ts $(NAME)-$(VERSION).tar.bz2
 
 clean:
 	rm -f `find . -name \*.pyc -o -name \*~`
