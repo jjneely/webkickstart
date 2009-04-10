@@ -165,16 +165,13 @@ class webKickstart(object):
             for file in mcCache[key]:
                 flag = flag and os.path.exists(file)
             if flag:
-                log.info("Cache Hit: %s" % str(mcCache[key]))
+                log.debug("Cache Hit: %s" % str(mcCache[key]))
                 return [ MetaParser(f) for f in mcCache[key] ]
 
+        log.debug("Cache MISS: %s" % key)
         return self.rebuildCache(fqdn)
 
-    def rebuildCache(self, fqdn):
-        """Return a list of MetaConfigs that match the givin FQDN while
-           rebuilding the assumed old cache objects.  Matches are case
-           insensitive."""
-
+    def buildCache(self):
         root = self.cfg.hosts
         cache = {}
 
@@ -198,11 +195,19 @@ class webKickstart(object):
         recurse(root, cache)
         mcCacheRoot = root
         mcCache = cache
+
+    def rebuildCache(self, fqdn):
+        """Return a list of MetaConfigs that match the givin FQDN while
+           rebuilding the assumed old cache objects.  Matches are case
+           insensitive."""
+
+        global mcCache, mcCacheRoot
+        self.buildCache()
         key = fqdn.lower()
         if key not in mcCache:
             return []
-        log.debug("Cache MISS: %s" % key)
         return [ MetaParser(f) for f in mcCache[key] ]
+
 
     
     def collisionDetection(self, host):

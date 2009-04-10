@@ -32,51 +32,15 @@ from webKickstart import configtools
 # How to better handle web authentication?
 from webKickstart.plugins import webauth
 
-def handler(req):
-    # Main apache request handler
-    req.content_type = "text/plain"
-    req.send_http_header()
-
-    # build requested URL
-    url = "http://" + req.hostname + req.uri
-    
-    # Get the IP of the client
-    ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
-
-    # Init webKickstart
-    w = webKickstart(url, req.headers_in)
-
-    # get the GET/POST thingies
-    args = util.FieldStorage(req)
-    
-    # Check to see what mode to run in
-    if 'collision_detection' in args.keys():
-        tuple = w.collisionDetection(args['collision_detection'])
-        
-    elif 'dns_config_check' in args.keys():
-        tuple = w.checkConfigHostnames()
-        
-    elif 'debugtool' in args.keys():
-        # Pass what we intered into the debug field and turn on debug mode
-        tuple = w.getKS(args['debugtool'], 1)
-        
-    else:
-        # Main mode of operation
-        tuple = w.getKS(ip, 0)
-
-    # send on the kickstart
-    req.write(tuple[1])
-
-    # if error code == 42 we need to log the output because its a traceback
-    if tuple[0] == 42: apache.log_error(tuple[1], apache.APLOG_ERR)
-
-    return apache.OK
-
 class Application(object):
 
     def __init__(self):
         self.loader = TemplateLoader([os.path.join(os.path.dirname(__file__), 
                                                    'webtmpl')])
+
+        # Create a webKickstart instance to pre-cache the configs
+        w = webKickstart('url', {})
+        w.buildCache()
 
     def render(self, tmpl, dict):
         compiled = self.loader.load('%s.xml' % tmpl)
