@@ -62,12 +62,8 @@ class webKickstart(object):
             # only present in version >= FC1
             return True
         # This handles anaconda before Fedora which includes RHEL 3
-        elif len(self.headers) > 1:
-            # Bad
-            return False
-        elif not self.headers.has_key('Host'):
-            # More bad
-            return False
+        elif len(self.headers) == 1 and self.headers.has_key('Host'):
+            return True
 
         return False
 
