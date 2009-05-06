@@ -81,22 +81,6 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 syntax for the Realm Linux JumpStart files.</li>
 <!--<li><a href="docs/design.txt">design.txt</a> - A rough design
 document.</li>-->
-<li><a href="examples/rk-test4.pams.ncsu.edu">rk-test4.pams.ncsu.edu</a>
- - The simplest example.  This will install Realm Linux 9 with all the
-assumed defaults.</li>
-<li><a
-href="examples/rk-test3.pams.ncsu.edu">rk-test3.pams.ncsu.edu</a> - An
-example.</li>
-<li><a href="examples/script1">script1</a> - The config file "used" or
-included by rk-test3.pams.ncsu.edu</li>
-<li><a href="examples/lvm">LVM</a> - A short example on setting up Logical
-Volumes in a JumpStart.  See the Red Hat or Fedora documentation about
-using the Logical Volume Manager (LVM).</li>
-<li><a href="examples/uni04s.unity.ncsu.edu">uni04s.unity.ncsu.edu</a> - 
-A very complex example.  This config file is used to install the Nagios
-monitoring servers that ITD uses.  See the below file that is included.</li>
-<li><a href="examples/nagios-server">nagios-server</a> - This is the
-include file that is refferenced in uni04s.unity.ncsu.edu.</li>
 </ul>
 
 <h2>Disk Image</h2>
@@ -162,7 +146,7 @@ your config files and manage your config files in AFS.  You can view the
 kickstart that is generated and sent to your machines and check for
 syntax and other errors.  All of these Tools can be found at the:
 
-<ul><li><a href="WRAP/">Web-Kickstart Tools Page</a></li></ul>
+<ul><li><a href="https://secure.linux.ncsu.edu/webKickstartTools">Web-Kickstart Tools Page</a></li></ul>
 
 This page is SSL'd and WRAP protected for security reasons.</p>
 

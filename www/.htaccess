@@ -1,9 +1,3 @@
-AddHandler python-program .py
-PythonHandler webKickstart.ks
-PythonDebug On 
-
-# Path to WebKickstart module if not already in python path
-PythonPath "sys.path + ['/home/slack/projects/solaris2ks']"
 
 <Files solaris2ks.conf>
     deny from all
