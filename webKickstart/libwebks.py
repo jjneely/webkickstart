@@ -36,7 +36,7 @@ class LibWebKickstart(object):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
         wks = webKickstart.webKickstart("fakeurl", {}, self.configDir)
-        mcList = wks.findFile(fqdn, wks.cfg.hosts)
+        mcList = wks.findMC(fqdn)
         
         if len(mcList) == 0:
             log.debug("LibWebKickstart: Did not find config: %s" % fqdn)
