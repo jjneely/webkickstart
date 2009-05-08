@@ -62,6 +62,7 @@ class Application(object):
         if not auth.isAuthorized():
             return self.render('notauth', dict(name=auth.getName()))
 
+        host = host.strip()
         w = webKickstart('url', {})
         w.setDebug(True)           # Previent running of things that shouldn't
                                    # for preview mode
@@ -76,6 +77,7 @@ class Application(object):
         if not auth.isAuthorized():
             return self.render('notauth', dict(name=auth.getName()))
         
+        host = host.strip()
         if host == "":
             return self.render('debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
@@ -93,6 +95,7 @@ class Application(object):
         if not auth.isAuthorized():
             return self.render('notauth', dict(name=auth.getName()))
         
+        host = host.strip()
         if host == "":
             return self.render('debugtool', dict(host="None",
                   kickstart="# You failed to provide a host to check."))
