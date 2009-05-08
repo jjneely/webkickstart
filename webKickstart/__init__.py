@@ -207,7 +207,11 @@ class webKickstart(object):
 
     
     def collisionDetection(self, host):
-        addr = socket.gethostbyaddr(host)
+        try:
+            addr = socket.gethostbyaddr(host)
+        except Exception:
+            return (1, "'%s' does not exist in DNS" % host)
+
         # We look for the A record from DNS...not a CNAME
         filename = addr[0]
                          
