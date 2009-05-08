@@ -52,6 +52,8 @@ class LibWebKickstart(object):
             # Unsupported version key in config file
             g = webKickstart.generator.Generator('default', mc, True)
 
+        g.localVars(fqdn)
+        g.buildPostVar()
         g.runPlugins()
         return g
 

@@ -61,16 +61,9 @@ class Generator(object):
             self.__includeFile(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
 
-    def makeKickstart(self, fqdn, excludePlugins=[]):
-        """Return a string of a Red Hat Kickstart."""
+    def localVars(self, fqdn):
+        # Setup self.variables
 
-        file = configtools.config.getTemplate(self.profile)
-
-        if file == None:
-            msg = "The Genshi template for the '%s' profile does not exist."
-            msg = msg % self.profile
-            raise WebKickstartError, msg
-   
         # webkickstart namespaces
         d = configtools.config.getProfileVars(self.profile)
         # TemplateVar up all the stuff from the config file
@@ -83,16 +76,25 @@ class Generator(object):
         self.variables['WebKickstartError'] = WebKickstartError
         self.variables['ParseError'] = ParseError
 
+    def makeKickstart(self, fqdn, excludePlugins=[]):
+        """Return a string of a Red Hat Kickstart."""
+
+        file = configtools.config.getTemplate(self.profile)
+
+        if file == None:
+            msg = "The Genshi template for the '%s' profile does not exist."
+            msg = msg % self.profile
+            raise WebKickstartError, msg
+   
+        self.localVars(fqdn)
         self.buildPostVar()
         self.runPlugins()
 
         log.debug("Loading template file: %s" % file)
         #log.debug("Template vars: %s" % str(self.variables))
-        ##built = self.__getCachedTemplate(file)
         built = self.tLoader.load(file)
         stream = built.generate(**self.variables)
         
-        #s = str(built(namespaces=[configvars, self.variables, other]))
         return stream.render()
 
     def runPlugins(self):
