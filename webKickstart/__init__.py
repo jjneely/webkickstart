@@ -57,6 +57,7 @@ class webKickstart(object):
 
     def __headerCheck(self, fqdn):
         # check for anaconda
+        log.debug("HTTP Headers: %s" % str(self.headers))
         if self.headers.has_key("X-RHN-Provisioning-MAC-0"):
             # continue through...we *know* this is anaconda
             # only present in version >= FC1
