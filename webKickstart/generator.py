@@ -47,7 +47,7 @@ class Generator(object):
 
         self.__debug = debug
         self.profile = profile
-        self.configs = []
+        self.configs = []       # List of tuples (depth, mc)
         self.variables = {}     # The dictionary that is presented to the
                                 # genshi template.  Order perserved in
                                 # the TemplateVar class.
@@ -131,10 +131,17 @@ class Generator(object):
     def buildPostVar(self):
         # Attach %posts found in config files
         scriptlist = []
-        for mc in self.configs:
+
+        # on python 2.4 we can use key=lambda x: x[0], reverse=True
+        # but I need to run on 2.3 for the time being
+        # In any case, this sort MUST be stable!!
+        self.configs.sort(lambda x,y: cmp(y[0], x[0]))
+
+        for depth, mc in self.configs:
+            # we just use depth for sorting
+            #scriptlist.append("# Depth: %s\tMC: %s" % (depth, mc.getFileName()))
             scriptlist.extend(mc.getPosts())
 
-        scriptlist.reverse()
         webks = self.variables['webKickstart']
         if len(scriptlist) == 0:
             webks.setMember('scripts', '')
@@ -146,7 +153,7 @@ class Generator(object):
             else:
                 webks.setMember('scripts', script)
 
-    def __handleIncludes(self, mc, key):
+    def __handleIncludes(self, mc, key, depth=0):
         """Handle recursive includes"""
         configs = []
 
@@ -159,17 +166,16 @@ class Generator(object):
                     tmp_mc = MetaParser(rec[1])
                     configs.append(tmp_mc)
 
-        # This is a change in the order of webkickstart metaconfig file
-        # processing.  This is now depth first!!
+        # Track depth so we get the %posts in the right order
         for tmp_mc in configs:
-            self.__includeFile(tmp_mc)
-            self.__handleIncludes(tmp_mc, key)
+            self.__includeFile(tmp_mc, depth+1)
+            self.__handleIncludes(tmp_mc, key, depth+1)
 
 
-    def __includeFile(self, mc):
+    def __includeFile(self, mc, depth=0):
         """Parse a solarisConfig object."""
         
-        if mc in self.configs:
+        if self.__isSeen(mc):
             msg = "Recursive '%s' loop detected." % \
                     configtools.config.include_key
             raise ParseError, msg
@@ -183,5 +189,11 @@ class Generator(object):
             else:
                 self.variables[var.key()] = var
 
-        self.configs.append(mc)
+        self.configs.append((depth, mc))
         
+    def __isSeen(self, mc):
+        for t in self.configs:
+            if t[1] == mc:
+                return True
+
+        return False
