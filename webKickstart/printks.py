@@ -41,7 +41,7 @@ host = sys.argv[1]
 ip = socket.gethostbyname(host)
 
 # build requested URL
-url = "http://webks.example.com/"
+url = "http://web-kickstart.linux.ncsu.edu/ks.py"
 
 # Init webKickstart
 w = webKickstart(url, {})
