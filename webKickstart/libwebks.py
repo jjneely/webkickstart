@@ -2,7 +2,7 @@
 #
 # libwebks.py - A set of library calls to interface to configs files
 #
-# Copyright 2008 NC State University
+# Copyright 2008 - 2009 NC State University
 # Written by Jack Neely <jjneely@ncsu.edu>
 #
 # SDG
@@ -43,6 +43,10 @@ class LibWebKickstart(object):
             return None
 
         mc = mcList[0]
+        if mc.isKickstart(): 
+            log.debug("LibWebKickstart: %s has a pre-defined kickstart." % fqdn)
+            return None
+
         try:
             # Debug mode is True to avoid special stuff...we just
             # want to query the config file
@@ -50,6 +54,7 @@ class LibWebKickstart(object):
         except Exception, e:
             # KeyError or ConfgError from webkickstart
             # Unsupported version key in config file
+            log.warning("Building a default config for %s which may fail." % fqdn)
             g = webKickstart.generator.Generator('default', mc, True)
 
         g.localVars(fqdn)
@@ -60,7 +65,11 @@ class LibWebKickstart(object):
     def getKeys(self, fqdn):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
-        return self.__generator(fqdn).variables
+        g = self.__generator(fqdn)
+        if g is None:
+            return {}
+        else:
+            return g.variables
 
     def getKey(self, fqdn, key):
         """Returns a list of strings for each instance of key defined for
