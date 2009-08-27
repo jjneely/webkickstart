@@ -59,15 +59,11 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux AS4 U6 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
 
 <tr><th colspan="3">Non-Production and Testing Products</th></tr>
-<tr><td>Realm Linux 5.1 Server (x86_64)</td><td>server5.1.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux 5.1 Server (i386)</td><td>server5.1</td><td>Retired</td></tr>
-<tr><td>Realm Linux 5.1 Client (x86_64)</td><td>client5.1.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux 5.1 Client (i386)</td><td>client5.1</td><td>Retired</td></tr>
 
-<tr><td>Realm Linux WS4 U4 (i386)</td><td>WS4.4</td><td>Retired</td></tr>
-<tr><td>Realm Linux AS4 U4 (i386)</td><td>AS4.4</td><td>Retired</td></tr>
-<tr><td>Realm Linux WS4 U4 (AMD64/EM64T)</td><td>WS4.4.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux AS4 U4 (AMD64/EM64T)</td><td>AS4.4.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux WS4 U8 (i386)</td><td>WS4.8</td><td>Beta</td></tr>
+<tr><td>Realm Linux AS4 U8 (i386)</td><td>AS4.8</td><td>Beta</td></tr>
+<tr><td>Realm Linux WS4 U8 (AMD64/EM64T)</td><td>WS4.8.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux AS4 U8 (AMD64/EM64T)</td><td>AS4.8.x86_64</td><td>Beta</td></tr>
 
 <tr><th colspan="3">End of Life Products</th></tr>
 <tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
