@@ -104,28 +104,12 @@ the version of Realm Linux you have the config file set to install.</p>
 </ul>
 
 <h3>Non-Production and Testing Products</h3>
-
-<h4>Realm Linux 5.1 - Retired</h4>
+<h4>Realm Linux 4.8 - Beta</h4>
 <ul>
-<li><a href="server5-U1-x86_64-webks.iso">server5-U1-x86_64-webks.iso</a> - Realm Linux 5.1 Server for x86_64</li>
-<li><a href="server5-U1-x86-webks.iso">server5-U1-x86-webks.iso</a> - Realm Linux 5.1 Server for i386</li>
-<li><a href="client5-U1-x86_64-webks.iso">client5-U1-x86_64-webks.iso</a> - Realm Linux 5.1 Client for x86_64</li>
-<li><a href="client5-U1-x86-webks.iso">client5-U1-x86-webks.iso</a> - Realm Linux 5.1 Client for i386</li>
+<li><a href="RHEL4-U8-x86-webks.iso">RHEL4-U8-x86-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for i386</li>
+<li><a href="RHEL4-U8-x86_64-webks.iso">RHEL4-U8-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for x86_64/EM64T</li>
 </ul>
 
-<h4>Realm Linux 5.0 - Retired</h4>
-<ul>
-<li><a href="server5-U0-x86_64-webks.iso">server5-U0-x86_64-webks.iso</a> - Realm Linux 5.0 Server for x86_64 (Production)</li>
-<li><a href="server5-U0-x86-webks.iso">server5-U0-x86-webks.iso</a> - Realm Linux 5.0 Server for i386 (Production)</li>
-<li><a href="client5-U0-x86_64-webks.iso">client5-U0-x86_64-webks.iso</a> - Realm Linux 5.0 Client for x86_64 (Production)</li>
-<li><a href="client5-U0-x86-webks.iso">client5-U0-x86-webks.iso</a> - Realm Linux 5.0 Client for i386 (Production)</li>
-</ul>
-
-<h4>Realm Linux 4.4 - Retired</h4>
-<ul>
-<li><a href="RHEL4-U4-x86-webks.iso">RHEL4-U4-x86-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHEL4-U4-x86_64-webks.iso">RHEL4-U4-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U4 (Production) Boot CD (Server and Workstation) for x86_64/EM64T</li>
-</ul>
 
 <h3>End of Life Products</h3>
 
