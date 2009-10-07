@@ -25,6 +25,12 @@ import webKickstart
 import webKickstart.generator
 import webKickstart.configtools
 
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
+
 log = logging.getLogger('webks')
 
 class LibWebKickstart(object):
@@ -32,7 +38,7 @@ class LibWebKickstart(object):
     def __init__(self, configDir='/etc/webkickstart'):
         self.configDir = configDir
 
-    def __generator(self, fqdn):
+    def getGenerator(self, fqdn):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
         wks = webKickstart.webKickstart("fakeurl", {}, self.configDir)
@@ -62,10 +68,60 @@ class LibWebKickstart(object):
         g.runPlugins()
         return g
 
+    def getHash(self, files):
+        """Return a unique hash of the webkickstart source config files.
+           This can be used to detect changes.  The files argument is a list
+           of webkickstart source config files."""
+
+        if hashlib is not None:
+            sha = hashlib.sha1()
+        else:
+            sha = sha.new()
+
+        for file in files:
+            try:
+                fd = open(file)
+                sha.update(fd.read())  # small files right?
+                fd.close()
+            except IOError:
+                continue
+
+        return sha.hexdigest()
+
+    def getEverything(self, fqdn):
+        """Returns a dict of all keys, scripts, and files included in a 
+           webkickstart.  Intended for interaction with a database."""
+
+        # Pull all the keys from parsing the clients web-kickstart
+        # Transmute it into something we can store in the database
+        # Remeber all the file names that make up the web-kickstart so
+        #   we can see if we need to do this again later
+
+        genny = self.getGenerator(fqdn)
+        keys = genny.variables
+        dbsafe = {}
+
+        for key in keys.keys():
+            if key in ['webKickstart', 'WebKickstartError', 'ParseError']:
+                # Exception classes and meta info passed to webks genshi templates
+                continue
+            dbsafe[key] = keys[key].table
+
+        dbsafe['webKickstart.scripts'] = \
+                [ t[0] for t in keys['webKickstart'].scripts.table ]
+
+        dbsafe['webKickstart.files'] = \
+                [ m[1].getFileName() for m in genny.configs ]
+
+        dbsafe['webKickstart.hash'] = \
+                self.getHash(dbsafe['webKickstart.files'])
+
+        return dbsafe
+
     def getKeys(self, fqdn):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
-        g = self.__generator(fqdn)
+        g = self.getGenerator(fqdn)
         if g is None:
             return {}
         else:
@@ -82,7 +138,7 @@ class LibWebKickstart(object):
         return [ e.verbatim() for e in dict[key] ]
 
     def getProfileKeys(self, fqdn):
-        g = self.__generator(fqdn)
+        g = self.getGenerator(fqdn)
         cfg = webKickstart.configtools.config
 
         if cfg is None:
