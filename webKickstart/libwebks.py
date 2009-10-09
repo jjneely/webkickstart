@@ -101,11 +101,17 @@ class LibWebKickstart(object):
         keys = genny.variables
         dbsafe = {}
 
-        for key in keys.keys():
-            if key in ['webKickstart', 'WebKickstartError', 'ParseError']:
-                # Exception classes and meta info passed to webks genshi templates
-                continue
-            dbsafe[key] = keys[key].table
+        def rHelper(prefix, keys, dbsafe):
+            for key in keys.keys():
+                if key in ['webKickstart', 'WebKickstartError', 'ParseError']:
+                    # Exception classes and meta info passed 
+                    # to webks genshi templates
+                    continue
+                dbsafe[prefix+key] = keys[key].table
+                if len(keys[key].members) > 0:
+                    rHelper("%s%s." % (prefix, key), keys[key].members, dbsafe)
+
+        rHelper("", keys, dbsafe)
 
         dbsafe['webKickstart.scripts'] = \
                 [ t[0] for t in keys['webKickstart'].scripts.table ]
