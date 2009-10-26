@@ -98,6 +98,9 @@ class LibWebKickstart(object):
         #   we can see if we need to do this again later
 
         genny = self.getGenerator(fqdn)
+        if genny is None:
+            return None
+
         keys = genny.variables
         dbsafe = {}
 
