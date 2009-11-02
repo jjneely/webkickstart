@@ -1,78 +1,87 @@
-#set $tree = "http://install.linux.ncsu.edu//pub/realmkit/realmkit-5/server-5.1"
-#set $arch = "x86_64"
-#set $kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
-#set $installtree = $tree + "/" + $arch
-##
-#if $varExists('lang')
-lang $lang
-#else
-lang en_US
-#end if
+{% python
+    kickstart = "http://web-kickstart.linux.ncsu.edu/ks.py"
+    installtree = tree
 
-#if $varExists('cmdline')
+    if not defined('enable'): enable = None
+
+    def error(msg):
+        raise ParseError(msg)
+%}\
+{% choose defined('lang') %}\
+{%   when True  %}lang ${lang}{% end %}\
+{%   when False %}lang en_US{% end %}\
+{% end %}
+
+{% if defined('cmdline') %}\
 cmdline
-#end if
+{% end %}\
 install
-#if $varExists('enable.staticip')
-#if $enable.staticip.len() != 4
-#raise $ParseError, "enable staticip requires 4 arguments"
-#end if
-network --bootproto static  --ip $enable.staticip[0] --netmask $enable.staticip[1] --gateway $enable.staticip[2] --nameserver $enable.staticip[3]
-#else
+{% choose hasattr(enable, 'staticip') %}\
+{%      when True %}\
+network --bootproto static  --ip ${enable.staticip[0]} --netmask ${enable.staticip[1]} --gateway ${enable.staticip[2]} --nameserver ${enable.staticip[3]}
+{%      end %}\
+{%      when False %}\
 network --bootproto dhcp
-#end if
+{%      end %}\
+{% end %}
 url --url $installtree
 
 repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/$arch
-#if $varExists('repo')
-#for $r in $repo
+{% if defined('repo') %}\
+{%      for r in repo.allRows() %}\
 repo $r
-#end for
-#end if
+{%      end %}\
+{% end %}\
 
-#if $varExists('vnc')
+{% if defined('vnc') %}\
 vnc $vnc
-#end if
-#if $varExists('ignoredisk')
+{% end %}\
+{% if defined('text') %}\
+text
+{% end %}\
+{% if defined('ignoredisk') %}\
 ignoredisk $ignoredisk
-#end if
-#if $varExists('multipath')
+{% end %}\
+{% if defined('multipath') %}\
 multipath $multipath
-#end if
-#if $varExists('logging')
+{% end %}\
+{% if defined('logging') %}\
 logging $logging
-#end if
-##
-#if not $varExists('skippartition')
+{% end %}\
+\
+{% if not defined('skippartition') %}\
 zerombr
-#if $varExists('clearpart')
+{%      if defined('clearpart') %}\
 clearpart $clearpart
-#else if $varExists('enable.safepartition')
-clearpart --linux
-#else
-clearpart --all
-#end if
-
-#if $varExists('part')
-#for $p in $part
+{% end %}\
+{% if not defined('clearpart') %}\
+{%      choose hasattr(enable, 'safepartition') %}\
+{%          when True  %}clearpart --linux{% end %}\
+{%          when False %}clearpart --all{% end %}\
+{%      end %}\
+{% end %}
+{% choose defined('part') %}\
+{%      when True %}\
+{%          for p in part.allRows() %}\
 part $p
-#end for
-#if $varExists('raid')
-#for $r in $raid
+{%          end %}\
+{%          if defined('raid') %}\
+{%              for r in raid.allRows() %}\
 raid $r
-#end for
-#end if
-#if $varExists('volgroup')
-#for $v in $volgroup
+{%              end %}\
+{%          end %}\
+{%          if  defined('volgroup') %}\
+{%              for v in volgroup.allRows() %}\
 volgroup $v
-#end for
-#end if
-#if $varExists('logvol')
-#for $l in $logvol
+{%              end %}\
+{%          end %}\
+{%          if defined('logvol') %}\
+{%              for l in logvol.allRows() %}\
 logvol $l
-#end for
-#end if
-#else
+{%              end %}\
+{%          end %}\
+{%      end %}\
+{%      when False %}\
 part /boot --size 512
 part pv.00 --fstype=LVM --size 18432 --grow
 volgroup Volume00 pv.00
@@ -80,71 +89,92 @@ logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
 logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
 logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
 logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
-#end if
-#end if
-
-#if $varExists('selinux')
+{%      end %}\
+{% end %}\
+{% end %}{# end skippartition #}
+{% choose defined('selinux') %}\
+{%      when True %}\
 selinux $selinux
-#else
+{%      end %}\
+{%      when False %}\
 selinux --disabled
-#end if
+{%      end %}\
+{% end %}\
 timezone US/Eastern
 keyboard us
 reboot
 
-#if $varExists('enable.nofirewall')
+{% if hasattr(enable, 'nofirewall') %}\
 firewall --disabled
-#else if $varExists('firewall')
+{% end %}\
+{% if not hasattr(enable, 'nofirewall') %}\
+{%      choose defined('firewall') %}\
+{%          when True  %}\
 firewall $firewall
-#else
+{%          end %}\
+{%          when False %}\
 firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
-#end if
+{%          end %}\
+{%      end %}\
+{% end %}\
 
 auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablecache --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
 
-#if $varExists('enable.nox') or $varExists('skipx')
+{% choose hasattr(enable, 'nox') or defined('skipx') %}\
+{%      when True %}\
 skipx
-#else if $varExists('xconfig')
+{%      end %}\
+{%      when False %}\
+{%          choose defined('xconfig') %}\
+{%              when True %}\
 xconfig $xconfig
-#else
+{%              end %}\
+{%              when False %}\
 xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
-#end if
-#if $varExists('monitor')
+{%              end %}\
+{%          end %}\
+{%      end %}\
+{% end %}\
+{% if defined('monitor') %}\
 monitor $monitor
-#end if
+{% end %}\
 
-#if not $varExists('rootpw')
-#raise $ParseError, "Root password not set"
-#end if
-#if $varExists('enable.keepmbr')
-#set $bootloaderlocation = "--location partition"
-#else
-#set $bootloaderlocation = "--location mbr"
-#end if
-#if $varExists('driveorder')
-#set $bootloaderdrives = "--driveorder " + $driveorder.verbatim()
-#else
-#set $bootloaderdrives = ""
-#end if
-#if $varExists('grub')
+{% python
+    if not defined('rootpw'):
+        error("Root password not set: Refusing to build Kickstart")
+
+    if hasattr(enable, 'keepmbr'):
+        bootloaderlocation = "--location partition"
+    else:
+        bootloaderlocation = "--location mbr"
+
+    if defined('driveorder'):
+        bootloaderdrives = "--driveorder " + driveorder.verbatim()
+    else:
+        bootloaderdrives = ""
+%}\
+{% choose defined('grub') %}\
+{%      when True %}\
 bootloader $bootloaderlocation $bootloaderdrives --md5pass $grub
-#else
+{%      end %}\
+{%      when False %}\
 bootloader $bootloaderlocation $bootloaderdrives --md5pass $rootpw
-#end if
+{%      end %}\
+{% end %}\
 rootpw --iscrypted $rootpw
 
-#if $varExists('include')
-#for $i in $include
+{% if defined('include') %}\
+{%      for i in include.allRows() %}\
 %include $i
+{%      end %}\
+{% end %}\
 
-#end for
-#end if
-##
 %packages
-#block PackagesSection
-#if $varExists('package')
-#for $p in $package
-#if $p.match('@.*[Rr]ealm.*[Ss]erver$')
+{% choose defined('package') %}\
+{%      when True %}\
+{%          for p in package.allRows() %}\
+{%              choose %}\
+{%              when p.match('@.*[Rr]ealm.*[Ss]erver$') %}\
 @ realmlinux-base
 @ editors
 @ base
@@ -156,7 +186,11 @@ rootpw --iscrypted $rootpw
 @ java
 - logwatch
 - yum-updatesd
-#else if $p.match('@.*[Rr]ealm.*[Ww]orkstation$')
+{%              end %}\
+{%              when p.match('@.*[Rr]ealm.*[Ww]orkstation$') %}\
+{%                  if webKickstart.profile.match('client.*') %}\
+@ eclipse
+{%                  end %}\
 @ realmlinux-base
 @ realmlinux-devel
 @ authoring-and-publishing
@@ -185,11 +219,14 @@ rootpw --iscrypted $rootpw
 @ base-x
 -logwatch
 -yum-updatesd
-#else
+{%              end %}\
+{%              otherwise %}\
 $p
-#end if
-#end for
-#else
+{%              end %}\
+{%              end %}\
+{%          end %}\
+{%      end %}\
+{%      when False %}\
 @ realmlinux-base
 @ realmlinux-devel
 @ authoring-and-publishing
@@ -218,10 +255,12 @@ $p
 @ base-x
 -logwatch
 -yum-updatesd
-#end if
-#end block
+{%      end %}\
+{% end %}\
 
 %post
+(
+
 # Let's make DNS work
 cat << EOF > /etc/resolv.conf
 nameserver 152.1.1.206
@@ -231,7 +270,7 @@ EOF
 # Make available the ethernet interface we are using
 # ksdevice may == 'link' so lets just grab the goods from the route table
 KSDEVICE=`/sbin/route -n | awk '/^0.0.0.0/ { print $8 }'`
-if [ "\$KSDEVICE" = "" ]; then 
+if [ "$$KSDEVICE" = "" ]; then 
     KSDEVICE=eth0
 fi
 
@@ -253,17 +292,20 @@ rm /etc/sysconfig/init~
 # updates
 realmconfig --kickstart updates --enable-updates
 
-#if $varExists('enable.audit')
+{% choose hasattr(enable, 'audit') %}\
+{%      when True %}\
 # make sure audit is on
 chkconfig auditd on
-#else
+{%      end %}\
+{%      when False %}\
 # turn off audit and remove any logs
 chkconfig auditd off
 rm -rf /var/log/audit
 rm -rf /var/log/audit.d/*
-#end if
+{%      end %}\
+{% end %}\
 
-#if not $varExists('enable.noreinstall')
+{% if not hasattr(enable, 'noreinstall') %}\
 # set up a reinstall image
 mkdir -p /boot/install
 cd /boot/install
@@ -276,91 +318,92 @@ fi
 /sbin/grubby --add-kernel=/boot/install/vmlinuz \
    --title="Reinstall Workstation" \
    --copy-default \
-   --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=\$KSDEVICE" \
+   --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=$$KSDEVICE" \
    --initrd=/boot/install/initrd.img
-#end if
+{% end %}\
 
-#if not $varExists('realmadmins')
-#raise $ParseError,"NCSU Realm Admins are not defined, something is wrong"
-#end if
-## Okay, we know that the rlusers plugin has run: do fun stuff
+{% python
+    if not defined('realmadmins'):
+        error("NCSU Realm Admins are not defined, something is wrong")
+
+    allAdmins = realmadmins + realmotheradmins
+    allUsers  = realmadmins + realmotheradmins + realmusers
+    hardUsers = realmotheradmins + realmusers
+%}\
 cat << EOF > /root/.k5login
-#set $users = $realmadmins + $realmotheradmins
-#for $user in $users.sortunique()
+{% for user in allAdmins.sortunique() %}\
 $user/root@EOS.NCSU.EDU
-#end for
+{% end %}\
 EOF
 chmod 400 /root/.k5login
 
 cat << EOF > /root/.k5login.base
-#for $user in $realmotheradmins.sort()
+{% for user in realmotheradmins.sort() %}\
 $user/root@EOS.NCSU.EDU
-#end for
+{% end %}\
 EOF
 chmod 400 /root/.k5login.base
 
 cat << EOF >> /etc/sudoers
-#set $users = $realmadmins + $realmotheradmins
-#for $user in $users.sortunique()
+{% for user in allAdmins.sortunique() %}\
 $user ALL=(ALL) ALL
-#end for
+{% end %}\
 EOF
 chmod 400 /etc/sudoers
 
 cat << EOF >> /etc/sudoers.base
-#for $user in $realmotheradmins.sort()
+{% for user in realmotheradmins.sort() %}\
 $user ALL=(ALL) ALL
-#end for
+{% end %}\
 EOF
 chmod 400 /etc/sudoers.base
 
 cat << EOF >> /etc/users.local
-#set $users = $realmadmins + $realmotheradmins + $realmusers
-#for $user in $users.sortunique()
+{% for user in allUsers.sortunique() %}\
 $user
-#end for
+{% end %}\
 EOF
 chmod 644 /etc/users.local
 
 cat << EOF >> /etc/users.local.base
-#set $users = $realmotheradmins + $realmusers
-#for $user in $users.sortunique()
+{% for user in hardUsers.sortunique() %}\
 $user
-#end for
+{% end %}\
 EOF
 chmod 644 /etc/users.local.base
 
-#if $varExists('enable.receivemail')
-#set $sendmaildaemon = "--enable-daemon"
-#else
-#set $sendmaildaemon = "--disable-daemon"
-#end if
-##
-#if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 1
-realmconfig --kickstart sendmail $sendmaildaemon \
-    --masquerade $enable.mailmasq
-#else if $varExists('enable.mailmasq') and $enable.mailmasq.len() == 0
-realmconfig --kickstart sendmail $sendmaildaemon --no-masq
-#else if $varExists('enable.mailmasq') and $enable.mailmasq.len() > 1
-#raise $ParseError, "enable mailmasq accepts only 1 argument"
-#else
-realmconfig --kickstart sendmail $sendmaildaemon \
-    --masquerade unity.ncsu.edu
-#end if
+{% python
+    if hasattr(enable, 'receivemail'):
+        sendmaildaemon = "--enable-daemon"
+    else:
+        sendmaildaemon = "--disable-daemon"
 
-#if $varExists('owner')
+    if hasattr(enable, 'mailmasq'):
+        if enable.mailmasq.len() == 1:
+            sendmailMasq = "--masquerade %s" % enable.mailmasq
+        elif enable.mailmasq.len() == 0:
+            sendmailMasq = "--no-masq"
+        else:
+            error("enable mailmasq accepts only 1 argument")
+    else:
+        sendmailMasq = "--masquerade unity.ncsu.edu"
+%}\
+realmconfig --kickstart sendmail $sendmaildaemon $sendmailMasq
+
+{% if defined('owner') %}\
 # Setup forwarding for root's mail
 cat << EOF >> /etc/aliases
 root:       $owner
 EOF
 /usr/bin/newaliases
-#end if
+{% end %}\
 
-#if $varExists('enable.consolelogin')
+{% if hasattr(enable, 'consolelogin') %}\
 # Enable console login by non-local users
 # RL4.4 and below don't have this code, however this is the default anyway
 realmconfig --kickstart pamconf --enable-console-login || true
-#else
+{% end %}\
+{% if not hasattr(enable, 'consolelogin') %}\
 # disable login on the console for non-local users
 # RL4.4 and below don't have this code so we need to case that out
 if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
@@ -368,99 +411,117 @@ if realmconfig --kickstart pamconf --disable-console-login | grep "No such modul
     sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
     rm /etc/pam.d/login~
 fi
-#end if
+{% end %}\
 
-#if not $varExists('enable.notempclean')
+{% if not hasattr(enable, 'notempclean') %}\
 realmconfig --kickstart tmpclean --enable-tmpclean
-#end if
-##
-#if not $varExists('enable.localcluster')
-#set $localcluster = "ncsu"
-#else if $enable.localcluster.len() == 0
-#set $localcluster = ""
-#else
-#set $localcluster = $enable.localcluster
-#end if
-##
-#if not $varExists('enable.remotecluster')
-#set $remotecluster = "None"
-#else if $enable.remotecluster.len() == 0
-#set $remotecluster = ""
-#else
-#set $remotecluster = $enable.remotecluster
-#end if
-##
-#if $localcluster == "None"
-realmconfig --kickstart clusters --local-disable
-#else
-realmconfig --kickstart clusters --local-enable $localcluster
-#end if
-##
-#if $remotecluster == "None"
-realmconfig --kickstart clusters --remote-disable
-#else
-realmconfig --kickstart clusters --remote-enable $remotecluster
-#end if
-#if $varExists('dept')
-realmconfig --kickstart dept --set $dept
-#else
-realmconfig --kickstart dept --set ncsu
-#end if
-#if $varExists('printer')
-realmconfig --kickstart printing --default $printer
-#else
-realmconfig --kickstart printing --default lp
-#end if
-#if $varExists('enable.norealmcron')
-realmconfig --kickstart support --disable-support
-#else
-realmconfig --kickstart support --enable-support
-#end if
+{% end %}\
+\
+{% python
+    if not hasattr(enable, 'localcluster'):
+        localcluster = "ncsu"
+    elif enable.localcluster.len() == 0:
+        localcluster = ""
+    else:
+        localcluster = str(enable.localcluster)
 
-#if $varExists('staticip')
+    if not hasattr(enable, 'remotecluster'):
+        remotecluster = "None"
+    elif enable.remotecluster.len() == 0:
+        remotecluster = ""
+    else:
+        remotecluster = str(enable.remotecluster)
+%}\
+{% choose localcluster == "None" %}\
+{%      when True %}\
+realmconfig --kickstart clusters --local-disable
+{%      end %}\
+{%      when False %}\
+realmconfig --kickstart clusters --local-enable $localcluster
+{%      end %}\
+{% end %}\
+\
+{% choose remotecluster == "None" %}\
+{%      when True %}\
+realmconfig --kickstart clusters --remote-disable
+{%      end %}\
+{%      when False %}\
+realmconfig --kickstart clusters --remote-enable $remotecluster
+{%      end %}\
+{% end %}\
+\
+{% choose defined('dept') %}\
+{%      when True %}\
+realmconfig --kickstart dept --set $dept
+{%      end %}\
+{%      when False %}\
+realmconfig --kickstart dept --set ncsu
+{%      end %}\
+{% end %}\
+\
+{% choose defined('printer') %}\
+{%      when True %}\
+realmconfig --kickstart printing --default $printer
+{%      end %}\
+{%      when False %}\
+realmconfig --kickstart printing --default lp
+{%      end %}\
+{% end %}\
+\
+{% choose hasattr(enable, 'norealmcron') %}\
+{%      when True %}\
+realmconfig --kickstart support --disable-support
+{%      end %}\
+{%      when False %}\
+realmconfig --kickstart support --enable-support
+{%      end %}\
+{% end %}\
+
+{% if defined('staticip') %}\
 # M-DHCP to Static IP conversion hack because the Comtech[tm] DHCP server
 # is not always up. Originally by Lin Osborne (ITECS).
 
 # Figure out the relevant information about this system
-IP=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
-HOSTNAME=`/usr/bin/host \$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
-NETMASK=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
-NETWORK=`/bin/ipcalc \$IP -n \$NETMASK | /bin/cut -d\= -f2`
-GATEWAY=`echo \$NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
-HWADDR=`/sbin/ifconfig \$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
+IP=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
+HOSTNAME=`/usr/bin/host $$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
+NETMASK=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
+NETWORK=`/bin/ipcalc $$IP -n $$NETMASK | /bin/cut -d\= -f2`
+GATEWAY=`/sbin/route -n | /bin/awk '/^0\.0\.0\.0/ { print $2 }'`
+HWADDR=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
 
 # Overwrite the appropriate files (/etc/sysconfig/network and
 # /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
 # upon DHCP
 cat << EOF > /etc/sysconfig/network
 NETWORKING=yes
-HOSTNAME=\$HOSTNAME
-GATEWAY=\$GATEWAY
+HOSTNAME=$$HOSTNAME
+GATEWAY=$$GATEWAY
 EOF
 
-cat << EOF > /etc/sysconfig/network-scripts/ifcfg-\$KSDEVICE
-DEVICE=\$KSDEVICE
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$$KSDEVICE
+DEVICE=$$KSDEVICE
 BOOTPROTO=static
-IPADDR=\$IP
-NETMASK=\$NETMASK
+IPADDR=$$IP
+NETMASK=$$NETMASK
 ONBOOT=yes
-HWADDR=\$HWADDR
+HWADDR=$$HWADDR
 EOF
 
-#end if
-##
-#if $varExists('activationkey')
-#set $_akey = $activationkey
-#else if $varExists('enable.activationkey')
-#set $_akey = $enable.activationkey
-#else
-#set $_akey = $defaultactivation
-#end if
+{% end %}\
+\
+{% python
+    if defined ('activationkey'):
+        _akey = str(activationkey)
+    elif hasattr(enable, 'activationkey'):
+        _akey = str(enable.activationkey)
+    else:
+        _akey = str(defaultactivation)
+%}\
 # The registration program's not smart enough to figure out the host name
 # with out this the profile reads "localhost.localdomain"
-FQDN="$webKickstart.remoteHost"
+FQDN="${webKickstart.remoteHost}"
 /usr/sbin/rhnreg_ks --activationkey $_akey        \
-    --profilename \$FQDN                          \
+    --profilename $$FQDN                          \
     --serverUrl https://rhn.linux.ncsu.edu/XMLRPC \
     --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
 
@@ -493,8 +554,10 @@ chvt 1
 # Fix for Red Hat Bug #236669
 sed --in-place 's/^protocols.*files ldap/protocols:  files/' /etc/nsswitch.conf
 
+) 2>&1 | /usr/bin/tee /root/rl.post 
+
 # The following scripts provided by the Jump Start confgs.
 
-#for $script in $webKickstart.scripts
+{% for script in webKickstart.scripts.allRows() %}\
 $script
-#end for
+{% end %}\
