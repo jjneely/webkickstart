@@ -26,8 +26,8 @@ class WatchedFileHandler(logging.FileHandler):
     Schroeder.
     """
     def __init__(self, filename, mode='a', encoding=None):
-        # XXX: The delay option removed to work with python < 2.6
-        logging.FileHandler.__init__(self, filename, mode, encoding)
+        # XXX: options removed to work with python < 2.6
+        logging.FileHandler.__init__(self, filename)
         if not os.path.exists(self.baseFilename):
             self.dev, self.ino = -1, -1
         else:
