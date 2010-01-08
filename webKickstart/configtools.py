@@ -27,6 +27,12 @@ import os
 import os.path
 import errors
 
+# Use WatchedFileHandler from Python2.6 if we are there if not use ours
+try:
+    from logging.handlers import WatchedFileHandler
+except ImportError:
+    from WatchedFileHandler import WatchedFileHandler
+
 log = logging.getLogger('webks')
 
 # A global Configuration class instance.  
@@ -148,7 +154,7 @@ class Configuration(object):
         elif file == None or file == "":
             handler = logging.StreamHandler(sys.stderr)
         else:
-            handler = logging.FileHandler(file)
+            handler = WatchedFileHandler(file)
 
         # Time format: Jun 24 10:16:54
         formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',

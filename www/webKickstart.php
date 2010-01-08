@@ -79,6 +79,30 @@ syntax for the Realm Linux JumpStart files.</li>
 document.</li>-->
 </ul>
 
+<h2>PXE Booting</h2>
+
+<p>
+You should be using PXE to install via Web-Kickstart.  The ISO images below
+are for environments that cannot use PXE for some reason and may not be
+provided in the future.  You can configure your machine for PXE with 
+these instructions:
+</p>
+
+<ul>
+<li>In QIP, configure your machine's IP address to use the "PXE-all" 
+DHCP template under the Dynamic Configuration tab.</li>
+<li>Configure your machine's BIOS to enable PXE and to boot from it last, 
+unless you request a PXE boot.  This is normally the default.  Most
+machines will skip to the PXE boot option via a boot menu (sometimes F8) or
+by the F12 button.</li>
+<li>The machine will PXE boot and display the OIT logo and a prompt.  There
+are instructions on the screen about the various options.  Use the F# buttons
+to switch between screens. </li>
+<li>At any prompt type in the version key you wish to install to start
+the process.  This is the same string used with the "version" keyword in 
+your Web-Kickstart config.</li>
+</ul>
+
 <h2>Disk Image</h2>
 <p>Here's a disk image that is set up to automatically do a
 kickstart install from web-kickstart.linux.ncsu.edu.  (This was done
