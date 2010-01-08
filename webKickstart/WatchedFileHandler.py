@@ -2,6 +2,7 @@
 
 import os
 import logging
+import codecs
 
 from stat import ST_DEV, ST_INO
 
@@ -28,6 +29,7 @@ class WatchedFileHandler(logging.FileHandler):
     def __init__(self, filename, mode='a', encoding=None):
         # XXX: options removed to work with python < 2.6
         logging.FileHandler.__init__(self, filename)
+        self.encoding = encoding
         if not os.path.exists(self.baseFilename):
             self.dev, self.ino = -1, -1
         else:
@@ -56,4 +58,15 @@ class WatchedFileHandler(logging.FileHandler):
                 stat = os.stat(self.baseFilename)
             self.dev, self.ino = stat[ST_DEV], stat[ST_INO]
         logging.FileHandler.emit(self, record)
+
+    def _open(self):
+        """
+        Open the current base file with the (original) mode and encoding.
+        Return the resulting stream.
+        """
+        if self.encoding is None:
+            stream = open(self.baseFilename, self.mode)
+        else:
+            stream = codecs.open(self.baseFilename, self.mode, self.encoding)
+        return stream
 
