@@ -74,19 +74,19 @@ class LibWebKickstart(object):
            of webkickstart source config files."""
 
         if hashlib is not None:
-            sha = hashlib.sha1()
+            sha1 = hashlib.sha1()
         else:
-            sha = sha.new()
+            sha1 = sha.new()
 
         for file in files:
             try:
                 fd = open(file)
-                sha.update(fd.read())  # small files right?
+                sha1.update(fd.read())  # small files right?
                 fd.close()
             except IOError:
                 continue
 
-        return sha.hexdigest()
+        return sha1.hexdigest()
 
     def getEverything(self, fqdn):
         """Returns a dict of all keys, scripts, and files included in a 
