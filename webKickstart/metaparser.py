@@ -308,7 +308,7 @@ class MetaParser(object):
             #log.debug("Parsing for version: key: %s" % rec[0])
             if rec[0] == profileKey:
                 if len(rec) != 2:
-                    errmsg = "'%s' key must have one argument." % key
+                    errmsg = "'%s' key must have one argument." % profileKey
                     raise errors.ParseError(errmsg)
                 else:
                     return rec[1]
