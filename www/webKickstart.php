@@ -60,10 +60,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 
 <tr><th colspan="3">Non-Production and Testing Products</th></tr>
 
-<tr><td>Realm Linux WS4 U6 (i386)</td><td>WS4.6</td><td>Retired</td></tr>
-<tr><td>Realm Linux AS4 U6 (i386)</td><td>AS4.6</td><td>Retired</td></tr>
-<tr><td>Realm Linux WS4 U6 (AMD64/EM64T)</td><td>WS4.6.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux AS4 U6 (AMD64/EM64T)</td><td>AS4.6.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.5 Server (i386)</td><td>server5.5</td><td>Testing</td></tr>
+<tr><td>Realm Linux 5.5 Client (i386)</td><td>client5.5</td><td>Testing</td></tr>
+<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>server5.5.x86_64</td><td>Testing</td></tr>
+<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>client5.5.x86_64</td><td>Testing</td></tr>
 
 <tr><th colspan="3">End of Life Products</th></tr>
 <tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
@@ -128,10 +128,12 @@ the version of Realm Linux you have the config file set to install.</p>
 </ul>
 
 <h3>Non-Production and Testing Products</h3>
-<h4>Realm Linux 4.6</h4>
+<h4>Realm Linux 5.5</h4>
 <ul>
-<li><a href="RHEL4-U6-x86-webks.iso">RHEL4-U6-x86-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for i386</li>
-<li><a href="RHEL4-U6-x86_64-webks.iso">RHEL4-U6-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for x86_64/EM64T</li>
+<li><a href="server-5.5-x86_64-webks.iso">server-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Server for x86_64</li>
+<li><a href="server-5.5-x86-webks.iso">server-5.5-x86-webks.iso</a> - Realm Linux 5.5 Server for i386</li>
+<li><a href="client-5.5-x86_64-webks.iso">client-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Client for x86_64</li>
+<li><a href="client-5.5-x86-webks.iso">client-5.5-x86-webks.iso</a> - Realm Linux 5.5 Client for i386</li>
 </ul>
 
 <h3>End of Life Products</h3>
