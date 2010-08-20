@@ -25,6 +25,7 @@ import xmlrpclib
 import logging
 
 from webKickstart.plugins import WebKickstartPlugin
+from webKickstart.plugins import TemplateVar
 from webKickstart.errors  import *
 
 log = logging.getLogger("webks")
@@ -55,7 +56,8 @@ class LiquidDragonPlugin(WebKickstartPlugin):
         api = xmlrpclib.ServerProxy(server)
 
         try:
-            code = api.initHost(secret, fqdn)
+            # Use RLMTools APIv2 and remember the session hash
+            code, sid = api.initHost(2, secret, fqdn)
         except Exception, e:
             raise WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nError: %s" % (fqdn, str(e)))
 
@@ -66,4 +68,5 @@ class LiquidDragonPlugin(WebKickstartPlugin):
         else:
             raise WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nUnknown error code: %s." % (fqdn, code))
 
+        self.addVar(TemplateVar(['rlmtools-session', sid]))
 
