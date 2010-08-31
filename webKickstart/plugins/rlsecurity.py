@@ -61,12 +61,12 @@ class LiquidDragonPlugin(WebKickstartPlugin):
         except Exception, e:
             raise WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nError: %s" % (fqdn, str(e)))
 
+        self.addVar(TemplateVar(['rlmtools-session', sid]))
+
         if code == 0:
             return
         elif code == 1:
             raise WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nBad authentication." % fqdn)
         else:
             raise WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nUnknown error code: %s." % (fqdn, code))
-
-        self.addVar(TemplateVar(['rlmtools-session', sid]))
 
