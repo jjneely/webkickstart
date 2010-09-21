@@ -48,10 +48,11 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <table align="center" border="1" cellspacing="0" cellpadding="3">
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
 <tr><th colspan="3">Production Products</th></tr>
-<tr><td>Realm Linux 5.3 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.3 Server (i386)</td><td>server5</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.3 Client (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.3 Client (i386)</td><td>client5</td><td>Production</td></tr>
+
+<tr><td>Realm Linux 5.5 Server (i386)</td><td>server5</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.5 Client (i386)</td><td>client5</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
 
 <tr><td>Realm Linux WS4 U8 (i386)</td><td>WS4</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U8 (i386)</td><td>AS4</td><td>Production</td></tr>
@@ -60,10 +61,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 
 <tr><th colspan="3">Non-Production and Testing Products</th></tr>
 
-<tr><td>Realm Linux 5.5 Server (i386)</td><td>server5.5</td><td>Testing</td></tr>
-<tr><td>Realm Linux 5.5 Client (i386)</td><td>client5.5</td><td>Testing</td></tr>
-<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>server5.5.x86_64</td><td>Testing</td></tr>
-<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>client5.5.x86_64</td><td>Testing</td></tr>
+<tr><td>Realm Linux 5.3 Server (x86_64)</td><td>server5.3.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.3 Server (i386)</td><td>server5.3</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.3 Client (x86_64)</td><td>client5.3.x86_64</td><td>Retired</td></tr>
+<tr><td>Realm Linux 5.3 Client (i386)</td><td>client5.3</td><td>Retired</td></tr>
 
 <tr><th colspan="3">End of Life Products</th></tr>
 <tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
@@ -113,12 +114,12 @@ the version of Realm Linux you have the config file set to install.</p>
 
 <h3>Production Products</h3>
 
-<h4>Realm Linux 5.3</h4>
+<h4>Realm Linux 5.5</h4>
 <ul>
-<li><a href="server-5.3-x86_64-webks.iso">server-5.3-x86_64-webks.iso</a> - Realm Linux 5.3 Server for x86_64</li>
-<li><a href="server-5.3-x86-webks.iso">server-5.3-x86-webks.iso</a> - Realm Linux 5.3 Server for i386</li>
-<li><a href="client-5.3-x86_64-webks.iso">client-5.3-x86_64-webks.iso</a> - Realm Linux 5.3 Client for x86_64</li>
-<li><a href="client-5.3-x86-webks.iso">client-5.3-x86-webks.iso</a> - Realm Linux 5.3 Client for i386</li>
+<li><a href="server-5.5-x86_64-webks.iso">server-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Server for x86_64</li>
+<li><a href="server-5.5-x86-webks.iso">server-5.5-x86-webks.iso</a> - Realm Linux 5.5 Server for i386</li>
+<li><a href="client-5.5-x86_64-webks.iso">client-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Client for x86_64</li>
+<li><a href="client-5.5-x86-webks.iso">client-5.5-x86-webks.iso</a> - Realm Linux 5.5 Client for i386</li>
 </ul>
 
 <h4>Realm Linux 4.8</h4>
@@ -128,12 +129,12 @@ the version of Realm Linux you have the config file set to install.</p>
 </ul>
 
 <h3>Non-Production and Testing Products</h3>
-<h4>Realm Linux 5.5</h4>
+<h4>Realm Linux 5.3</h4>
 <ul>
-<li><a href="server-5.5-x86_64-webks.iso">server-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Server for x86_64</li>
-<li><a href="server-5.5-x86-webks.iso">server-5.5-x86-webks.iso</a> - Realm Linux 5.5 Server for i386</li>
-<li><a href="client-5.5-x86_64-webks.iso">client-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Client for x86_64</li>
-<li><a href="client-5.5-x86-webks.iso">client-5.5-x86-webks.iso</a> - Realm Linux 5.5 Client for i386</li>
+<li><a href="server-5.3-x86_64-webks.iso">server-5.3-x86_64-webks.iso</a> - Realm Linux 5.3 Server for x86_64</li>
+<li><a href="server-5.3-x86-webks.iso">server-5.3-x86-webks.iso</a> - Realm Linux 5.3 Server for i386</li>
+<li><a href="client-5.3-x86_64-webks.iso">client-5.3-x86_64-webks.iso</a> - Realm Linux 5.3 Client for x86_64</li>
+<li><a href="client-5.3-x86-webks.iso">client-5.3-x86-webks.iso</a> - Realm Linux 5.3 Client for i386</li>
 </ul>
 
 <h3>End of Life Products</h3>
