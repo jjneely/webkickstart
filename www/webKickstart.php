@@ -52,7 +52,7 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux 5.5 Server (i386)</td><td>server5</td><td>Production</td></tr>
 <tr><td>Realm Linux 5.5 Client (i386)</td><td>client5</td><td>Production</td></tr>
 <tr><td>Realm Linux 5.5 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
-<tr><td>Realm Linux 5.5 Server (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 5.5 Client (x86_64)</td><td>client5.x86_64</td><td>Production</td></tr>
 
 <tr><td>Realm Linux WS4 U8 (i386)</td><td>WS4</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U8 (i386)</td><td>AS4</td><td>Production</td></tr>
