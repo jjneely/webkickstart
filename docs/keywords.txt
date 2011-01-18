@@ -83,6 +83,21 @@ Include another config file.  The filename must be a path to the
 included file.  This may be an absolute path or a path relative to the
 top level configuration directory.  Ex: "use pams/linux-webserver.EL4"
 
+    bcfg2pw <string>
+
+Required if and only if you are installed Realm Linux 6 or above and have a
+Bcfg2 repository setup for your department.  See the CLS wiki for more
+information.
+
+    bcfg2url <url>
+
+Optional.  Overrides the URL to the Bcfg2 server in Realm Linux 6 and above.
+
+    bcfg2profile <string>
+
+Optional.  Override the default Realm Linux profile group used with Bcfg2
+at install time.  Realm Linux 6 and above.
+
     lang <default lang>
 
 Optional.  Specify the default language.  The default is "en_US".

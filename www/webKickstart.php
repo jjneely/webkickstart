@@ -61,15 +61,12 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 
 <tr><th colspan="3">Non-Production and Testing Products</th></tr>
 
-<tr><td>Realm Linux 5.3 Server (x86_64)</td><td>server5.3.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux 5.3 Server (i386)</td><td>server5.3</td><td>Retired</td></tr>
-<tr><td>Realm Linux 5.3 Client (x86_64)</td><td>client5.3.x86_64</td><td>Retired</td></tr>
-<tr><td>Realm Linux 5.3 Client (i386)</td><td>client5.3</td><td>Retired</td></tr>
 
-<tr><th colspan="3">End of Life Products</th></tr>
-<tr><td>Realm Linux AS3 U8 (i386)</td><td>AS3.8</td><td>Production - EOL 1/1/2007</td></tr>
-<tr><td>Realm Linux WS3 U4 (i386)</td><td>WS3</td><td>Production - EOL 1/1/2007</td></tr>
-<tr><td>Realm Linux AS3 U4 (i386)</td><td>AS3</td><td>Production - EOL 1/1/2007</td></tr>
+<tr><td>Realm Linux 6.0 Server (x86_64)</td><td>server6.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Server (i386)</td><td>server6</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Workstation (x86_64)</td><td>client6.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Workstation (i386)</td><td>client6</td><td>Beta</td></tr>
+
 </table>
 
 <h2>Examples and More Documentation.</h2>
