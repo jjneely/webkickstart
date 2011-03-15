@@ -49,6 +49,11 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
 <tr><th colspan="3">Production Products</th></tr>
 
+<tr><td>Realm Linux 6.0 Server (x86_64)</td><td>server6.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Server (i386)</td><td>server6</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Workstation (x86_64)</td><td>client6.x86_64</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Workstation (i386)</td><td>client6</td><td>Beta</td></tr>
+
 <tr><td>Realm Linux 5.5 Server (i386)</td><td>server5</td><td>Production</td></tr>
 <tr><td>Realm Linux 5.5 Client (i386)</td><td>client5</td><td>Production</td></tr>
 <tr><td>Realm Linux 5.5 Server (x86_64)</td><td>server5.x86_64</td><td>Production</td></tr>
@@ -59,13 +64,9 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><td>Realm Linux WS4 U8 (AMD64/EM64T)</td><td>WS4.x86_64</td><td>Production</td></tr>
 <tr><td>Realm Linux AS4 U8 (AMD64/EM64T)</td><td>AS4.x86_64</td><td>Production</td></tr>
 
-<tr><th colspan="3">Non-Production and Testing Products</th></tr>
+<!-- <tr><th colspan="3">Non-Production and Testing Products</th></tr> -->
 
 
-<tr><td>Realm Linux 6.0 Server (x86_64)</td><td>server6.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 6.0 Server (i386)</td><td>server6</td><td>Beta</td></tr>
-<tr><td>Realm Linux 6.0 Workstation (x86_64)</td><td>client6.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 6.0 Workstation (i386)</td><td>client6</td><td>Beta</td></tr>
 
 </table>
 
@@ -111,6 +112,14 @@ the version of Realm Linux you have the config file set to install.</p>
 
 <h3>Production Products</h3>
 
+<h4>Realm Linux 6.0</h4>
+<ul>
+<li><a href="server-6.0-x86_64-webks.iso">server-6.0-x86_64-webks.iso</a> - Realm Linux 6.0 Server for x86_64</li>
+<li><a href="server-6.0-i386-webks.iso">server-6.0-i386-webks.iso</a> - Realm Linux 6.0 Server for i386</li>
+<li><a href="client-6.0-x86_64-webks.iso">client-6.0-x86_64-webks.iso</a> - Realm Linux 6.0 Workstation for x86_64</li>
+<li><a href="client-6.0-i386-webks.iso">client-6.0-i386-webks.iso</a> - Realm Linux 6.0 Workstation for i386</li>
+</ul>
+
 <h4>Realm Linux 5.5</h4>
 <ul>
 <li><a href="server-5.5-x86_64-webks.iso">server-5.5-x86_64-webks.iso</a> - Realm Linux 5.5 Server for x86_64</li>
@@ -125,22 +134,11 @@ the version of Realm Linux you have the config file set to install.</p>
 <li><a href="RHEL4-U8-x86_64-webks.iso">RHEL4-U8-x86_64-webks.iso</a> - Realm Linux AS/WS 4 U6 (Beta) Boot CD (Server and Workstation) for x86_64/EM64T</li>
 </ul>
 
+<!--
 <h3>Non-Production and Testing Products</h3>
-<h4>Realm Linux 5.3</h4>
-<ul>
-<li><a href="server-5.3-x86_64-webks.iso">server-5.3-x86_64-webks.iso</a> - Realm Linux 5.3 Server for x86_64</li>
-<li><a href="server-5.3-x86-webks.iso">server-5.3-x86-webks.iso</a> - Realm Linux 5.3 Server for i386</li>
-<li><a href="client-5.3-x86_64-webks.iso">client-5.3-x86_64-webks.iso</a> - Realm Linux 5.3 Client for x86_64</li>
-<li><a href="client-5.3-x86-webks.iso">client-5.3-x86-webks.iso</a> - Realm Linux 5.3 Client for i386</li>
-</ul>
 
 <h3>End of Life Products</h3>
-
-<h4>Realm Linux 3 (Retired)</h4>
-<ul>
-<li><a href="RHEL3-U8-x86-webks.iso">RHEL3-U8-x86-webks.iso</a> - Realm Linux AS 3 U8 (Retired) Boot CD (AS Only)  for i386</li>
-<li><a href="RHELU4-x86-webks.iso">RHEL3-U4-x86-webks.iso</a> - Realm Linux AS/WS 3 U4 (Retired) Boot CD (Server and Workstation) for i386</li>
-</ul>
+-->
 
 <h3>Web-Kickstart Tools</h3>
 
