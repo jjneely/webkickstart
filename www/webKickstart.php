@@ -191,12 +191,14 @@ that you may find useful but are not directly related to setting up a
 JumpStart config file for Realm Linux.</p>
 
 <ul>
-<li><a href="http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Installation_Guide-en-US/ch-kickstart2.html">Red Hat Enterprise Linux 5 Kickstart Documentation</a></li>
-<li><a href="http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Installation_Guide-en-US/s1-kickstart2-options.html">Red Hat Enterprise Linux 5 Kickstart Options</a></li>
-<li><a href="http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/sysadmin-guide/ch-kickstart2.html">Red
+<li><a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Installation_Guide/ch-kickstart2.html">Red Hat Enterprise Linux 6 Kickstart Documentation</a></li>
+<li><a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Installation_Guide/s1-kickstart2-options.html">Red Hat Enterprise Linux 6 Kickstart Options</a></li>
+<li><a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/5/html/Installation_Guide/ch-kickstart2.html">Red Hat Enterprise Linux 5 Kickstart Documentation</a></li>
+<li><a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/5/html/Installation_Guide/s1-kickstart2-options.html">Red Hat Enterprise Linux 5 Kickstart Options</a></li>
+<li><a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/4/html/System_Administration_Guide/Kickstart_Installations.html">Red
 Hat Enterprise Linux 4 Kickstart Documentation</li>
 <li><a
-href="http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/sysadmin-guide/s1-kickstart2-options.html">
+href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/4/html/System_Administration_Guide/Kickstart_Installations-Kickstart_Options.html">
 Red Hat Enterprise Linux 4 Kickstart Options</li>
 </ul>
 
