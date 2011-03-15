@@ -49,10 +49,10 @@ found in <a href="docs/keywords.txt">keywords.txt</a>.</p>
 <tr><th>Product</th><th>Version Key</th><th>Status</th></tr>
 <tr><th colspan="3">Production Products</th></tr>
 
-<tr><td>Realm Linux 6.0 Server (x86_64)</td><td>server6.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 6.0 Server (i386)</td><td>server6</td><td>Beta</td></tr>
-<tr><td>Realm Linux 6.0 Workstation (x86_64)</td><td>client6.x86_64</td><td>Beta</td></tr>
-<tr><td>Realm Linux 6.0 Workstation (i386)</td><td>client6</td><td>Beta</td></tr>
+<tr><td>Realm Linux 6.0 Server (x86_64)</td><td>server6.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 6.0 Server (i386)</td><td>server6</td><td>Production</td></tr>
+<tr><td>Realm Linux 6.0 Workstation (x86_64)</td><td>client6.x86_64</td><td>Production</td></tr>
+<tr><td>Realm Linux 6.0 Workstation (i386)</td><td>client6</td><td>Production</td></tr>
 
 <tr><td>Realm Linux 5.5 Server (i386)</td><td>server5</td><td>Production</td></tr>
 <tr><td>Realm Linux 5.5 Client (i386)</td><td>client5</td><td>Production</td></tr>
@@ -147,7 +147,7 @@ your config files and manage your config files in AFS.  You can view the
 kickstart that is generated and sent to your machines and check for
 syntax and other errors.  All of these Tools can be found at the:
 
-<ul><li><a href="https://secure.linux.ncsu.edu/webKickstartTools">Web-Kickstart Tools Page</a></li></ul>
+<ul><li><a href="https://secure.linux.ncsu.edu/rlmtools/webKickstart/">Web-Kickstart Tools Page</a></li></ul>
 
 This page is SSL'd and WRAP protected for security reasons.</p>
 
