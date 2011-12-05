@@ -7,19 +7,10 @@
     def error(msg):
         raise ParseError(msg)
 %}\
-{% python
-    if not defined('lang'):
-        lang = "en_US"
-%}\
-lang $lang
-{% choose defined('langs') %}\
-{%      when True  %}\
-langsupport --default $lang $langs
-{%      end %}\
-{%      when False %}\
-langsupport --default $lang en_US
-{%      end %}\
-{% end %}\
+{% choose defined('lang') %}\
+{%   when True  %}lang ${lang}{% end %}\
+{%   when False %}lang en_US{% end %}\
+{% end %}
 
 {% if defined('cmdline') %}\
 cmdline
@@ -35,6 +26,29 @@ network --bootproto dhcp
 {% end %}
 url --url $installtree
 
+repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/5/base/$arch
+{% if defined('repo') %}\
+{%      for r in repo.allRows() %}\
+repo $r
+{%      end %}\
+{% end %}\
+
+{% if defined('vnc') %}\
+vnc $vnc
+{% end %}\
+{% if defined('text') %}\
+text
+{% end %}\
+{% if defined('ignoredisk') %}\
+ignoredisk $ignoredisk
+{% end %}\
+{% if defined('multipath') %}\
+multipath $multipath
+{% end %}\
+{% if defined('logging') %}\
+logging $logging
+{% end %}\
+\
 {% if not defined('skippartition') %}\
 zerombr
 {%      if defined('clearpart') %}\
@@ -77,21 +91,19 @@ logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
 logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
 {%      end %}\
 {% end %}\
-{% end %}{# end skippartition #}\
-
-timezone --utc US/Eastern
-keyboard us
-reboot
-
-{# RL4 defaults to having SELinux enabled #}\
+{% end %}{# end skippartition #}
 {% choose defined('selinux') %}\
 {%      when True %}\
 selinux $selinux
 {%      end %}\
 {%      when False %}\
-selinux --enforcing
+selinux --disabled
 {%      end %}\
 {% end %}\
+timezone --utc US/Eastern
+keyboard us
+reboot
+
 {% if hasattr(enable, 'nofirewall') %}\
 firewall --disabled
 {% end %}\
@@ -101,12 +113,12 @@ firewall --disabled
 firewall $firewall
 {%          end %}\
 {%          when False %}\
-firewall --medium --ssh --dhcp --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
+firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
 {%          end %}\
 {%      end %}\
 {% end %}\
 
-auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
+auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablecache --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
 
 {% choose hasattr(enable, 'nox') or defined('skipx') %}\
 {%      when True %}\
@@ -118,18 +130,13 @@ skipx
 xconfig $xconfig
 {%              end %}\
 {%              when False %}\
-xconfig --resolution "1280x1024" --depth 24 --hsync 31.5-80.0 --vsync 50-90 --defaultdesktop GNOME --startxonboot
+xconfig --resolution "1280x1024" --depth 24 --defaultdesktop GNOME --startxonboot
 {%              end %}\
 {%          end %}\
 {%      end %}\
 {% end %}\
-{% choose defined('mouse') %}\
-{%      when True %}\
-mouse $mouse
-{%      end %}
-{%      when False %}\
-mouse --emulthree genericps/2
-{%      end %}\
+{% if defined('monitor') %}\
+monitor $monitor
 {% end %}\
 
 {% python
@@ -168,10 +175,50 @@ rootpw --iscrypted $rootpw
 {%          for p in package.allRows() %}\
 {%              choose %}\
 {%              when p.match('@.*[Rr]ealm.*[Ss]erver$') %}\
-@ NCSU Realm Kit Server
+@ realmlinux-base
+@ editors
+@ base
+@ text-internet
+@ legacy-software-support
+@ system-tools
+@ admin-tools
+@ base-x
+@ java
+- logwatch
+- yum-updatesd
 {%              end %}\
 {%              when p.match('@.*[Rr]ealm.*[Ww]orkstation$') %}\
-@ NCSU Realm Kit Workstation
+{%                  if webKickstart.profile.match('client.*') %}\
+@ eclipse
+{%                  end %}\
+@ realmlinux-base
+@ realmlinux-devel
+@ authoring-and-publishing
+@ editors
+@ engineering-and-scientific
+@ games
+@ graphical-internet
+@ graphics
+@ office
+@ sound-and-video
+@ text-internet
+@ gnome-desktop
+@ kde-desktop
+@ development-libs
+@ development-tools
+@ gnome-software-development
+@ java-development
+@ kde-software-development
+@ legacy-software-development
+@ ruby
+@ x-software-development
+@ admin-tools
+@ java
+@ legacy-software-support
+@ system-tools
+@ base-x
+-logwatch
+-yum-updatesd
 {%              end %}\
 {%              otherwise %}\
 $p
@@ -180,11 +227,39 @@ $p
 {%          end %}\
 {%      end %}\
 {%      when False %}\
-@ NCSU Realm Kit Workstation
+@ realmlinux-base
+@ realmlinux-devel
+@ authoring-and-publishing
+@ editors
+@ engineering-and-scientific
+@ games
+@ graphical-internet
+@ graphics
+@ office
+@ sound-and-video
+@ text-internet
+@ gnome-desktop
+@ kde-desktop
+@ development-libs
+@ development-tools
+@ gnome-software-development
+@ java-development
+@ kde-software-development
+@ legacy-software-development
+@ ruby
+@ x-software-development
+@ admin-tools
+@ java
+@ legacy-software-support
+@ system-tools
+@ base-x
+-logwatch
+-yum-updatesd
 {%      end %}\
 {% end %}\
 
 %post
+(
 
 # Let's make DNS work
 cat << EOF > /etc/resolv.conf
@@ -213,6 +288,10 @@ rm /etc/sysconfig/init~
 
 #so apropos works
 /usr/sbin/makewhatis >/dev/null 2>&1 || :
+
+# Set the system time and hardware clock (wich is in UTC)
+/usr/sbin/ntpdate -b time.ncsu.edu
+/sbin/hwclock --systohc --utc
 
 # updates
 realmconfig --kickstart updates --enable-updates
@@ -243,7 +322,7 @@ fi
 /sbin/grubby --add-kernel=/boot/install/vmlinuz \
    --title="Reinstall Workstation" \
    --copy-default \
-   --args="ks=$kickstart ramdisk_size=8192 noshell ksdevice=$$KSDEVICE" \
+   --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=$$KSDEVICE" \
    --initrd=/boot/install/initrd.img
 {% end %}\
 
@@ -254,7 +333,7 @@ fi
     allAdmins = realmadmins + realmotheradmins
     allUsers  = realmadmins + realmotheradmins + realmusers
     hardUsers = realmotheradmins + realmusers
-%}/
+%}\
 cat << EOF > /root/.k5login
 {% for user in allAdmins.sortunique() %}\
 $user/root@EOS.NCSU.EDU
@@ -411,7 +490,7 @@ IP=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); 
 HOSTNAME=`/usr/bin/host $$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
 NETMASK=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
 NETWORK=`/bin/ipcalc $$IP -n $$NETMASK | /bin/cut -d\= -f2`
-GATEWAY=`echo $$NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+GATEWAY=`/sbin/route -n | /bin/awk '/^0\.0\.0\.0/ { print $2 }'`
 HWADDR=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
 
 # Overwrite the appropriate files (/etc/sysconfig/network and
@@ -469,11 +548,17 @@ if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
     /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
 fi
 
-# Run Up2date
+# Run Yum update
 chvt 3
-/usr/sbin/up2date --nox -u up2date
-/usr/sbin/up2date --nox -u
+/usr/bin/yum -y update yum
+/usr/bin/yum -y update
 chvt 1
+
+# Final Fixes for RHEL 5
+# Fix for Red Hat Bug #236669
+sed --in-place 's/^protocols.*files ldap/protocols:  files/' /etc/nsswitch.conf
+
+) 2>&1 | /usr/bin/tee /root/rl.post 
 
 # The following scripts provided by the Jump Start confgs.
 

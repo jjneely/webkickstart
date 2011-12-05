@@ -7,19 +7,10 @@
     def error(msg):
         raise ParseError(msg)
 %}\
-{% python
-    if not defined('lang'):
-        lang = "en_US"
-%}\
-lang $lang
-{% choose defined('langs') %}\
-{%      when True  %}\
-langsupport --default $lang $langs
-{%      end %}\
-{%      when False %}\
-langsupport --default $lang en_US
-{%      end %}\
-{% end %}\
+{% choose defined('lang') %}\
+{%   when True  %}lang ${lang}{% end %}\
+{%   when False %}lang en_US{% end %}\
+{% end %}
 
 {% if defined('cmdline') %}\
 cmdline
@@ -35,6 +26,29 @@ network --bootproto dhcp
 {% end %}
 url --url $installtree
 
+repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/6/base/$arch
+{% if defined('repo') %}\
+{%      for r in repo.allRows() %}\
+repo $r
+{%      end %}\
+{% end %}\
+
+{% if defined('vnc') %}\
+vnc $vnc
+{% end %}\
+{% if defined('text') %}\
+text
+{% end %}\
+{% if defined('ignoredisk') %}\
+ignoredisk $ignoredisk
+{% end %}\
+{% if defined('multipath') %}\
+multipath $multipath
+{% end %}\
+{% if defined('logging') %}\
+logging $logging
+{% end %}\
+\
 {% if not defined('skippartition') %}\
 zerombr
 {%      if defined('clearpart') %}\
@@ -71,27 +85,25 @@ logvol $l
 part /boot --size 512
 part pv.00 --fstype=LVM --size 18432 --grow
 volgroup Volume00 pv.00
-logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
+logvol /          --size 8192 --fstype ext4 --vgname=Volume00 --name=root
 logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
-logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
-logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
+logvol /tmp       --size 2048 --fstype ext4 --vgname=Volume00 --name=tmp
+logvol /var       --size 2048 --fstype ext4 --vgname=Volume00 --name=var
 {%      end %}\
 {% end %}\
-{% end %}{# end skippartition #}\
-
-timezone --utc US/Eastern
-keyboard us
-reboot
-
-{# RL4 defaults to having SELinux enabled #}\
+{% end %}{# end skippartition #}
 {% choose defined('selinux') %}\
 {%      when True %}\
 selinux $selinux
 {%      end %}\
 {%      when False %}\
-selinux --enforcing
+selinux --disabled
 {%      end %}\
 {% end %}\
+timezone --utc America/New_York
+keyboard us
+reboot
+
 {% if hasattr(enable, 'nofirewall') %}\
 firewall --disabled
 {% end %}\
@@ -101,12 +113,12 @@ firewall --disabled
 firewall $firewall
 {%          end %}\
 {%          when False %}\
-firewall --medium --ssh --dhcp --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
+firewall --enabled --ssh --port=afs3-callback:tcp,afs3-callback:udp,afs3-errors:tcp,afs3-errors:udp
 {%          end %}\
 {%      end %}\
 {% end %}\
 
-auth --useshadow --enablemd5 --enablehesiod --hesiodlhs .NS --hesiodrhs .EOS.NCSU.EDU --enablekrb5 --krb5realm EOS.NCSU.EDU --krb5kdc kerberos-1.ncsu.edu:88,kerberos-2.ncsu.edu:88,kerberos-3.ncsu.edu:88,kerberos-4.ncsu.edu:88,kerberos-5.ncsu.edu:88,kerberos-6.ncsu.edu:88 --krb5adminserver kerberos-master.ncsu.edu:749
+auth --useshadow --enablemd5 --enableldap --ldapserver ldap.ncsu.edu --ldapbasedn dc=ncsu,dc=edu --enablekrb5 --enablekrb5kdcdns --krb5realm EOS.NCSU.EDU
 
 {% choose hasattr(enable, 'nox') or defined('skipx') %}\
 {%      when True %}\
@@ -118,18 +130,13 @@ skipx
 xconfig $xconfig
 {%              end %}\
 {%              when False %}\
-xconfig --resolution "1280x1024" --depth 24 --hsync 31.5-80.0 --vsync 50-90 --defaultdesktop GNOME --startxonboot
+xconfig --defaultdesktop GNOME --startxonboot
 {%              end %}\
 {%          end %}\
 {%      end %}\
 {% end %}\
-{% choose defined('mouse') %}\
-{%      when True %}\
-mouse $mouse
-{%      end %}
-{%      when False %}\
-mouse --emulthree genericps/2
-{%      end %}\
+{% if defined('monitor') %}\
+monitor $monitor
 {% end %}\
 
 {% python
@@ -168,10 +175,65 @@ rootpw --iscrypted $rootpw
 {%          for p in package.allRows() %}\
 {%              choose %}\
 {%              when p.match('@.*[Rr]ealm.*[Ss]erver$') %}\
-@ NCSU Realm Kit Server
+@ base
+@ core
+@ directory-client
+@ network-file-system-client
+@ perl-runtime
+@ realmlinux-base
+@ realmlinux-devel
+@ server-platform
+@ system-admin-tools 
+- logwatch
+- yum-updatesd
 {%              end %}\
 {%              when p.match('@.*[Rr]ealm.*[Ww]orkstation$') %}\
-@ NCSU Realm Kit Workstation
+{%                  if webKickstart.profile.match('client.*') %}\
+# Extra client only packages
+@ office-suite
+thunderbird
+pidgin
+{%                  end %}\
+@ base
+@ core
+@ directory-client
+@ network-file-system-client
+@ perl-runtime
+@ realmlinux-base
+@ realmlinux-devel
+@ system-admin-tools 
+@ basic-desktop
+@ compat-libraries
+@ console-internet
+@ desktop-platform
+@ eclipse
+@ emacs 
+@ fonts
+@ general-desktop 
+@ graphical-admin-tools
+@ graphics
+@ internet-browser
+@ java-platform
+@ kde-desktop
+@ legacy-x
+@ network-tools
+@ print-client
+@ remote-desktop-clients
+@ scientific
+@ technical-writing
+@ tex
+{% if not (hasattr(enable, 'nox') or defined('skipx')) %}\
+@ x11
+{% end %}\
+@ debugging
+@ desktop-debugging
+@ desktop-platform-devel
+@ development
+@ virtualization
+@ virtualization-tools
+-logwatch
+-yum-updatesd
+-gnome-packagekit
 {%              end %}\
 {%              otherwise %}\
 $p
@@ -180,17 +242,61 @@ $p
 {%          end %}\
 {%      end %}\
 {%      when False %}\
-@ NCSU Realm Kit Workstation
+{%                  if webKickstart.profile.match('client.*') %}\
+# Extra client only packages
+@ office-suite
+thunderbird
+pidgin
+{%                  end %}\
+@ base
+@ core
+@ directory-client
+@ network-file-system-client
+@ perl-runtime
+@ realmlinux-base
+@ realmlinux-devel
+@ system-admin-tools 
+@ basic-desktop
+@ compat-libraries
+@ console-internet
+@ desktop-platform
+@ eclipse
+@ emacs 
+@ fonts
+@ general-desktop 
+@ graphical-admin-tools
+@ graphics
+@ internet-browser
+@ java-platform
+@ kde-desktop
+@ legacy-x
+@ network-tools
+@ print-client
+@ remote-desktop-clients
+@ scientific
+@ technical-writing
+@ tex
+{% if not (hasattr(enable, 'nox') or defined('skipx')) %}\
+@ x11
+{% end %}\
+@ debugging
+@ desktop-debugging
+@ desktop-platform-devel
+@ development
+@ virtualization
+@ virtualization-tools
+-logwatch
+-yum-updatesd
+-gnome-packagekit
 {%      end %}\
 {% end %}\
 
 %post
+exec < /dev/tty3 > /dev/tty3
+chvt 3
 
-# Let's make DNS work
-cat << EOF > /etc/resolv.conf
-nameserver 152.1.1.206
-nameserver 152.1.1.161
-EOF
+(
+echo "Running %post scripts.  Output stored in /root/rl.post"
 
 # Make available the ethernet interface we are using
 # ksdevice may == 'link' so lets just grab the goods from the route table
@@ -211,11 +317,17 @@ rm /etc/sysconfig/init~
 # fix /etc/hosts still
 (grep -v localhost /etc/hosts ; echo "127.0.0.1 localhost.localdomain   localhost") > /etc/hosts.new && mv /etc/hosts.new /etc/hosts
 
-#so apropos works
+# so apropos works
 /usr/sbin/makewhatis >/dev/null 2>&1 || :
 
-# updates
-realmconfig --kickstart updates --enable-updates
+# Set the system time and hardware clock (wich is in UTC)
+/usr/sbin/ntpdate -b time.ncsu.edu
+/sbin/hwclock --systohc --utc
+
+# Work around a grubby bug
+#   "grubby fatal error: unable to find a suitable template"
+# Red Hat Bugzilla 657257, 625216
+ln -s `awk '{ if ($2 == "/") print $1; }' /etc/fstab` /dev/root
 
 {% choose hasattr(enable, 'audit') %}\
 {%      when True %}\
@@ -230,23 +342,6 @@ rm -rf /var/log/audit.d/*
 {%      end %}\
 {% end %}\
 
-{% if not hasattr(enable, 'noreinstall') %}\
-# set up a reinstall image
-mkdir -p /boot/install
-cd /boot/install
-if [ ! -f vmlinuz ] ; then
-    wget $installtree/isolinux/vmlinuz
-fi
-if [ ! -f initrd.img ] ; then
-    wget $installtree/isolinux/initrd.img
-fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz \
-   --title="Reinstall Workstation" \
-   --copy-default \
-   --args="ks=$kickstart ramdisk_size=8192 noshell ksdevice=$$KSDEVICE" \
-   --initrd=/boot/install/initrd.img
-{% end %}\
-
 {% python
     if not defined('realmadmins'):
         error("NCSU Realm Admins are not defined, something is wrong")
@@ -254,7 +349,7 @@ fi
     allAdmins = realmadmins + realmotheradmins
     allUsers  = realmadmins + realmotheradmins + realmusers
     hardUsers = realmotheradmins + realmusers
-%}/
+%}\
 cat << EOF > /root/.k5login
 {% for user in allAdmins.sortunique() %}\
 $user/root@EOS.NCSU.EDU
@@ -297,7 +392,7 @@ $user
 EOF
 chmod 644 /etc/users.local.base
 
-{% python
+{# {% python
     if hasattr(enable, 'receivemail'):
         sendmaildaemon = "--enable-daemon"
     else:
@@ -313,7 +408,7 @@ chmod 644 /etc/users.local.base
     else:
         sendmailMasq = "--masquerade unity.ncsu.edu"
 %}\
-realmconfig --kickstart sendmail $sendmaildaemon $sendmailMasq
+realmconfig --kickstart sendmail $sendmaildaemon $sendmailMasq #}\
 
 {% if defined('owner') %}\
 # Setup forwarding for root's mail
@@ -323,82 +418,14 @@ EOF
 /usr/bin/newaliases
 {% end %}\
 
-{% if hasattr(enable, 'consolelogin') %}\
-# Enable console login by non-local users
-# RL4.4 and below don't have this code, however this is the default anyway
-realmconfig --kickstart pamconf --enable-console-login || true
-{% end %}\
-{% if not hasattr(enable, 'consolelogin') %}\
-# disable login on the console for non-local users
-# RL4.4 and below don't have this code so we need to case that out
-if realmconfig --kickstart pamconf --disable-console-login | grep "No such module"; then
-    mv /etc/pam.d/login /etc/pam.d/login~
-    sed s/system-auth/remote-auth/ /etc/pam.d/login~ > /etc/pam.d/login
-    rm /etc/pam.d/login~
-fi
-{% end %}\
-
-{% if not hasattr(enable, 'notempclean') %}\
-realmconfig --kickstart tmpclean --enable-tmpclean
-{% end %}\
-\
-{% python
-    if not hasattr(enable, 'localcluster'):
-        localcluster = "ncsu"
-    elif enable.localcluster.len() == 0:
-        localcluster = ""
-    else:
-        localcluster = str(enable.localcluster)
-
-    if not hasattr(enable, 'remotecluster'):
-        remotecluster = "None"
-    elif enable.remotecluster.len() == 0:
-        remotecluster = ""
-    else:
-        remotecluster = str(enable.remotecluster)
-%}\
-{% choose localcluster == "None" %}\
-{%      when True %}\
-realmconfig --kickstart clusters --local-disable
-{%      end %}\
-{%      when False %}\
-realmconfig --kickstart clusters --local-enable $localcluster
-{%      end %}\
-{% end %}\
-\
-{% choose remotecluster == "None" %}\
-{%      when True %}\
-realmconfig --kickstart clusters --remote-disable
-{%      end %}\
-{%      when False %}\
-realmconfig --kickstart clusters --remote-enable $remotecluster
-{%      end %}\
-{% end %}\
-\
+# Setup Department
+[ -d /etc/rc.conf.d ] || mkdir /etc/rc.conf.d
 {% choose defined('dept') %}\
 {%      when True %}\
-realmconfig --kickstart dept --set $dept
+echo "$dept" > /etc/rc.conf.d/HostDept
 {%      end %}\
 {%      when False %}\
-realmconfig --kickstart dept --set ncsu
-{%      end %}\
-{% end %}\
-\
-{% choose defined('printer') %}\
-{%      when True %}\
-realmconfig --kickstart printing --default $printer
-{%      end %}\
-{%      when False %}\
-realmconfig --kickstart printing --default lp
-{%      end %}\
-{% end %}\
-\
-{% choose hasattr(enable, 'norealmcron') %}\
-{%      when True %}\
-realmconfig --kickstart support --disable-support
-{%      end %}\
-{%      when False %}\
-realmconfig --kickstart support --enable-support
+echo "ncsu" > /etc/rc.conf.d/HostDept
 {%      end %}\
 {% end %}\
 
@@ -408,18 +435,30 @@ realmconfig --kickstart support --enable-support
 
 # Figure out the relevant information about this system
 IP=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/addr:/, ""); print $2}'`
-HOSTNAME=`/usr/bin/host $$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
+# HOSTNAME=`/usr/bin/host $$IP | /bin/awk '{sub(/\.$/, ""); print $5}'`
 NETMASK=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/inet/ && !/inet6/ {sub(/Mask:/, ""); print $4}'`
 NETWORK=`/bin/ipcalc $$IP -n $$NETMASK | /bin/cut -d\= -f2`
-GATEWAY=`echo $$NETWORK | awk -F'.' '{print $1"."$2"."$3"."$4+1}'`
+GATEWAY=`/sbin/route -n | /bin/awk '/^0\.0\.0\.0/ { print $2 }'`
 HWADDR=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
+
+# Bcfg2 manages /etc/sysconfig/network by default.  Enabling the
+# feature-staticip group will turn off modification of this file.
+# Bcfg2 can manage the network configuration files if the local
+# SA codes the spefic information into the specification.
+
+if ! grep feature-staticip /etc/realmlinux-groups > /dev/null ; then 
+    echo "feature-staticip" >> /etc/realmlinux-groups
+fi
 
 # Overwrite the appropriate files (/etc/sysconfig/network and
 # /etc/sysconfig/network-scripts/ifcfg-eth0) to make the system not reliant
 # upon DHCP
 cat << EOF > /etc/sysconfig/network
+NETWORKWAIT=yes
 NETWORKING=yes
-HOSTNAME=$$HOSTNAME
+NETWORKING_IPV6=no
+HOSTNAME=${webKickstart.remoteHost}
+DHCP_HOSTNAME=\$$HOSTNAME
 GATEWAY=$$GATEWAY
 EOF
 
@@ -448,32 +487,47 @@ FQDN="${webKickstart.remoteHost}"
 /usr/sbin/rhnreg_ks --activationkey $_akey        \
     --profilename $$FQDN                          \
     --serverUrl https://rhn.linux.ncsu.edu/XMLRPC \
-    --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+    --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT 
 
-# Import the RPM GPG keys
-if [ -f /usr/share/rhn/RPM-GPG-KEY ] ; then
-    /bin/rpm --import /usr/share/rhn/RPM-GPG-KEY
+# Run Yum/Bcfg2 update
+/usr/bin/yum -y update yum bcfg2 rlmtools
+{% choose defined('rlmtoolssession') %}\
+{%      when True %}\
+/usr/bin/ncsuclient --session ${rlmtoolssession}
+{%      end %}
+{%      when False %}\
+/usr/bin/ncsuclient
+{%      end %}\
+{% end %}\
+/usr/bin/yum -y update
+
+{% if not hasattr(enable, 'noreinstall') %}\
+# set up a reinstall image
+mkdir -p /boot/install
+cd /boot/install
+if [ ! -f vmlinuz ] ; then
+    wget $installtree/images/pxeboot/vmlinuz
 fi
-if [ -f /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release ] ; then
-    /bin/rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
-fi
-if [ -f /usr/share/realmconfig/realmkit.gpg ] ; then
-    /bin/rpm --import /usr/share/realmconfig/realmkit.gpg
-fi
-if [ -f /usr/share/realmconfig/data/realmkit.gpg ] ; then
-    /bin/rpm --import /usr/share/realmconfig/data/realmkit.gpg
+if [ ! -f initrd.img ] ; then
+    wget $installtree/images/pxeboot/initrd.img
 fi
 
-# Set Up2Date Configuration
-if [ -f /usr/share/realmconfig/default-modules/up2date.py ] ; then
-    /usr/bin/python /usr/share/realmconfig/default-modules/up2date.py -f
-fi
+/sbin/grubby --add-kernel=/boot/install/vmlinuz \
+   --title="Reinstall Workstation" \
+   --copy-default \
+   --args="ks=$kickstart noshell noipv6 ksdevice=$$KSDEVICE" \
+   --initrd=/boot/install/initrd.img
+{% end %}\
 
-# Run Up2date
-chvt 3
-/usr/sbin/up2date --nox -u up2date
-/usr/sbin/up2date --nox -u
+# Bootstrap Bcfg2
+/usr/bin/ncsubootstrap -p realmlinux-el6-${arch}
+
+echo "Running Bcfg2 again..."
+/usr/sbin/bcfg2 -v
 chvt 1
+
+) 2>&1 | /usr/bin/tee /root/rl.post
+%end
 
 # The following scripts provided by the Jump Start confgs.
 
