@@ -103,6 +103,19 @@ your Web-Kickstart config.</li>
 </ul>
 
 <h2>Disk Image</h2>
+
+<p>The following disk images are based on gPXE which is an Open Source
+implementation of a PXE boot loader.  These bootable images emulate a
+PXE boot and allow you to install a machine via the OIT PXE interface.
+Once you see the OIT logo and prompt please enter the Realm Linux
+"version" keyword.
+</p>
+
+<ul>
+<li><a href="PXE-all.iso">ISO Image</a></li>
+<li><a href="PXE-all.usb">USB/HD Image</a></li>
+</ul>
+
 <p>Here's a disk image that is set up to automatically do a
 kickstart install from web-kickstart.linux.ncsu.edu.  (This was done
 by modifying the syslinux.cfg file on the floppy.  After you setup
