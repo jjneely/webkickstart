@@ -53,24 +53,6 @@ class WebKickstartPlugin(object):
 
         return self.variableDict
 
-class AuthN(object):
-
-    def authenticate(self, id, password):
-        "Return a boolean value if user/password is correct."
-        return True
-
-    def getName(self):
-        "Return the user's name that can be displayed on the website."
-        return "Guest User"
-
-class AuthZ(object):
-
-    def authorize(self):
-        """Return a boolean value if user is allowed to use the WebKickstart
-           Web app.
-        """
-        return True
-
 
 def getModules(superclass):
     list = []
