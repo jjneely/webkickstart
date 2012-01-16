@@ -1,6 +1,6 @@
 # ks.py -- apache mod_python handler
 #
-# Copyright, 2002 - 2008 Jack Neely <jjneely@ncsu.edu>
+# Copyright, 2002 - 2012 Jack Neely <jjneely@ncsu.edu>
 #
 # SDG
 #
@@ -57,7 +57,7 @@ def handler(req):
     req.send_http_header()
 
     # build requested URL
-    url = "http://" + req.hostname + req.uri
+    url = "http://" + req.hostname + req.unparsed_uri
     
     # Get the IP of the client
     ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
