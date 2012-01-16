@@ -47,6 +47,12 @@ class LiquidDragonPlugin(WebKickstartPlugin):
         # Log this install in the DB
         server = self.cfg.get('main', 'server', None)
         secret = self.cfg.get('main', 'secret', None)
+        enabled = self.cfg.get('main', 'enabled', 'True')
+
+        if enabled.lower() in ['0', 'false', 'n', 'no']:
+            log.info("Install logging not enabled. Not logging install for %s"\
+                    % self.variableDict['webKickstart'].remoteHost)
+            return
 
         if server == None or secret == None:
             msg = "Missing server or secret values in rlsecurity.conf."
