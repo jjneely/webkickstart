@@ -3,7 +3,7 @@
 # webKickstart.py -- finds solaris config file or ks and builds string
 #                    to send out apache
 #
-# Copyright 2002-2008 NC State University
+# Copyright 2002-2012 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu> and
 #            Elliot Peele <elliot@bentlogic.net>
 #
@@ -33,6 +33,7 @@ import stat
 import sys
 import os
 import os.path
+import urlparse
 
 log = logging.getLogger("webks")
 
@@ -76,16 +77,20 @@ class webKickstart(object):
         # Figure out the file name to look for, parse it and see what we get.
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
-        
+
         addr = socket.gethostbyaddr(host)
         # We look for the A record from DNS...not a CNAME
-        filename = addr[0]
+        fqdn = addr[0]
+
+        filename = self.getToken()
+        if filename is None:
+            filename = fqdn
 
         # Security check
         if not self.__debug and self.cfg.isTrue('security') and not \
                 self.__headerCheck(filename):
             log.warning("Requesting client is not Anaconda.")
-            return (2, "# You do not appear to be Anaconda.")
+            return (2, "# You do not appear to be Anaconda, the Red Hat installation program.")
         
         mcList = self.findMC(filename)
 
@@ -101,7 +106,7 @@ class webKickstart(object):
 
         if mc != None:
             if mc.isKickstart():
-                log.info("Returning pre-defined kickstart for %s." % filename)
+                log.info("Returning pre-defined kickstart for %s." % fqdn)
                 return (0, mc.getFile())
             
             version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
@@ -111,11 +116,11 @@ class webKickstart(object):
             if self.cfg.isTrue('generic_ks'):
                 genny = Generator('default', mc, self.__debug)
             else:
-                log.info("No config file for host " + filename)
-                return (1, "# No config file for host " + filename)
+                log.info("No config file for host " + fqdn)
+                return (1, "# No config file for host " + fqdn)
                 
-        log.info("Generating kickstart for %s." % filename)    
-        retval = genny.makeKickstart(filename)
+        log.info("Generating kickstart for %s." % fqdn)
+        retval = genny.makeKickstart(fqdn)
         return (0, retval)
         
 
@@ -153,6 +158,25 @@ class webKickstart(object):
 
             return (42, s)
         
+    def getToken(self):
+        # Parse the URI and see if the client supplied an installation token
+        # We are looking for t=token out of the query part of the URL
+        u = urlparse.urlparse(self.url)
+        if u.query == "":
+            return None
+
+        d = urlparse.parse_qs(u.query)
+        if 't' not in d:
+            return None
+
+        # Yes, there is a list here, we take the first token we find
+        token = d['t'][0]
+        if "." in token or "/" in token:
+            # You may not use tokens to fetch another machine's configuration
+            # from its FQDN-based Web-Kickstart config!
+            raise WebKickstartError("Tokens may not contain these characters: / .")
+        return token
+
 
     def findMC(self, fqdn):
         global mcCache, mcCacheRoot

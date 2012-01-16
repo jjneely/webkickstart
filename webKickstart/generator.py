@@ -2,7 +2,7 @@
 #
 # generator.py - Build kickstarts from MetaConfigs
 #
-# Copyright 2008 NC State University
+# Copyright 2012 NC State University
 # Written by Jack Neely <jjneely@pams.ncsu.edu>
 #
 # SDG
@@ -22,6 +22,7 @@
 
 # Pythong imports
 import os
+import os.path
 import logging
 from types import *
 
@@ -58,8 +59,11 @@ class Generator(object):
             raise WebKickstartError, msg
 
         if mc != None:
+            self.__mcFileName = os.path.basename(mc.getFileName())
             self.__includeFile(mc)
             self.__handleIncludes(mc, configtools.config.include_key)
+        else:
+            self.__mcFileName = ''
 
     def localVars(self, fqdn):
         # Setup self.variables
@@ -75,6 +79,11 @@ class Generator(object):
         self.variables['webKickstart'].setMember('profile', self.profile)
         self.variables['WebKickstartError'] = WebKickstartError
         self.variables['ParseError'] = ParseError
+
+        if fqdn.lower() != self.__mcFileName.lower():
+            self.variables['webKickstart'].setMember('token',
+                                                     self.__mcFileName)
+
 
     def makeKickstart(self, fqdn, excludePlugins=[]):
         """Return a string of a Red Hat Kickstart."""

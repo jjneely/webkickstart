@@ -47,18 +47,19 @@ def handler(req):
     else:
         userAgent = "None"
 
+    # build requested URL
+    url = "http://" + req.hostname + req.unparsed_uri
+
     # Log this request
     log = logging.getLogger("webks")
-    log.info("%s - %s - %s" % (req.get_remote_host(apache.REMOTE_NOLOOKUP),
-                               userAgent, req.the_request))
+    log.info("%s - %s - %s - s%" % \
+             (req.get_remote_host(apache.REMOTE_NOLOOKUP), url,
+              userAgent, req.the_request))
     
     # Main apache request handler
     req.content_type = "text/plain"
     req.send_http_header()
 
-    # build requested URL
-    url = "http://" + req.hostname + req.unparsed_uri
-    
     # Get the IP of the client
     ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
 
