@@ -82,9 +82,11 @@ class webKickstart(object):
         # We look for the A record from DNS...not a CNAME
         fqdn = addr[0]
 
-        filename = self.getToken()
-        if filename is None:
+        token = self.getToken()
+        if token is None:
             filename = fqdn
+        else:
+            filename = token
 
         # Security check
         if not self.__debug and self.cfg.isTrue('security') and not \
@@ -104,11 +106,23 @@ class webKickstart(object):
         else:
             mc = mcList[0]
 
-        if mc != None:
+        if token is not None:
+            if mc is not None and self.cfg.token_key not in mc.getListOfKeys():
+                log.info("%s requested a token based install for a " \
+                         "filename not blessed as a token: %s" % \
+                         (fqdn, filename))
+                s = "Requested install token is not blessed"
+                raise WebKickstartError(s)
+            if mc is None:
+                log.info("%s requests unfound token %s" % (fqdn, token))
+                s = "No config file for token found"
+                raise WebKickstartError(s)
+
+        if mc is not None:
             if mc.isKickstart():
                 log.info("Returning pre-defined kickstart for %s." % fqdn)
                 return (0, mc.getFile())
-            
+
             version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
             genny = Generator(version, mc, self.__debug)
         else:

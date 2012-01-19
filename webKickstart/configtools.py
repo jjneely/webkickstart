@@ -71,6 +71,7 @@ class Configuration(object):
                   'profiles':       './profiles',
                   'include_key':    'use',
                   'profile_key':    'version',
+                  'token_key':      'token',
                   'pluginconfd':    './pluginconf.d',
                  }
 
