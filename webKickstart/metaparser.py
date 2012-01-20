@@ -168,15 +168,17 @@ class MetaParser(object):
            Also remove the token_key incase this is a blessed token."""
 
         fd = cStringIO.StringIO()
-        for row in self.filecommands():
+        for row in self.filecommands:
             stripped = row.strip()
             if stripped != configtools.config.token_key:
                 # The token blessing key needs to come out
                 fd.write(row)
+                fd.write("\n")
 
         for script in self.fileposts:
             for row in script:
                 fd.write(row)
+                fd.write("\n")
 
         return fd.getvalue()
 
