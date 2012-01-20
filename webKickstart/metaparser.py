@@ -79,6 +79,9 @@ class MetaParser(object):
 
         if not line.startswith('%'): 
             return False
+        if line.startswith('%end'):
+            # Recently added %end tags close some "script" sections
+            return False
 
         for section in scriptTypes:
             if line.startswith(section):
@@ -118,6 +121,11 @@ class MetaParser(object):
                 elif isHdr:
                     scripts.append(tmp)
                     tmp = [line]
+                elif line.startswith('%end'):
+                    # Deal with the recently added %end tags
+                    tmp.append(line)
+                    scripts.append(tmp)
+                    state = STATE_COMMANDS
                 else:
                     tmp.append(line)
 
