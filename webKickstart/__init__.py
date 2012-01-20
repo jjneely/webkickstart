@@ -121,7 +121,7 @@ class webKickstart(object):
         if mc is not None:
             if mc.isKickstart():
                 log.info("Returning pre-defined kickstart for %s." % fqdn)
-                return (0, mc.getFile())
+                return (0, mc.getKickstart())
 
             version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
             genny = Generator(version, mc, self.__debug)

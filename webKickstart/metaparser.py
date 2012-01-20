@@ -162,7 +162,25 @@ class MetaParser(object):
 
         return True
         
-        
+
+    def getKickstart(self):
+        """Re-assemple the MC and treat it as a complete Kickstart.  We
+           Also remove the token_key incase this is a blessed token."""
+
+        fd = cStringIO.StringIO()
+        for row in self.filecommands():
+            stripped = row.strip()
+            if stripped != configtools.config.token_key:
+                # The token blessing key needs to come out
+                fd.write(row)
+
+        for script in self.fileposts:
+            for row in script:
+                fd.write(row)
+
+        return fd.getvalue()
+
+
     def getLine(self, num):
         """Returns a list of parsed tokens from line number num in the
            commands section of the config file."""
