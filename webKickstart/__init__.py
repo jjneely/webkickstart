@@ -317,7 +317,12 @@ class webKickstart(object):
         if not os.path.isabs(path):
             path = os.path.abspath(path)
 
-        dir = os.listdir(path)
+        try:
+            dir = os.listdir(path)
+        except OSError, e:
+            log.error("IO Error scanning Web-Kickstart Configs: %s" % str(e))
+            dir = []
+
         for node in dir:
             if node.startswith('.'):
                 continue
