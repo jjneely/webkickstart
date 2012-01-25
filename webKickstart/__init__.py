@@ -78,7 +78,7 @@ class webKickstart(object):
         # We return a tuple (errorcode, sting) If error code is non-zero
         # the sting will have a description of the error that occured.
 
-        addr = socket.gethostbyaddr(host)
+        addr = self.resolveAddr(host)
         # We look for the A record from DNS...not a CNAME
         fqdn = addr[0]
 
@@ -171,7 +171,23 @@ class webKickstart(object):
             log.error(s)
 
             return (42, s)
-        
+
+    def resolveAddr(self, host):
+        # return the tuple from socket.gethostbyaddr()
+        try:
+            addr = socket.gethostbyaddr(host)
+        except socket.herror, e:
+            if e.errno == 1:
+                log.info("Host %s has no PTR DNS entry -- refusing Kickstart" \
+                         % host)
+                s = "Your host does not seem to have a PTR record in DNS."
+                raise WebKickstartError(s)
+            else:
+                # Something bad happened
+                raise
+
+        return addr
+
     def getToken(self):
         # Parse the URI and see if the client supplied an installation token
         # We are looking for t=token out of the query part of the URL
