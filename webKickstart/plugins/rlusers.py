@@ -44,7 +44,10 @@ class RealmLinuxUsersPlugin(WebKickstartPlugin):
 
     def doRootPW(self):
         if self.variableDict.has_key('rootpw'):
-            # We assume the user as provided his own root password
+            # WebKS Config contains a rootpw hash, let's indicate 
+            # that we are using a user provided hash
+            self.variablesDict['rootpw'].setMember('localpw', "")
+            # And we don't replace the user's hash
             return
 
         group = 'default'
