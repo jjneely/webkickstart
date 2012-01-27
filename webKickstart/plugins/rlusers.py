@@ -46,7 +46,7 @@ class RealmLinuxUsersPlugin(WebKickstartPlugin):
         if self.variableDict.has_key('rootpw'):
             # WebKS Config contains a rootpw hash, let's indicate 
             # that we are using a user provided hash
-            self.variablesDict['rootpw'].setMember('localpw', "")
+            self.variableDict['rootpw'].setMember('localpw', "")
             # And we don't replace the user's hash
             return
 
