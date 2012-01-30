@@ -211,7 +211,8 @@ class webKickstart(object):
     def findMC(self, fqdn):
         global mcCache, mcCacheRoot
         key = fqdn.lower()
-        if self.cfg.hosts == mcCacheRoot and key in mcCache:
+        root = os.path.normpath(self.cfg.hosts)
+        if root == mcCacheRoot and key in mcCache:
             flag = True
             for file in mcCache[key]:
                 flag = flag and os.path.exists(file)
@@ -222,9 +223,22 @@ class webKickstart(object):
         log.debug("Cache MISS: %s" % key)
         return self.rebuildCache(fqdn)
 
+    def resolveLink(self, ln):
+        # Resolve symbolic links to their real ABS path
+        if not os.path.islink(ln):
+            return ln
+
+        result = os.readlink(ln)
+        if not os.path.abspath(ln):
+            result = os.path.join(ln, result)
+        result = os.path.normpath(result)
+
+        return self.resolveLink(result)
+
     def buildCache(self):
-        root = self.cfg.hosts
+        root = os.path.normpath(self.cfg.hosts)
         cache = {}
+        seen = []       # List of processed directories
 
         def recurse(dir, dict):
             try:
@@ -239,8 +253,17 @@ class webKickstart(object):
                 else:
                     dict[key] = [f]
 
+            seen.append(dir)
+
             for d in dirs:
-                recurse(d, dict)
+                realpath = resolveLink(d)
+                if not realpath.startswith(root):
+                    s = \
+                     "Symbolic link %s points outside of hosts directory root"
+                    log.warning(s % d)
+                    continue
+                if realpath not in seen:
+                    recurse(realpath, dict)
 
         global mcCache, mcCacheRoot
         recurse(root, cache)
@@ -291,7 +314,8 @@ class webKickstart(object):
         """
         Check for config files that don't resolve in dns any longer.
         """
-        list = self.__checkConfigHostnamesHelper(self.cfg.hosts)
+        root = os.path.normpath(self.cfg.hosts)
+        list = self.__checkConfigHostnamesHelper(root)
         if len(list) == 0:
             s = "No config files found that don't resolve in dns."
         else:
@@ -346,7 +370,9 @@ class webKickstart(object):
             try:
                 # stat() follows symlinks
                 mode = os.stat(apath).st_mode
-            except os.error:
+            except os.error, e:
+                log.warning("Error stat()'ing file: %s" % apath)
+                log.warning(str(e))
                 continue
             if stat.S_ISDIR(mode):
                 dirs.append(apath)
