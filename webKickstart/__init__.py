@@ -256,14 +256,17 @@ class webKickstart(object):
             seen.append(dir)
 
             for d in dirs:
-                realpath = resolveLink(d)
+                realpath = self.resolveLink(d)
                 if not realpath.startswith(root):
                     s = \
                      "Symbolic link %s points outside of hosts directory root"
-                    log.warning(s % d)
+                    log.error(s % d)
                     continue
                 if realpath not in seen:
                     recurse(realpath, dict)
+                else:
+                    log.debug("Directory loop detected: %s => %s" \
+                              % (d, realpath))
 
         global mcCache, mcCacheRoot
         recurse(root, cache)
