@@ -229,7 +229,7 @@ class webKickstart(object):
             return ln
 
         result = os.readlink(ln)
-        if not os.path.isabs(ln):
+        if not os.path.isabs(result):
             result = os.path.join(ln, result)
         result = os.path.normpath(result)
 
