@@ -229,7 +229,7 @@ class webKickstart(object):
             return ln
 
         result = os.readlink(ln)
-        if not os.path.abspath(ln):
+        if not os.path.isabs(ln):
             result = os.path.join(ln, result)
         result = os.path.normpath(result)
 
@@ -258,9 +258,8 @@ class webKickstart(object):
             for d in dirs:
                 realpath = self.resolveLink(d)
                 if not realpath.startswith(root):
-                    s = \
-                     "Symbolic link %s points outside of hosts directory root"
-                    log.error(s % d)
+                    s = "Symbolic link %s => %s points outside of hosts directory root"
+                    log.error(s % (d, realpath))
                     continue
                 if realpath not in seen:
                     recurse(realpath, dict)
@@ -374,8 +373,7 @@ class webKickstart(object):
                 # stat() follows symlinks
                 mode = os.stat(apath).st_mode
             except os.error, e:
-                log.warning("Error stat()'ing file: %s" % apath)
-                log.warning(str(e))
+                log.warning("Error stat()'ing file: %s" % str(e))
                 continue
             if stat.S_ISDIR(mode):
                 dirs.append(apath)
