@@ -52,7 +52,7 @@ def handler(req):
 
     # Log this request
     log = logging.getLogger("webks")
-    log.info("%s - %s - %s - s%" % \
+    log.info("%s - %s - %s - %s" % \
              (req.get_remote_host(apache.REMOTE_NOLOOKUP), url,
               userAgent, req.the_request))
     
