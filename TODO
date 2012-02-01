@@ -1,3 +1,10 @@
+Tokens/Images
+=============
+
+ * Setup tools in scripts/ to handle tokens
+ * Fix libwebkickstart to handle tokens
+ * rlsecurity: tell RLMTools about token/fqdn relationships
+
 
 * A default profile configuration section
 * Template variables in profile configuration sections?
