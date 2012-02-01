@@ -21,17 +21,12 @@ all:
 install:
 	install -d -m 755 $(DESTDIR)/usr/share/webKickstart
 	install -d -m 755 $(DESTDIR)$(SITELIB)/webKickstart
-	install -d -m 755 $(DESTDIR)$(SITELIB)/webKickstart/webtmpl
-	install -d -m 755 $(DESTDIR)$(SITELIB)/webKickstart/static/css
 	install -d -m 755 $(DESTDIR)$(SITELIB)/webKickstart/plugins
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/hosts
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/pluginconf.d
 	install -d -m 755 $(DESTDIR)/etc/webkickstart/profiles
 	install -d -m 755 $(DESTDIR)/usr/bin
 	
-	install -m 644 webKickstart/webtmpl/*.xml $(DESTDIR)$(SITELIB)/webKickstart/webtmpl/
-	install -m 644 webKickstart/static/css/*.css $(DESTDIR)$(SITELIB)/webKickstart/static/css/
-	install -m 644 webKickstart/static/*.gif webKickstart/static/*.png $(DESTDIR)$(SITELIB)/webKickstart/static/
 	install -m 644 webKickstart/plugins/*.py $(DESTDIR)$(SITELIB)/webKickstart/plugins/
 	install -m 644 webKickstart/*.py $(DESTDIR)$(SITELIB)/webKickstart/
 	
