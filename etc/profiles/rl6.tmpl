@@ -473,6 +473,13 @@ EOF
 
 {% end %}\
 \
+{% if hasattr(rootpw, 'localpw') %}\
+# Web-Kickstart config contains a local root password hash
+# Let's not automatically change/update the user's password
+touch /etc/local-root
+
+{% end %}\
+\
 {% python
     if defined ('activationkey'):
         _akey = str(activationkey)
