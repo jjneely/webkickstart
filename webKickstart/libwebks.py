@@ -60,8 +60,9 @@ class LibWebKickstart(object):
         except Exception, e:
             # KeyError or ConfgError from webkickstart
             # Unsupported version key in config file
-            log.warning("Building a default config for %s which may fail." % fqdn)
-            g = webKickstart.generator.Generator('default', mc, True)
+            log.warning("Building config for %s failed: " % (fqdn, str(e)))
+
+            return None
 
         g.localVars(fqdn)
         g.buildPostVar()
