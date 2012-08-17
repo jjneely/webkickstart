@@ -58,12 +58,18 @@ class LiquidDragonPlugin(WebKickstartPlugin):
             msg = "Missing server or secret values in rlsecurity.conf."
             raise WebKickstartError, msg
 
+        # Get department and report it to RLMTools
+        if self.variableDict.has_key('dept'):
+            dept = self.variableDict['dept'].verbatim()
+        else:
+            dept = 'ncsu'
+
         log.debug("Using XMLRPC API: %s" % server)
         api = xmlrpclib.ServerProxy(server)
 
         try:
             # Use RLMTools APIv2 and remember the session hash
-            code, sid = api.initHost(2, secret, fqdn)
+            code, sid = api.initHost(3, secret, fqdn, dept)
         except Exception, e:
             raise WebKickstartError("Error initalizing %s with RLM Tools XMLRPC interface.  Halting.\nError: %s" % (fqdn, str(e)))
 
