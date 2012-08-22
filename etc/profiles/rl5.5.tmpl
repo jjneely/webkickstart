@@ -310,20 +310,11 @@ rm -rf /var/log/audit.d/*
 {% end %}\
 
 {% if not hasattr(enable, 'noreinstall') %}\
-# set up a reinstall image
-mkdir -p /boot/install
-cd /boot/install
-if [ ! -f vmlinuz ] ; then
-    wget $installtree/isolinux/vmlinuz
-fi
-if [ ! -f initrd.img ] ; then
-    wget $installtree/isolinux/initrd.img
-fi
-/sbin/grubby --add-kernel=/boot/install/vmlinuz \
-   --title="Reinstall Workstation" \
-   --copy-default \
-   --args="ks=$kickstart ramdisk_size=8192 noshell noipv6 ksdevice=$$KSDEVICE" \
-   --initrd=/boot/install/initrd.img
+# set up a reinstall image using the realmlinux-reinstall package's
+# provided images.  This package is a RL mandatory package so it should
+# be in place at this point.
+/sbin/grubby --add-kernel=/boot/install/gpxe.lkrn \
+   --title="Reinstall Workstation (PXE)" --copy-default
 {% end %}\
 
 {% python

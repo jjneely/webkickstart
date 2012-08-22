@@ -329,6 +329,12 @@ rm /etc/sysconfig/init~
 # Red Hat Bugzilla 657257, 625216
 ln -s `awk '{ if ($2 == "/") print $1; }' /etc/fstab` /dev/root
 
+{% if hasattr(enable, 'nox') or defined('skipx') %}\
+# Installing any display manager (GDM) will override the "skipx" keyword
+# so we fix that here
+sed --in-place 's/id:5:initdefault:/id:3:initdefault:/' /etc/inittab
+{% end %}\
+
 {% choose hasattr(enable, 'audit') %}\
 {%      when True %}\
 # make sure audit is on
@@ -509,21 +515,11 @@ FQDN="${webKickstart.remoteHost}"
 /usr/bin/yum -y update
 
 {% if not hasattr(enable, 'noreinstall') %}\
-# set up a reinstall image
-mkdir -p /boot/install
-cd /boot/install
-if [ ! -f vmlinuz ] ; then
-    wget $installtree/images/pxeboot/vmlinuz
-fi
-if [ ! -f initrd.img ] ; then
-    wget $installtree/images/pxeboot/initrd.img
-fi
-
-/sbin/grubby --add-kernel=/boot/install/vmlinuz \
-   --title="Reinstall Workstation" \
-   --copy-default \
-   --args="ks=$kickstart noshell noipv6 ksdevice=$$KSDEVICE" \
-   --initrd=/boot/install/initrd.img
+# set up a reinstall image using the realmlinux-reinstall package's
+# provided images.  This package is a RL mandatory package so it should
+# be in place at this point.
+/sbin/grubby --add-kernel=/boot/install/gpxe.lkrn \
+   --title="Reinstall Workstation (PXE)" --copy-default
 {% end %}\
 
 # Bootstrap Bcfg2
