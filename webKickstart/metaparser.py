@@ -125,6 +125,7 @@ class MetaParser(object):
                     # Deal with the recently added %end tags
                     tmp.append(line)
                     scripts.append(tmp)
+                    tmp = []
                     state = STATE_COMMANDS
                 else:
                     tmp.append(line)
