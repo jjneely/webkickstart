@@ -60,7 +60,7 @@ class LibWebKickstart(object):
         except Exception, e:
             # KeyError or ConfgError from webkickstart
             # Unsupported version key in config file
-            log.warning("Building config for %s failed: " % (fqdn, str(e)))
+            log.warning("Building config for %s failed: %s" % (fqdn, str(e)))
 
             return None
 
