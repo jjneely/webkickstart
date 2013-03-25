@@ -24,7 +24,7 @@ import os.path
 import logging
 import optparse
 
-from webKickstart import webKickstart
+from webKickstart.webks import webKickstart
 from webKickstart import configtools
 from webKickstart.metaparser import MetaParser
 from webKickstart.generator import Generator

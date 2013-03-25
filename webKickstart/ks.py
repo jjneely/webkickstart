@@ -22,59 +22,43 @@ import sys
 import os
 import logging
 
-from mod_python import apache
+from flask import request, abort, Response
 
-from webKickstart import webKickstart
-from webKickstart import configtools
+from webks import webKickstart
 
-def doSetup(req):
-    if req.get_options().has_key('webKickstart.config'):
-        configDir = req.get_options()['webKickstart.config']
-    else:
-        configDir = None
+# The Flask app
+from webKickstart import app
 
-    configtools.config = configtools.Configuration(configDir)
-
-
-def handler(req):
-    # PythonOptions and configuration
-    if configtools.config == None:
-        doSetup(req)
-
+@app.route("/ks.py", methods=["GET"])
+def handler():
     # Figure out the user agent
-    if req.headers_in.has_key('User-Agent'):
-        userAgent = req.headers_in['User-Agent']
+    if request.headers.has_key('User-Agent'):
+        userAgent = request.headers['User-Agent']
     else:
         userAgent = "None"
 
     # build requested URL
-    url = "http://" + req.hostname + req.unparsed_uri
+    url = request.url
 
     # Log this request
     log = logging.getLogger("webks")
     log.info("%s - %s - %s - %s" % \
-             (req.get_remote_host(apache.REMOTE_NOLOOKUP), url,
-              userAgent, req.the_request))
+             (request.remote_addr, url, userAgent, request.method))
     
-    # Main apache request handler
-    req.content_type = "text/plain"
-    req.send_http_header()
-
     # Get the IP of the client
-    ip = req.get_remote_host(apache.REMOTE_NOLOOKUP)
+    ip = request.remote_addr
 
     # Init webKickstart
-    w = webKickstart(url, req.headers_in)
+    w = webKickstart(url, request.headers)
 
     # Main mode of operation
-    # Other cool stuff moved to webapp.py
     tuple = w.getKS(ip)
 
-    # send on the kickstart
-    req.write(tuple[1])
-
     # if error code == 42 we need to log the output because its a traceback
-    if tuple[0] == 42: apache.log_error(tuple[1], apache.APLOG_ERR)
+    if tuple[0] == 42: 
+        code = "500 Internal server error"
+    else:
+        code = "200 OK"
 
-    return apache.OK
+    return Response(tuple[1], status=code, mimetype="text/plain")
 

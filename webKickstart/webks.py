@@ -1,0 +1,384 @@
+#!/usr/bin/python
+#
+# webKickstart.py -- finds solaris config file or ks and builds string
+#                    to send out apache
+#
+# Copyright 2002-2012 NC State University
+# Written by Jack Neely <jjneely@pams.ncsu.edu> and
+#            Elliot Peele <elliot@bentlogic.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+from metaparser import MetaParser
+from generator import Generator
+from errors import *
+import configtools
+
+import socket
+import traceback
+import logging
+import stat
+import sys
+import os
+import os.path
+import urlparse
+
+log = logging.getLogger("webks")
+
+# Cache constructs
+mcCache = {}
+mcCacheRoot = ""
+
+class webKickstart(object):
+
+    def __init__(self, url, headers, configDir=None):
+        self.__debug = False
+        # set up url from reinstalls
+        self.url = url
+        # client's headers
+        self.headers = headers
+
+        if configtools.config == None:
+            self.cfg = configtools.Configuration(configDir)
+            configtools.config = self.cfg
+        else:
+            self.cfg = configtools.config
+
+    def __headerCheck(self, fqdn):
+        # check for anaconda
+        log.debug("HTTP Headers: %s" % str(self.headers))
+        if self.headers.has_key("X-RHN-Provisioning-MAC-0"):
+            # continue through...we *know* this is anaconda
+            # only present in version >= FC1
+            return True
+        # This handles anaconda before Fedora which includes RHEL 3
+        elif len(self.headers) == 1 and self.headers.has_key('Host'):
+            return True
+
+        return False
+
+    def setDebug(self, bool):
+        "Turn on debug mode, useful for kickstart preview."
+        self.__debug = bool
+
+    def __getKS(self, host):
+        # Figure out the file name to look for, parse it and see what we get.
+        # We return a tuple (errorcode, sting) If error code is non-zero
+        # the sting will have a description of the error that occured.
+
+        addr = self.resolveAddr(host)
+        # We look for the A record from DNS...not a CNAME
+        fqdn = addr[0]
+
+        token = self.getToken()
+        if token is None:
+            filename = fqdn
+        else:
+            filename = token
+
+        # Security check
+        if not self.__debug and self.cfg.isTrue('security') and not \
+                self.__headerCheck(filename):
+            log.warning("Requesting client is not Anaconda.")
+            return (2, "# You do not appear to be Anaconda, the Red Hat installation program.")
+        
+        mcList = self.findMC(filename)
+
+        if len(mcList) > 1 and self.cfg.isTrue('collision'):
+            # if collision_detection is on then bitch
+            # otherwise we just want the first hit
+            return self.__collisionMessage(mcList)
+
+        if len(mcList) == 0:
+            mc = None
+        else:
+            mc = mcList[0]
+
+        if token is not None:
+            if mc is not None and self.cfg.token_key not in mc.getListOfKeys():
+                log.info("%s requested a token based install for a " \
+                         "filename not blessed as a token: %s" % \
+                         (fqdn, filename))
+                s = "Requested install token is not blessed"
+                raise WebKickstartError(s)
+            if mc is None:
+                log.info("%s requests unfound token %s" % (fqdn, token))
+                s = "No config file for token found"
+                raise WebKickstartError(s)
+
+        if mc is not None:
+            if mc.isKickstart():
+                log.info("Returning pre-defined kickstart for %s." % fqdn)
+                return (0, mc.getKickstart())
+
+            version = mc.getVersion(self.cfg.profile_key, self.cfg.include_key)
+            genny = Generator(version, mc, self.__debug)
+        else:
+            # disable the default, no-config file, generic kickstart
+            if self.cfg.isTrue('generic_ks'):
+                genny = Generator('default', mc, self.__debug)
+            else:
+                log.info("No config file for host " + fqdn)
+                return (1, "# No config file for host " + fqdn)
+                
+        log.info("Generating kickstart for %s." % fqdn)
+        retval = genny.makeKickstart(fqdn)
+        return (0, retval)
+        
+
+    def getKS(self, host):
+        # Wrapper for error checking/handling
+        try:
+            return self.__getKS(host)
+    
+        except WebKickstartError, e:
+            s = "An error occured while Web-Kickstart was running.\n"
+            s = "%sThe error is:\n%s" % (s, str(e))
+
+            text = ""
+            for line in s.split('\n'):
+                text = "%s# %s\n" % (text, line)
+
+            log.warning(text)
+
+            return (42, text)
+            
+        except:
+            text = traceback.format_exception(sys.exc_type,
+                                              sys.exc_value,
+                                              sys.exc_traceback)
+            s = "# An unhandled python exception occured in Web-Kickstart.\n"
+            s = "%s# The Exception was:\n\n" % s
+
+            # We need to comment everything out.  text is a list and each
+            # element may contain more than one line of traceback.
+            text = '\n'.join(text)
+            for line in text.split('\n'):
+                s = "%s# %s\n" % (s, line)
+
+            log.error(s)
+
+            return (42, s)
+
+    def resolveAddr(self, host):
+        # return the tuple from socket.gethostbyaddr()
+        try:
+            addr = socket.gethostbyaddr(host)
+        except socket.herror, e:
+            if e.errno == 1:
+                log.info("Host %s has no PTR DNS entry -- refusing Kickstart" \
+                         % host)
+                s = "Your host does not seem to have a PTR record in DNS."
+                raise WebKickstartError(s)
+            else:
+                # Something bad happened
+                raise
+
+        return addr
+
+    def getToken(self):
+        # Parse the URI and see if the client supplied an installation token
+        # We are looking for t=token out of the query part of the URL
+        u = urlparse.urlparse(self.url)
+        if u.query == "":
+            return None
+
+        d = urlparse.parse_qs(u.query)
+        if 't' not in d:
+            return None
+
+        # Yes, there is a list here, we take the first token we find
+        token = d['t'][0]
+        if "." in token or "/" in token:
+            # You may not use tokens to fetch another machine's configuration
+            # from its FQDN-based Web-Kickstart config!
+            raise WebKickstartError("Tokens may not contain these characters: / .")
+        return token
+
+
+    def findMC(self, fqdn):
+        global mcCache, mcCacheRoot
+        key = fqdn.lower()
+        root = os.path.normpath(self.cfg.hosts)
+        if root == mcCacheRoot and key in mcCache:
+            flag = True
+            for file in mcCache[key]:
+                flag = flag and os.path.exists(file)
+            if flag:
+                log.debug("Cache Hit: %s" % str(mcCache[key]))
+                return [ MetaParser(f) for f in mcCache[key] ]
+
+        log.debug("Cache MISS: %s" % key)
+        return self.rebuildCache(fqdn)
+
+    def resolveLink(self, ln):
+        # Resolve symbolic links to their real ABS path
+        if not os.path.islink(ln):
+            return ln
+
+        result = os.readlink(ln)
+        if not os.path.isabs(result):
+            result = os.path.join(os.path.dirname(ln), result)
+        result = os.path.normpath(result)
+
+        return self.resolveLink(result)
+
+    def buildCache(self):
+        root = os.path.normpath(self.cfg.hosts)
+        cache = {}
+        seen = []       # List of processed directories
+
+        def recurse(dir, dict):
+            try:
+                files, dirs = self.getFilesAndDirs(dir)
+            except OSError, e:
+                raise AccessError(str(e))
+
+            for f in files:
+                key = os.path.basename(f).lower()
+                if key in dict:
+                    dict[key].append(f)
+                else:
+                    dict[key] = [f]
+
+            seen.append(dir)
+
+            for d in dirs:
+                realpath = self.resolveLink(d)
+                if not realpath.startswith(root):
+                    s = "Symbolic link %s => %s points outside of hosts directory root"
+                    log.error(s % (d, realpath))
+                    continue
+                if realpath not in seen:
+                    recurse(realpath, dict)
+                else:
+                    log.debug("Directory loop detected: %s => %s" \
+                              % (d, realpath))
+
+        global mcCache, mcCacheRoot
+        recurse(root, cache)
+        mcCacheRoot = root
+        mcCache = cache
+
+    def rebuildCache(self, fqdn):
+        """Return a list of MetaConfigs that match the givin FQDN while
+           rebuilding the assumed old cache objects.  Matches are case
+           insensitive."""
+
+        global mcCache, mcCacheRoot
+        self.buildCache()
+        key = fqdn.lower()
+        if key not in mcCache:
+            return []
+        return [ MetaParser(f) for f in mcCache[key] ]
+
+
+    
+    def collisionDetection(self, host):
+        try:
+            addr = socket.gethostbyaddr(host)
+        except Exception:
+            return (1, "'%s' does not exist in DNS" % host)
+
+        # We look for the A record from DNS...not a CNAME
+        filename = addr[0]
+                         
+        scList = self.rebuildCache(filename)
+
+        if len(scList) > 1:
+            return self.__collisionMessage(scList)
+
+        s = "No collisions found for %s" % filename
+        return (1, s)
+
+        
+    def __collisionMessage(self, scList):
+        s = 'Multiple Web-Kickstart config files found:\n'
+        for sc in scList:
+            s += '\t%s\n' % str(sc)
+            
+        return (1, s)
+
+        
+    def checkConfigHostnames(self):
+        """
+        Check for config files that don't resolve in dns any longer.
+        """
+        root = os.path.normpath(self.cfg.hosts)
+        list = self.__checkConfigHostnamesHelper(root)
+        if len(list) == 0:
+            s = "No config files found that don't resolve in dns."
+        else:
+            s = 'The following configs no longer resolve in dns:\n\n'
+            for config in list:
+                s += '\t%s\n' % config
+        return (1, s)
+
+    
+    def __checkConfigHostnamesHelper(self, dir):
+        configs = []
+        files, dirs = self.getFilesAndDirs(dir)
+        for file in files:
+            # We always get an absoulte file name
+            host = os.path.basename(file)
+            # Make sure host is still in dns
+            try: 
+                socket.gethostbyname(host)
+            
+            # Host that matches config no longer in dns
+            except socket.gaierror:
+                # Make sure file looks like a hostname
+                # (don't want include files)
+                if len(host.split('.')) >= 3:
+                    configs.append(file)
+
+        # iterate of the rest of the subdirectories
+        for d in dirs:
+            configs.extend(self.__checkConfigHostnamesHelper(d))
+            
+        return configs                    
+
+
+    def getFilesAndDirs(self, path):
+        # Split up a directory listing of files and directories
+        dirs = []
+        files = []
+
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+
+        try:
+            dir = os.listdir(path)
+        except OSError, e:
+            log.error("IO Error scanning Web-Kickstart Configs: %s" % str(e))
+            dir = []
+
+        for node in dir:
+            if node.startswith('.'):
+                continue
+            apath = os.path.join(path, node)
+            try:
+                # stat() follows symlinks
+                mode = os.stat(apath).st_mode
+            except os.error, e:
+                log.warning("Error stat()'ing file: %s" % str(e))
+                continue
+            if stat.S_ISDIR(mode):
+                dirs.append(apath)
+            elif stat.S_ISREG(mode):
+                files.append(apath)
+
+        return files, dirs
+

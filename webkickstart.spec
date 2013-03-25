@@ -15,9 +15,10 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 BuildRequires:  python-devel
 
-Requires: python-abi = %(%{__python} -c "import sys ; print sys.version[:3]")
-Requires: mod_python, python-cherrypy, python-genshi
-Requires(post): httpd
+Requires:       python-abi = %(%{__python} -c "import sys ; print sys.version[:3]")
+Requires:       python >= 2.6
+Requires:       python-flask, python-genshi
+Requires(post): nginx
 
 %description
 WebKickstart is an implementation to generate Kickstarts from a Cheetah
@@ -45,12 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 # Log file fun...
 if [ ! -e /var/log/webkickstart.log ] ; then
     touch /var/log/webkickstart.log
-    chown apache:apache /var/log/webkickstart.log
-fi
-
-if [ ! -e /var/log/webkickstart-cherrypy.log ] ; then
-    touch /var/log/webkickstart-cherrypy.log
-    chown apache:apache /var/log/webkickstart-cherrypy.log
+    chown nginx:nginx /var/log/webkickstart.log
 fi
 
 %files
@@ -63,6 +59,9 @@ fi
 
 
 %changelog
+* Mon Mar 25 2013 Jack Neely <jjneely@ncsu.edu  3.4.0
+- Port to Flask and ditch mod_python
+
 * Thu Mar 26 2009 Jack Neely <jjneely@ncsu.edu> 3.1.0-1
 - port all templating to genshi
 
