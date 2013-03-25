@@ -31,7 +31,6 @@ install:
 	install -m 644 webKickstart/*.py $(DESTDIR)$(SITELIB)/webKickstart/
 	
 	install -m 755 scripts/makekickstart.py $(DESTDIR)/usr/share/webKickstart
-	install -m 755 scripts/simplewebkickstart.py $(DESTDIR)/usr/share/webKickstart
 	ln -s /usr/share/webKickstart/makekickstart.py $(DESTDIR)/usr/bin/makekickstart
 	ln -s /usr/share/webKickstart/simplewebkickstart.py $(DESTDIR)/usr/bin/simplewebkickstart
 	
