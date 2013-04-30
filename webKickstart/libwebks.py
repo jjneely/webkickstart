@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 
 import logging
-import webKickstart
+from webKickstart.webks import webKickstart
 import webKickstart.generator
 import webKickstart.configtools
 
@@ -41,7 +41,7 @@ class LibWebKickstart(object):
     def getGenerator(self, fqdn):
         """Returns a dict of TemplateVars or None if host is not defined."""
 
-        wks = webKickstart.webKickstart("fakeurl", {}, self.configDir)
+        wks = webKickstart("fakeurl", {}, self.configDir)
         mcList = wks.findMC(fqdn)
         
         if len(mcList) == 0:
