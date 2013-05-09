@@ -27,11 +27,8 @@ import os
 import os.path
 import errors
 
-# Use WatchedFileHandler from Python2.6 if we are there if not use ours
-try:
-    from logging.handlers import WatchedFileHandler
-except ImportError:
-    from WatchedFileHandler import WatchedFileHandler
+# Use WatchedFileHandler from Python2.6
+from logging.handlers import WatchedFileHandler
 
 log = logging.getLogger('webks')
 
