@@ -2,7 +2,7 @@
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           webkickstart
-Version: 3.4.1
+Version: 3.4.2
 Release:        1%{?dist}
 Summary:        Dynamically generate complex Red Hat Kickstarts.
 
@@ -59,7 +59,11 @@ fi
 
 
 %changelog
-* Mon Mar 25 2013 Jack Neely <jjneely@ncsu.edu  3.4.0
+* Thu May 09 2013 Jack Neely <jjneely@ncsu.edu> 3.4.2
+- Minor bugs
+- Remove WatchedFileHandler as its in Python 2.6 proper
+
+* Mon Mar 25 2013 Jack Neely <jjneely@ncsu.edu>  3.4.0
 - Port to Flask and ditch mod_python
 
 * Thu Mar 26 2009 Jack Neely <jjneely@ncsu.edu> 3.1.0-1
