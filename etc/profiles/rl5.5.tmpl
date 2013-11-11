@@ -83,12 +83,12 @@ logvol $l
 {%      end %}\
 {%      when False %}\
 part /boot --size 512
-part pv.00 --fstype=LVM --size 18432 --grow
+part pv.00 --fstype=LVM --size 19968 --grow
 volgroup Volume00 pv.00
-logvol /          --size 8192 --fstype ext3 --vgname=Volume00 --name=root
 logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
+logvol /          --size 8704 --fstype ext3 --vgname=Volume00 --name=root
 logvol /tmp       --size 2048 --fstype ext3 --vgname=Volume00 --name=tmp
-logvol /var       --size 2048 --fstype ext3 --vgname=Volume00 --name=var
+logvol /var       --size 7168 --fstype ext3 --vgname=Volume00 --name=var
 {%      end %}\
 {% end %}\
 {% end %}{# end skippartition #}

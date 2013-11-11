@@ -27,6 +27,9 @@ network --bootproto dhcp
 url --url $installtree
 
 repo --name=RealmLinux --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/6/base/$arch
+{% if hasattr(enable, "testing") %}\
+repo --name=RealmLinux-Testing --baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/6-testing/base/$arch
+{% end %}\
 {% if defined('repo') %}\
 {%      for r in repo.allRows() %}\
 repo $r
@@ -80,15 +83,20 @@ volgroup $v
 logvol $l
 {%              end %}\
 {%          end %}\
+{%          if defined('btrfs') %}\
+{%              for b in btrfs.allRows() %}\
+btrfs $b
+{%              end %}\
+{%          end %}\
 {%      end %}\
 {%      when False %}\
 part /boot --size 512
-part pv.00 --fstype=LVM --size 18432 --grow
+part pv.00 --fstype=LVM --size 19968 --grow
 volgroup Volume00 pv.00
-logvol /          --size 8192 --fstype ext4 --vgname=Volume00 --name=root
 logvol swap     --recommended --fstype swap --vgname=Volume00 --name=swap
+logvol /          --size 8704 --fstype ext4 --vgname=Volume00 --name=root
 logvol /tmp       --size 2048 --fstype ext4 --vgname=Volume00 --name=tmp
-logvol /var       --size 2048 --fstype ext4 --vgname=Volume00 --name=var
+logvol /var       --size 7168 --fstype ext4 --vgname=Volume00 --name=var
 {%      end %}\
 {% end %}\
 {% end %}{# end skippartition #}
@@ -447,7 +455,7 @@ NETWORK=`/bin/ipcalc $$IP -n $$NETMASK | /bin/cut -d\= -f2`
 GATEWAY=`/sbin/route -n | /bin/awk '/^0\.0\.0\.0/ { print $2 }'`
 HWADDR=`/sbin/ifconfig $$KSDEVICE | /bin/awk '/HWaddr/ { print $5 }'`
 
-# Bcfg2 manages /etc/sysconfig/network by default.  Enabling the
+# Puppet/Bcfg2 manages /etc/sysconfig/network by default.  Enabling the
 # feature-staticip group will turn off modification of this file.
 # Bcfg2 can manage the network configuration files if the local
 # SA codes the spefic information into the specification.
@@ -502,17 +510,52 @@ FQDN="${webKickstart.remoteHost}"
     --serverUrl https://rhn.linux.ncsu.edu/XMLRPC \
     --sslCACert /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT 
 
-# Run Yum/Bcfg2 update
-/usr/bin/yum -y update yum bcfg2 rlmtools
-{% choose defined('rlmtoolssession') %}\
-{%      when True %}\
-/usr/bin/ncsuclient --session ${rlmtoolssession}
-{%      end %}
-{%      when False %}\
-/usr/bin/ncsuclient
-{%      end %}\
+# Before running the CM Engine we need to configure the Yum repos
+# to install any needed packages.  These files will be managed by the CM
+{% if hasattr(enable, "testing") %}\
+cat << EOF > /etc/yum.repos.d/realmlinux-testing.repo
+[realmlinux-base-testing]
+name=Realm Linux \$$releasever Testing - \$$basearch
+baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/6-testing/base/\$$basearch
+enabled=1
+gpgkey=http://www.linux.ncsu.edu/realm_linux/realmlinux.gpg
+gpgcheck=0
+EOF
 {% end %}\
+cat << EOF > /etc/yum.repos.d/realmlinux.repo
+[realmlinux-base]
+name=Realm Linux \$$releasever - \$$basearch
+baseurl=http://install.linux.ncsu.edu/pub/yum/CLS/RealmLinux/6/base/\$$basearch
+enabled=1
+gpgkey=http://www.linux.ncsu.edu/realm_linux/realmlinux.gpg
+gpgcheck=1
+EOF
+
+# Set the Hostname
+/bin/hostname $$FQDN
+
+# Run Puppet/Bcfg2
+{% python
+    if defined('bcfg2pw') and not defined('puppet'):
+        strap = "--bcfg2 -p realmlinux-el6-%s" % arch
+        boot = "bcfg2"
+    else:
+        strap = "--puppet"
+        boot = "puppet"
+    if defined('rlmtoolssession'):
+        strap = "%s --session %s" % (strap, rlmtoolssession)
+%}\
+{% choose boot %}\
+{%      when "bcfg2" %}\
+/usr/bin/yum -y install yum rlmtools bcfg2
+{%      end %}\
+{%      when "puppet" %}\
+/usr/bin/yum -y install yum rlmtools puppet
+{%      end %}\
+{% end %}
 /usr/bin/yum -y update
+
+/usr/bin/ncsubootstrap ${strap}
 
 {% if not hasattr(enable, 'noreinstall') %}\
 # set up a reinstall image using the realmlinux-reinstall package's
@@ -522,11 +565,10 @@ FQDN="${webKickstart.remoteHost}"
    --title="Reinstall Workstation (PXE)" --copy-default
 {% end %}\
 
-# Bootstrap Bcfg2
-/usr/bin/ncsubootstrap -p realmlinux-el6-${arch}
-
+{% if boot == "bcfg2" %}\
 echo "Running Bcfg2 again..."
 /usr/sbin/bcfg2 -v
+{% end %}\
 chvt 1
 
 ) 2>&1 | /usr/bin/tee /root/rl.post
